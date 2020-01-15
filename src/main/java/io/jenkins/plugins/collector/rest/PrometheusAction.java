@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 @Extension
 public class PrometheusAction implements UnprotectedRootAction {
 
-  private static final Logger logger = LoggerFactory.getLogger(PrometheusAction.class);
-
   private PrometheusMetrics prometheusMetrics;
 
   @Inject
