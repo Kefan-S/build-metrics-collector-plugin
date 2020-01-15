@@ -1,4 +1,4 @@
-package io.jenkins.plugins.sample;
+package io.jenkins.plugins.collector;
 
 import hudson.Launcher;
 import hudson.Extension;
