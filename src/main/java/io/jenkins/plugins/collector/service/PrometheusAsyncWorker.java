@@ -26,7 +26,7 @@ public class PrometheusAsyncWorker extends AsyncPeriodicWork {
 
     @Override
     public long getRecurrencePeriod() {
-        long collectingMetricsPeriodInMillis = TimeUnit.SECONDS.toMillis(300);
+        long collectingMetricsPeriodInMillis = TimeUnit.SECONDS.toMillis(60);
         logger.debug("Setting recurrence period to {} in milliseconds", collectingMetricsPeriodInMillis);
         return collectingMetricsPeriodInMillis;
     }
