@@ -2,6 +2,7 @@ package io.jenkins.plugins.collector;
 
 
 import hudson.model.Job;
+import hudson.model.Result;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.util.Jobs;
 import io.prometheus.client.Collector;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class JobCollector extends Collector {
@@ -34,69 +36,97 @@ public class JobCollector extends Collector {
 
 
     jobDuration = Gauge.build()
-        .name(fullname + "_last_build_duration_milliseconds")
+        .name(fullname + "_last_build_duration_in_milliseconds")
         .subsystem(subsystem).namespace(namespace)
         .labelNames(labelNameArray)
         .help("Last Build times in milliseconds")
         .create();
 
     jobStartTime = Gauge.build()
-        .name(fullname + "_last_build_start_time_milliseconds")
+        .name(fullname + "_last_build_start_time_in_milliseconds")
         .subsystem(subsystem).namespace(namespace)
         .labelNames(labelNameArray)
         .help("Last Build Start Time in milliseconds")
         .create();
 
     jobResult = Gauge.build()
-        .name(fullname + "_last_build_result")
+        .name(fullname + "_last_build_result_code")
         .subsystem(subsystem).namespace(namespace)
         .labelNames(labelNameArray)
         .help("Last Build Result")
         .create();
 
     jobRecoverTime = Gauge.build()
-        .name(fullname + "_failed_build_recover_time")
+        .name(fullname + "_failed_build_recovery_time")
         .subsystem(subsystem).namespace(namespace)
         .labelNames(labelNameArray)
-        .help("Failed Build Recover Time in milliseconds")
+        .help("Failed Build Recovery Time in milliseconds")
         .create();
 
     Jobs.forEachJob(job -> {
+
       logger.debug("Determining if we are already appending metrics for job [{}]", job.getName());
 
+      String jobFullName = job.getFullName();
+
       if (!job.isBuildable()) {
-        logger.debug("job [{}] is disabled", job.getFullName());
+        logger.debug("job [{}] is disabled", jobFullName);
         return;
       }
 
       for (Job old : jobs) {
-        if (old.getFullName().equals(job.getFullName())) {
-          // already added
+        if (old.getFullName().equals(jobFullName)) {
           logger.debug("Job [{}] is already added", job.getName());
           return;
         }
       }
       logger.debug("Job [{}] is not already added. Appending its metrics", job.getName());
+
       jobs.add(job);
 
-      Run lastBuild = job.getLastBuild();
-      if (lastBuild != null) {
-        jobDuration
-            .labels(job.getFullName())
-            .set(lastBuild.getDuration());
-        jobStartTime
-            .labels(job.getFullName())
-            .set(lastBuild.getStartTimeInMillis());
-        jobResult
-            .labels(job.getFullName())
-            .set(lastBuild.getResult().ordinal < 1 ? 1 : 0);
-      }
+      setBuildMetricsForEachJob(job, jobFullName);
 
     });
 
     samples.addAll(jobDuration.collect());
     samples.addAll(jobStartTime.collect());
     samples.addAll(jobResult.collect());
+    samples.addAll(jobRecoverTime.collect());
     return samples;
+  }
+
+  private void setBuildMetricsForEachJob(Job job, String jobFullName) {
+    Run lastBuild = job.getLastBuild();
+    if (lastBuild != null) {
+      setJobRecoverTime(Jobs.failedJobMap, jobFullName, lastBuild);
+
+      jobDuration
+          .labels(jobFullName)
+          .set(lastBuild.getDuration());
+      jobStartTime
+          .labels(jobFullName)
+          .set(lastBuild.getStartTimeInMillis());
+      jobResult
+          .labels(jobFullName)
+          .set(lastBuild.getResult() == Result.SUCCESS ? 1 : 0);
+    }
+  }
+
+  private void setJobRecoverTime(HashMap<String, Run> failedJob, String jobFullName, Run lastBuild) {
+    Run failedBuild = failedJob.getOrDefault(jobFullName, null);
+    if (lastBuild.getResult() != Result.SUCCESS && failedBuild == null) {
+      logger.info("set failedJob [{}]", failedJob.get(jobFullName));
+      failedJob.put(jobFullName, lastBuild);
+    }
+    if (lastBuild.getResult() == Result.SUCCESS && failedBuild != null) {
+      logger.info("set recovery time [{}]", lastBuild.getDisplayName());
+      jobRecoverTime.labels(jobFullName)
+          .set(getJobEndTime(lastBuild) - getJobEndTime(failedBuild));
+      failedJob.remove(jobFullName);
+    }
+  }
+
+  private long getJobEndTime(Run build) {
+    return build.getStartTimeInMillis() + build.getDuration();
   }
 }
