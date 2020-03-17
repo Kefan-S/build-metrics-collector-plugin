@@ -1,7 +1,6 @@
 package io.jenkins.plugins.collector;
 
 
-import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.util.Jobs;
