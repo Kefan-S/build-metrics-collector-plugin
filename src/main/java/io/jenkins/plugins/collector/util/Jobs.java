@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 public class Jobs {
   public static HashMap<String, Run> failedJobMap = new HashMap<>();
+  public static HashMap<String, Run> LastBuildMap = new HashMap<>();
 
   public static void forEachJob(Consumer<Job> consumer) {
     List<Item> items = Jenkins.getInstanceOrNull().getAllItems();

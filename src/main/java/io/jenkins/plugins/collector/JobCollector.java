@@ -23,6 +23,7 @@ public class JobCollector extends Collector {
   private Gauge jobResult;
   private Gauge jobStartTime;
   private Gauge jobRecoverTime;
+  private Gauge jobLeadTime;
   private Counter jobSuccessCount;
   private Counter jobFailedCount;
 
@@ -32,7 +33,6 @@ public class JobCollector extends Collector {
 
     String namespace = "default";
     List<MetricFamilySamples> samples = new ArrayList<>();
-    List<Job> jobs = new ArrayList<>();
     String fullname = "builds";
     String subsystem = "jenkins";
     String[] labelNameArray = {"jenkins_job"};
@@ -66,6 +66,13 @@ public class JobCollector extends Collector {
         .help("Failed Build Recovery Time in milliseconds")
         .create();
 
+    jobLeadTime = Gauge.build()
+        .name(fullname + "_merge_lead_time")
+        .subsystem(subsystem).namespace(namespace)
+        .labelNames(labelNameArray)
+        .help("Code Merge Lead Time in milliseconds")
+        .create();
+
     jobSuccessCount = Counter.build()
         .name(fullname + "_all_success_build_count")
         .subsystem(subsystem).namespace(namespace)
@@ -91,18 +98,12 @@ public class JobCollector extends Collector {
         return;
       }
 
-      for (Job old : jobs) {
-        if (old.getFullName().equals(jobFullName)) {
-          logger.debug("Job [{}] is already added", job.getName());
-          return;
-        }
-      }
       logger.debug("Job [{}] is not already added. Appending its metrics", job.getName());
 
-      jobs.add(job);
-
-      setBuildMetricsForEachJob(job, jobFullName);
-
+      Run lastBuild = job.getLastBuild();
+      if (lastBuild != null) {
+        setBuildMetricsForLastBuild(lastBuild, jobFullName);
+      }
     });
 
     samples.addAll(jobDuration.collect());
@@ -111,45 +112,64 @@ public class JobCollector extends Collector {
     samples.addAll(jobRecoverTime.collect());
     samples.addAll(jobSuccessCount.collect());
     samples.addAll(jobFailedCount.collect());
+    samples.addAll(jobLeadTime.collect());
     return samples;
   }
 
-  private void setBuildMetricsForEachJob(Job job, String jobFullName) {
-    Run lastBuild = job.getLastBuild();
-    if (lastBuild != null) {
-      setJobRecoverTime(Jobs.failedJobMap, jobFullName, lastBuild);
+  private void setBuildMetricsForLastBuild(Run lastBuild, String jobFullName) {
 
-      jobDuration
-          .labels(jobFullName)
-          .set(lastBuild.getDuration());
-      jobStartTime
-          .labels(jobFullName)
-          .set(lastBuild.getStartTimeInMillis());
-      jobResult
-          .labels(jobFullName)
-          .set(lastBuild.getResult() == Result.SUCCESS ? 1 : 0);
-      while (lastBuild != null) {
-        if (lastBuild.getResult() == Result.SUCCESS) {
-          jobSuccessCount.labels(jobFullName).inc();
-        } else {
-          jobFailedCount.labels(jobFullName).inc();
-        }
-        lastBuild = lastBuild.getPreviousBuild();
+    if (!updateLastBuildMap(jobFullName, lastBuild)) return;
+
+    setRecoveryAndLeadTimeMetrics(Jobs.failedJobMap, jobFullName, lastBuild);
+
+    jobDuration
+        .labels(jobFullName)
+        .set(lastBuild.getDuration());
+    jobStartTime
+        .labels(jobFullName)
+        .set(lastBuild.getStartTimeInMillis());
+    jobResult
+        .labels(jobFullName)
+        .set(lastBuild.getResult() == Result.SUCCESS ? 1 : 0);
+    setFailedAndSuccessBuildsCount(lastBuild, jobFullName);
+  }
+
+  private void setFailedAndSuccessBuildsCount(Run lastBuild, String jobFullName) {
+    while (lastBuild != null) {
+      if (lastBuild.getResult() == Result.SUCCESS) {
+        jobSuccessCount.labels(jobFullName).inc();
+      } else {
+        jobFailedCount.labels(jobFullName).inc();
       }
+      lastBuild = lastBuild.getPreviousBuild();
     }
   }
 
-  private void setJobRecoverTime(HashMap<String, Run> failedJob, String jobFullName, Run lastBuild) {
+  private boolean updateLastBuildMap(String jobFullName, Run lastBuild) {
+    Run cacheLastBuild = Jobs.LastBuildMap.getOrDefault(jobFullName, null);
+    if (cacheLastBuild != null && lastBuild.getNumber() == cacheLastBuild.getNumber()) {
+      return false;
+    }
+    Jobs.LastBuildMap.put(jobFullName, lastBuild);
+    return true;
+  }
+
+  private void setRecoveryAndLeadTimeMetrics(HashMap<String, Run> failedJob, String jobFullName, Run lastBuild) {
     Run failedBuild = failedJob.getOrDefault(jobFullName, null);
     if (lastBuild.getResult() != Result.SUCCESS && failedBuild == null) {
       logger.info("set failedJob [{}]", failedJob.get(jobFullName));
       failedJob.put(jobFullName, lastBuild);
     }
-    if (lastBuild.getResult() == Result.SUCCESS && failedBuild != null) {
-      logger.info("set recovery time [{}]", lastBuild.getDisplayName());
-      jobRecoverTime.labels(jobFullName)
-          .set(getJobEndTime(lastBuild) - getJobEndTime(failedBuild));
-      failedJob.remove(jobFullName);
+    if (lastBuild.getResult() == Result.SUCCESS) {
+      if (failedBuild != null) {
+        logger.info("set recovery time [{}]", lastBuild.getDisplayName());
+        jobRecoverTime.labels(jobFullName)
+            .set(getJobEndTime(lastBuild) - getJobEndTime(failedBuild));
+        jobLeadTime.labels(jobFullName).set(getJobEndTime(lastBuild) - failedBuild.getStartTimeInMillis());
+        failedJob.remove(jobFullName);
+      } else {
+        jobLeadTime.labels(jobFullName).set(lastBuild.getDuration());
+      }
     }
   }
 
