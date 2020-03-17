@@ -6,6 +6,7 @@ import hudson.model.Result;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.util.Jobs;
 import io.prometheus.client.Collector;
+import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ public class JobCollector extends Collector {
   private Gauge jobResult;
   private Gauge jobStartTime;
   private Gauge jobRecoverTime;
+  private Counter jobSuccessCount;
+  private Counter jobFailedCount;
 
 
   @Override
@@ -63,6 +66,20 @@ public class JobCollector extends Collector {
         .help("Failed Build Recovery Time in milliseconds")
         .create();
 
+    jobSuccessCount = Counter.build()
+        .name(fullname + "_all_success_build_count")
+        .subsystem(subsystem).namespace(namespace)
+        .labelNames(labelNameArray)
+        .help("Successful build count")
+        .create();
+
+    jobFailedCount = Counter.build()
+        .name(fullname + "_all_failed_build_count")
+        .subsystem(subsystem).namespace(namespace)
+        .labelNames(labelNameArray)
+        .help("Failed build count")
+        .create();
+
     Jobs.forEachJob(job -> {
 
       logger.debug("Determining if we are already appending metrics for job [{}]", job.getName());
@@ -92,6 +109,8 @@ public class JobCollector extends Collector {
     samples.addAll(jobStartTime.collect());
     samples.addAll(jobResult.collect());
     samples.addAll(jobRecoverTime.collect());
+    samples.addAll(jobSuccessCount.collect());
+    samples.addAll(jobFailedCount.collect());
     return samples;
   }
 
@@ -109,6 +128,14 @@ public class JobCollector extends Collector {
       jobResult
           .labels(jobFullName)
           .set(lastBuild.getResult() == Result.SUCCESS ? 1 : 0);
+      while (lastBuild != null) {
+        if (lastBuild.getResult() == Result.SUCCESS) {
+          jobSuccessCount.labels(jobFullName).inc();
+        } else {
+          jobFailedCount.labels(jobFullName).inc();
+        }
+        lastBuild = lastBuild.getPreviousBuild();
+      }
     }
   }
 
