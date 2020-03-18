@@ -108,7 +108,7 @@ public class JobCollector extends Collector {
       logger.debug("Job [{}] is not already added. Appending its metrics", job.getName());
 
       Run lastBuild = job.getLastBuild();
-      if (lastBuild != null) {
+      if (lastBuild != null && lastBuild.getResult() != null) {
         setBuildMetricsForLastBuild(lastBuild, jobFullName);
       }
     });
