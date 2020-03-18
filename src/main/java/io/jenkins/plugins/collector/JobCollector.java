@@ -24,6 +24,7 @@ public class JobCollector extends Collector {
   private Gauge jobRecoverTime;
   private Gauge jobLeadTime;
   private Counter jobSuccessCount;
+  private Counter jobTotalCount;
   private Counter jobFailedCount;
 
 
@@ -73,14 +74,21 @@ public class JobCollector extends Collector {
         .create();
 
     jobSuccessCount = Counter.build()
-        .name(fullname + "_all_success_build_count")
+        .name(fullname + "_success_build_total_count")
         .subsystem(subsystem).namespace(namespace)
         .labelNames(labelNameArray)
         .help("Successful build count")
         .create();
 
+    jobTotalCount = Counter.build()
+        .name(fullname + "_build_total_count")
+        .subsystem(subsystem).namespace(namespace)
+        .labelNames(labelNameArray)
+        .help("All build count")
+        .create();
+
     jobFailedCount = Counter.build()
-        .name(fullname + "_all_failed_build_count")
+        .name(fullname + "_failed_build_total_count")
         .subsystem(subsystem).namespace(namespace)
         .labelNames(labelNameArray)
         .help("Failed build count")
@@ -112,6 +120,7 @@ public class JobCollector extends Collector {
     samples.addAll(jobSuccessCount.collect());
     samples.addAll(jobFailedCount.collect());
     samples.addAll(jobLeadTime.collect());
+    samples.addAll(jobTotalCount.collect());
     return samples;
   }
 
@@ -135,6 +144,7 @@ public class JobCollector extends Collector {
 
   private void setFailedAndSuccessBuildsCount(Run lastBuild, String jobFullName) {
     while (lastBuild != null) {
+      jobTotalCount.labels(jobFullName).inc();
       if (lastBuild.getResult() == Result.SUCCESS) {
         jobSuccessCount.labels(jobFullName).inc();
       } else {
