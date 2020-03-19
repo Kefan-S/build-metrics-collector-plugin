@@ -13,7 +13,12 @@ import java.util.function.Consumer;
 public class Jobs {
 
   public static void forEachJob(Consumer<Job> consumer) {
-    List<Item> items = Jenkins.getInstanceOrNull().getAllItems();
+
+    Jenkins jenkins = Jenkins.getInstanceOrNull();
+    if (jenkins == null) {
+      return;
+    }
+    List<Item> items = jenkins.getAllItems();
     if (items != null) {
       for (Item item : items) {
         Collection<? extends Job> jobs = item.getAllJobs();
