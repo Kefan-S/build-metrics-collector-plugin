@@ -3,6 +3,7 @@ package io.jenkins.plugins.collector;
 
 import hudson.model.Result;
 import hudson.model.Run;
+import io.jenkins.plugins.collector.util.CachedBuilds;
 import io.jenkins.plugins.collector.util.Jobs;
 import io.prometheus.client.Collector;
 import io.prometheus.client.Counter;
@@ -11,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class JobCollector extends Collector {
@@ -26,7 +26,7 @@ public class JobCollector extends Collector {
   private Counter jobSuccessCount;
   private Counter jobTotalCount;
   private Counter jobFailedCount;
-
+  private CachedBuilds cachedBuilds = new CachedBuilds();
 
   @Override
   public List<MetricFamilySamples> collect() {
@@ -128,7 +128,7 @@ public class JobCollector extends Collector {
 
     if (!updateLastBuildMap(jobFullName, lastBuild)) return;
 
-    setRecoveryAndLeadTimeMetrics(Jobs.failedJobMap, jobFullName, lastBuild);
+    setRecoveryAndLeadTimeMetrics(jobFullName, lastBuild);
 
     jobDuration
         .labels(jobFullName)
@@ -155,19 +155,18 @@ public class JobCollector extends Collector {
   }
 
   private boolean updateLastBuildMap(String jobFullName, Run lastBuild) {
-    Run cacheLastBuild = Jobs.LastBuildMap.getOrDefault(jobFullName, null);
+    Run cacheLastBuild = cachedBuilds.getLastBuildByJobName(jobFullName);
     if (cacheLastBuild != null && lastBuild.getNumber() == cacheLastBuild.getNumber()) {
       return false;
     }
-    Jobs.LastBuildMap.put(jobFullName, lastBuild);
+    cachedBuilds.putLastBuild(jobFullName, lastBuild);
     return true;
   }
 
-  private void setRecoveryAndLeadTimeMetrics(HashMap<String, Run> failedJob, String jobFullName, Run lastBuild) {
-    Run failedBuild = failedJob.getOrDefault(jobFullName, null);
+  private void setRecoveryAndLeadTimeMetrics(String jobFullName, Run lastBuild) {
+    Run failedBuild = cachedBuilds.getFailedJobByJobName(jobFullName);
     if (lastBuild.getResult() != Result.SUCCESS && failedBuild == null) {
-      logger.info("set failedJob [{}]", failedJob.get(jobFullName));
-      failedJob.put(jobFullName, lastBuild);
+      cachedBuilds.putFailedJob(jobFullName, lastBuild);
     }
     if (lastBuild.getResult() == Result.SUCCESS) {
       if (failedBuild != null) {
@@ -175,7 +174,7 @@ public class JobCollector extends Collector {
         jobRecoverTime.labels(jobFullName)
             .set(getJobEndTime(lastBuild) - getJobEndTime(failedBuild));
         jobLeadTime.labels(jobFullName).set(getJobEndTime(lastBuild) - failedBuild.getStartTimeInMillis());
-        failedJob.remove(jobFullName);
+        cachedBuilds.removeFailedJobByJobName(jobFullName);
       } else {
         jobLeadTime.labels(jobFullName).set(lastBuild.getDuration());
       }
