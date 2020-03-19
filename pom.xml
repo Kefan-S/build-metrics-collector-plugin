@@ -20,6 +20,7 @@
     </properties>
 
     <name>Build Metrics Collector Plugin</name>
+    <description>Expose Jenkins metrics in prometheus format</description>
 
     <licenses>
         <license>
