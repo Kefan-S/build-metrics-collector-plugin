@@ -28,19 +28,16 @@ public class PrometheusAsyncWorker extends AsyncPeriodicWork {
 
     @Override
     public long getRecurrencePeriod() {
-        long collectingMetricsPeriodInSeconds = PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds();
-
+        long collectingMetricsPeriodInSeconds = TimeUnit.SECONDS.toMillis(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
         logger.debug("Setting recurrence period to {} in seconds", PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
         return collectingMetricsPeriodInSeconds;
-
-//        return TimeUnit.SECONDS.toMillis(15);
     }
 
     @Override
     public void execute(TaskListener taskListener) {
-        logger.info("Collecting prometheus metrics");
+        logger.debug("Collecting prometheus metrics");
         prometheusMetrics.collectMetrics();
-        logger.info("Prometheus metrics collected successfully");
+        logger.debug("Prometheus metrics collected successfully");
     }
 
 }
