@@ -4,9 +4,11 @@ import com.google.inject.Inject;
 import hudson.Extension;
 import hudson.model.AsyncPeriodicWork;
 import hudson.model.TaskListener;
-import java.util.concurrent.TimeUnit;
+import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 @Extension
 public class PrometheusAsyncWorker extends AsyncPeriodicWork {
@@ -26,9 +28,9 @@ public class PrometheusAsyncWorker extends AsyncPeriodicWork {
 
     @Override
     public long getRecurrencePeriod() {
-        long collectingMetricsPeriodInMillis = TimeUnit.SECONDS.toMillis(15);
-        logger.debug("Setting recurrence period to {} in milliseconds", collectingMetricsPeriodInMillis);
-        return collectingMetricsPeriodInMillis;
+        long collectingMetricsPeriodInSeconds = TimeUnit.SECONDS.toMillis(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
+        logger.debug("Setting recurrence period to {} in seconds", PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
+        return collectingMetricsPeriodInSeconds;
     }
 
     @Override
