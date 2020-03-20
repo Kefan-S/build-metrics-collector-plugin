@@ -14,7 +14,7 @@ code delivery time from codebase to environment.
 ## Environment variables
 `COLLECTING_METRICS_PERIOD_IN_SECONDS` Async task period in seconds (Default: `15` seconds), which is used to refresh the metrics data. 
 
-**Notice:** this value should be less than the scrape_interval of the prometheus to ensure the correctness of the metrics data.
+**Notice:** this value should be equal to the scrape_interval of the prometheus to ensure the correctness of the metrics data.
 
 ## Collected data
 * *default_jenkins_builds_last_build_duration_in_milliseconds*: Last Build duration times in milliseconds
@@ -22,9 +22,6 @@ code delivery time from codebase to environment.
 * *default_jenkins_builds_last_build_result_code*: Last Build result: 0 represents failed and 1 for success
 * *default_jenkins_builds_failed_build_recovery_time*: Failed Build recovery time in milliseconds
 * *default_jenkins_builds_merge_lead_time*: Code delivery time from codebase to environment in milliseconds
-* *default_jenkins_builds_success_build_total_count*:
-* *default_jenkins_builds_failed_build_total_count*:
-* *default_jenkins_builds_build_total_count*:
 
 ## Prometheus query example
 
