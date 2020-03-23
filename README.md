@@ -5,11 +5,14 @@ Jenkins Build Metrics Collector Plugin expose an endpoint (default `/prometheus`
 The collected data could help to evaluate software delivery and operational performance.
 
 ## Presume
-1. The plug-in only supports data statistics for each single pipeline, and does not support consolidated data for multiple pipelines.
+1. The plugin only supports data statistics for each single pipeline, and does not support consolidated data for multiple pipelines.
 For example if you want to calculate the data of production environment, just choose the pipeline for production. 
 
 2. For the delivery lead time, we assume that the pipeline will be triggered by the pushed code, so we can use the pipeline start time to calculate the
 code delivery time from codebase to environment.
+
+3. This plugin will provide data to the prometheus which is a real-time database, so we will not calculate for the historical data in the jenkins. 
+Only care the current status.
 
 ## Environment variables
 `COLLECTING_METRICS_PERIOD_IN_SECONDS` Async task period in seconds (Default: `15` seconds), which is used to refresh the metrics data. 
