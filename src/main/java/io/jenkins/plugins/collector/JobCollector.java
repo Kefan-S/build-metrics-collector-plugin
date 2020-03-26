@@ -3,95 +3,77 @@ package io.jenkins.plugins.collector;
 
 import hudson.model.Result;
 import hudson.model.Run;
+import hudson.util.RunList;
+import io.jenkins.plugins.collector.actions.BuildStatusCounter;
 import io.jenkins.plugins.collector.util.CachedBuilds;
 import io.jenkins.plugins.collector.util.Jobs;
 import io.prometheus.client.Collector;
-import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
+import io.reactivex.rxjava3.core.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import static io.jenkins.plugins.collector.config.Constant.FULLNAME;
+import static io.jenkins.plugins.collector.config.Constant.LABEL_NAME_ARRAY;
+import static io.jenkins.plugins.collector.config.Constant.NAMESPACE;
+import static io.jenkins.plugins.collector.config.Constant.SUBSYSTEM;
 
 public class JobCollector extends Collector {
 
   private static final Logger logger = LoggerFactory.getLogger(JobCollector.class);
+
 
   private Gauge jobDuration;
   private Gauge jobResult;
   private Gauge jobStartTime;
   private Gauge jobRecoverTime;
   private Gauge jobLeadTime;
-  private Counter jobSuccessCount;
-  private Counter jobTotalCount;
-  private Counter jobFailedCount;
   private CachedBuilds cachedBuilds = new CachedBuilds();
 
   @Override
   public List<MetricFamilySamples> collect() {
 
-    String namespace = "default";
     List<MetricFamilySamples> samples = new ArrayList<>();
-    String fullname = "builds";
-    String subsystem = "jenkins";
-    String[] labelNameArray = {"jenkins_job"};
-
 
     jobDuration = Gauge.build()
-        .name(fullname + "_last_build_duration_in_milliseconds")
-        .subsystem(subsystem).namespace(namespace)
-        .labelNames(labelNameArray)
+        .name(FULLNAME + "_last_build_duration_in_milliseconds")
+        .subsystem(SUBSYSTEM).namespace(NAMESPACE)
+        .labelNames(LABEL_NAME_ARRAY)
         .help("Last Build times in milliseconds")
         .create();
 
     jobStartTime = Gauge.build()
-        .name(fullname + "_last_build_start_time_in_milliseconds")
-        .subsystem(subsystem).namespace(namespace)
-        .labelNames(labelNameArray)
+        .name(FULLNAME + "_last_build_start_time_in_milliseconds")
+        .subsystem(SUBSYSTEM).namespace(NAMESPACE)
+        .labelNames(LABEL_NAME_ARRAY)
         .help("Last Build Start Time in milliseconds")
         .create();
 
     jobResult = Gauge.build()
-        .name(fullname + "_last_build_result_code")
-        .subsystem(subsystem).namespace(namespace)
-        .labelNames(labelNameArray)
+        .name(FULLNAME + "_last_build_result_code")
+        .subsystem(SUBSYSTEM).namespace(NAMESPACE)
+        .labelNames(LABEL_NAME_ARRAY)
         .help("Last Build Result")
         .create();
 
     jobRecoverTime = Gauge.build()
-        .name(fullname + "_failed_build_recovery_time")
-        .subsystem(subsystem).namespace(namespace)
-        .labelNames(labelNameArray)
+        .name(FULLNAME + "_failed_build_recovery_time")
+        .subsystem(SUBSYSTEM).namespace(NAMESPACE)
+        .labelNames(LABEL_NAME_ARRAY)
         .help("Failed Build Recovery Time in milliseconds")
         .create();
 
     jobLeadTime = Gauge.build()
-        .name(fullname + "_merge_lead_time")
-        .subsystem(subsystem).namespace(namespace)
-        .labelNames(labelNameArray)
+        .name(FULLNAME + "_merge_lead_time")
+        .subsystem(SUBSYSTEM).namespace(NAMESPACE)
+        .labelNames(LABEL_NAME_ARRAY)
         .help("Code Merge Lead Time in milliseconds")
-        .create();
-
-    jobSuccessCount = Counter.build()
-        .name(fullname + "_success_build_total_count")
-        .subsystem(subsystem).namespace(namespace)
-        .labelNames(labelNameArray)
-        .help("Successful build count")
-        .create();
-
-    jobTotalCount = Counter.build()
-        .name(fullname + "_build_total_count")
-        .subsystem(subsystem).namespace(namespace)
-        .labelNames(labelNameArray)
-        .help("All build count")
-        .create();
-
-    jobFailedCount = Counter.build()
-        .name(fullname + "_failed_build_total_count")
-        .subsystem(subsystem).namespace(namespace)
-        .labelNames(labelNameArray)
-        .help("Failed build count")
         .create();
 
     Jobs.forEachJob(job -> {
@@ -107,6 +89,17 @@ public class JobCollector extends Collector {
 
       logger.debug("Job [{}] is not already added. Appending its metrics", job.getName());
 
+      long end = Instant.now().toEpochMilli();
+
+      ((RunList<Run>) job.getBuilds().byTimestamp(end - 15000, end)).forEach((Run run) -> {
+        System.out.println("Find the build: "+run.getFullDisplayName());
+        Observable.interval(1000, TimeUnit.MILLISECONDS)
+                .map(signal -> run)
+                .filter(build -> Objects.nonNull(build.getResult()))
+                .take(1)
+                .subscribe(BuildStatusCounter.getInstance());
+      });
+
       Run lastBuild = job.getLastBuild();
       if (lastBuild != null && lastBuild.getResult() != null) {
         setBuildMetricsForLastBuild(lastBuild, jobFullName);
@@ -117,10 +110,8 @@ public class JobCollector extends Collector {
     samples.addAll(jobStartTime.collect());
     samples.addAll(jobResult.collect());
     samples.addAll(jobRecoverTime.collect());
-    samples.addAll(jobSuccessCount.collect());
-    samples.addAll(jobFailedCount.collect());
     samples.addAll(jobLeadTime.collect());
-    samples.addAll(jobTotalCount.collect());
+    samples.addAll(BuildStatusCounter.getInstance().getMetricsList());
     return samples;
   }
 
@@ -139,19 +130,6 @@ public class JobCollector extends Collector {
     jobResult
         .labels(jobFullName)
         .set(lastBuild.getResult() == Result.SUCCESS ? 1 : 0);
-    setFailedAndSuccessBuildsCount(lastBuild, jobFullName);
-  }
-
-  private void setFailedAndSuccessBuildsCount(Run lastBuild, String jobFullName) {
-    while (lastBuild != null) {
-      jobTotalCount.labels(jobFullName).inc();
-      if (lastBuild.getResult() == Result.SUCCESS) {
-        jobSuccessCount.labels(jobFullName).inc();
-      } else {
-        jobFailedCount.labels(jobFullName).inc();
-      }
-      lastBuild = lastBuild.getPreviousBuild();
-    }
   }
 
   private boolean updateLastBuildMap(String jobFullName, Run lastBuild) {
