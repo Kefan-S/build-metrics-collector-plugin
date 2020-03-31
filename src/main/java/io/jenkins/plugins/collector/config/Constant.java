@@ -1,8 +1,8 @@
 package io.jenkins.plugins.collector.config;
 
 public interface Constant {
-    String FULLNAME = "builds";
-    String NAMESPACE = "default";
-    String SUBSYSTEM = "jenkins";
-    String[] LABEL_NAME_ARRAY = {"jenkins_job"};
+    String METRICS_NAME_PREFIX = "builds";
+    String METRICS_NAMESPACE = "default";
+    String METRICS_SUBSYSTEM = "jenkins";
+    String[] METRICS_LABEL_NAME_ARRAY = {"jenkins_job"};
 }
