@@ -1,0 +1,11 @@
+language: java
+cache:
+  directories:
+    - .autoconf
+    - $HOME/.m2
+script:
+  - mvn compile
+  - mvn checkstyle:check
+  - mvn pmd:check
+  - mvn findbugs:check
+  - mvn install
