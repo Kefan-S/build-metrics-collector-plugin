@@ -43,18 +43,18 @@ public class JobCollector extends Collector {
       logger.debug("Job [{}] is not already added. Appending its metrics", job.getName());
 
       long end = Instant.now().toEpochMilli();
-      List<Run> unhandleBuilds = uncompletedBuildsMap.getOrDefault(jobFullName, new LinkedList<>());
+      List<Run> unhandledBuilds = uncompletedBuildsMap.getOrDefault(jobFullName, new LinkedList<>());
       long statisticalPeriod = TimeUnit.SECONDS.toMillis(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
-      unhandleBuilds.addAll(job.getBuilds().byTimestamp(end - statisticalPeriod, end));
-      unhandleBuilds.stream()
+      unhandledBuilds.addAll(job.getBuilds().byTimestamp(end - statisticalPeriod, end));
+      unhandledBuilds.stream()
               .filter(build -> !build.isBuilding())
               .findFirst().ifPresent(
               build -> {
                 handleBuild(build);
-                unhandleBuilds.remove(build);
+                unhandledBuilds.remove(build);
               }
       );
-      uncompletedBuildsMap.put(jobFullName, unhandleBuilds);
+      uncompletedBuildsMap.put(jobFullName, unhandledBuilds);
 
     });
 
