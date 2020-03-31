@@ -5,7 +5,10 @@ import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
+import io.jenkins.plugins.collector.exceptions.NoJenkinsException;
 import jenkins.model.Jenkins;
+
+import java.util.Optional;
 
 public class BuildUtil {
     public static boolean isFirstSuccessfulBuildAfterError(Run matchedBuild, Run currentBuild) {
@@ -37,7 +40,10 @@ public class BuildUtil {
     private static String getTrigger(Run build) {
         Cause.UpstreamCause upstreamCause = (Cause.UpstreamCause) build.getCause(Cause.UpstreamCause.class);
         if (upstreamCause != null) {
-            Job job = Jenkins.getInstanceOrNull().getItemByFullName(upstreamCause.getUpstreamProject(), Job.class);
+            Job job = Optional.ofNullable(Jenkins.getInstanceOrNull())
+                    .map(r -> r.getItemByFullName(upstreamCause.getUpstreamProject(), Job.class))
+                    .orElseThrow(NoJenkinsException::new);
+
             if (job != null) {
                 Run upstream = job.getBuildByNumber(upstreamCause.getUpstreamBuild());
                 if (upstream != null) {
@@ -53,10 +59,10 @@ public class BuildUtil {
 
         Cause.UserIdCause userIdCause = (Cause.UserIdCause) build.getCause(Cause.UserIdCause.class);
         if(userIdCause != null) {
-            return userIdCause.getUserId();
+            return Optional.ofNullable(userIdCause.getUserId()).orElse("Unknown User");
         }
 
-       return null;
+       return "UnKnown";
     }
 
     public static String[] getLabels(Run build){
