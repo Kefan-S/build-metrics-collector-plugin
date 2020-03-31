@@ -18,7 +18,7 @@ import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuild
 import static io.jenkins.plugins.collector.util.CustomizeMetrics.addCollector;
 
 public class LeadTimeHandler implements BiConsumer<String[], Run>{
-    public Gauge LEAD_TIME_IN_LAST_STATISTICAL_PERIOD = Gauge.build()
+    private Gauge leadTimeMetrics = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_merge_lead_time")
             .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
             .labelNames(METRICS_LABEL_NAME_ARRAY)
@@ -36,8 +36,8 @@ public class LeadTimeHandler implements BiConsumer<String[], Run>{
 
     private Consumer<Long> setLeadTimeThenPush(String[] labels) {
         return leadTime -> {
-            LEAD_TIME_IN_LAST_STATISTICAL_PERIOD.labels(labels).set(leadTime);
-            addCollector(LEAD_TIME_IN_LAST_STATISTICAL_PERIOD);
+            this.leadTimeMetrics.labels(labels).set(leadTime);
+            addCollector(this.leadTimeMetrics);
         };
     }
 

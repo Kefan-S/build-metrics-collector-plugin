@@ -12,21 +12,21 @@ import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 import static io.jenkins.plugins.collector.util.CustomizeMetrics.addCollector;
 
 public class BuildInfoHandler implements BiConsumer<String[], Run> {
-    public Gauge ONE_BUILD_RESULT_FROM_LAST_STATISTICAL_PERIOD = Gauge.build()
+    private Gauge buildResultMetrics = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_last_build_result_code")
             .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
             .labelNames(METRICS_LABEL_NAME_ARRAY)
             .help("One build result")
             .create();
 
-    public Gauge ONE_BUILD_DURATION_FROM_LAST_STATISTICAL_PERIOD = Gauge.build()
+    private Gauge buildDurationMetrics = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
             .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
             .labelNames(METRICS_LABEL_NAME_ARRAY)
             .help("One build duration in milliseconds")
             .create();
 
-    public Gauge ONE_BUILD_STARTTIME_FROM_LAST_STATISTICAL_PERIOD = Gauge.build()
+    private Gauge buildStartTimeMetrics = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_last_build_start_timestamp")
             .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
             .labelNames(METRICS_LABEL_NAME_ARRAY)
@@ -34,11 +34,11 @@ public class BuildInfoHandler implements BiConsumer<String[], Run> {
             .create();
 
     public void accept(String[] labels, Run build) {
-        ONE_BUILD_DURATION_FROM_LAST_STATISTICAL_PERIOD.labels(labels).set(build.getDuration());
-        ONE_BUILD_RESULT_FROM_LAST_STATISTICAL_PERIOD.labels(labels).set(build.getResult().ordinal);
-        ONE_BUILD_STARTTIME_FROM_LAST_STATISTICAL_PERIOD.labels(labels).set(build.getStartTimeInMillis());
-        addCollector(ONE_BUILD_RESULT_FROM_LAST_STATISTICAL_PERIOD);
-        addCollector(ONE_BUILD_DURATION_FROM_LAST_STATISTICAL_PERIOD);
-        addCollector(ONE_BUILD_STARTTIME_FROM_LAST_STATISTICAL_PERIOD);
+        buildDurationMetrics.labels(labels).set(build.getDuration());
+        buildResultMetrics.labels(labels).set(build.getResult().ordinal);
+        buildStartTimeMetrics.labels(labels).set(build.getStartTimeInMillis());
+        addCollector(buildResultMetrics);
+        addCollector(buildDurationMetrics);
+        addCollector(buildStartTimeMetrics);
     }
 }
