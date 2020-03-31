@@ -29,7 +29,7 @@ public class Context extends AbstractModule {
     @Provides
     @Singleton
     @Named("successBuildHandler")
-    BiConsumer<String, Run> composeSuccessBuildHandler() {
+    BiConsumer<String[], Run> composeSuccessBuildHandler() {
         return new LeadTimeHandler()
                 .andThen(new RecoverTimeHandler());
     }

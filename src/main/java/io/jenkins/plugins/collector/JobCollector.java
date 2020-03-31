@@ -50,7 +50,7 @@ public class JobCollector extends Collector {
               .filter(build -> !build.isBuilding())
               .findFirst().ifPresent(
               build -> {
-                handleBuild(jobFullName, build);
+                handleBuild(build);
                 unhandleBuilds.remove(build);
               }
       );

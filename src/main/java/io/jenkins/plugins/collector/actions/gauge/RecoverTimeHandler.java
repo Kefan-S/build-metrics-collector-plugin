@@ -17,7 +17,7 @@ import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
 
-public class RecoverTimeHandler implements BiConsumer<String, Run>{
+public class RecoverTimeHandler implements BiConsumer<String[], Run>{
 
     public Gauge RECOVER_TIME_IN_LAST_STATISTICAL_PERIOD = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_failed_build_recovery_time")
@@ -27,17 +27,17 @@ public class RecoverTimeHandler implements BiConsumer<String, Run>{
             .create();
 
     @Override
-    public void accept(String label, Run successBuilds) {
+    public void accept(String[] labels, Run successBuilds) {
         Optional.of(successBuilds)
                 .filter(successBuild -> isFirstSuccessfulBuildAfterError(successBuild.getNextBuild(), successBuild))
                 .map(successBuild -> calculateRecoverTime(successBuild.getPreviousBuild(), successBuild))
                 .filter(recoverTime -> recoverTime > 0)
-                .ifPresent(setRecoverTimeThenPush(label));
+                .ifPresent(setRecoverTimeThenPush(labels));
     }
 
-    private Consumer<Long> setRecoverTimeThenPush(String label) {
+    private Consumer<Long> setRecoverTimeThenPush(String[] labels) {
         return recoverTime -> {
-            RECOVER_TIME_IN_LAST_STATISTICAL_PERIOD.labels(label).set(recoverTime);
+            RECOVER_TIME_IN_LAST_STATISTICAL_PERIOD.labels(labels).set(recoverTime);
             CustomizeMetrics.addCollector(RECOVER_TIME_IN_LAST_STATISTICAL_PERIOD);
         };
     }

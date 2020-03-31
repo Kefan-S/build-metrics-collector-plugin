@@ -3,6 +3,7 @@ package io.jenkins.plugins.collector.actions;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import hudson.model.Run;
+import io.jenkins.plugins.collector.util.BuildUtil;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -17,17 +18,18 @@ public class BuildMetricsCalculator {
 
     @Inject
     @Named("successBuildHandler")
-    private static BiConsumer<String, Run> successBuildHandler;
+    private static BiConsumer<String[], Run> successBuildHandler;
 
-    public static void handleBuild(String label, Run build) {
+    public static void handleBuild(Run build) {
         if (Objects.isNull(build) || isAbortBuild(build)) {
             return;
         }
 
+        String[] labels = BuildUtil.getLabels(build);
         if (isSuccessfulBuild(build)) {
-            successBuildHandler.accept(label, build);
+            successBuildHandler.accept(labels, build);
         }
 
-        buildInfoHandler.accept(label, build);
+        buildInfoHandler.accept(labels, build);
     }
 }

@@ -11,7 +11,7 @@ import static io.jenkins.plugins.collector.config.Constant.METRICS_NAME_PREFIX;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 import static io.jenkins.plugins.collector.util.CustomizeMetrics.addCollector;
 
-public class BuildInfoHandler implements BiConsumer<String, Run> {
+public class BuildInfoHandler implements BiConsumer<String[], Run> {
     public Gauge ONE_BUILD_RESULT_FROM_LAST_STATISTICAL_PERIOD = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_last_build_result_code")
             .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
@@ -33,10 +33,10 @@ public class BuildInfoHandler implements BiConsumer<String, Run> {
             .help("One build start timestamp")
             .create();
 
-    public void accept(String label, Run build) {
-        ONE_BUILD_DURATION_FROM_LAST_STATISTICAL_PERIOD.labels(label).set(build.getDuration());
-        ONE_BUILD_RESULT_FROM_LAST_STATISTICAL_PERIOD.labels(label).set(build.getResult().ordinal);
-        ONE_BUILD_STARTTIME_FROM_LAST_STATISTICAL_PERIOD.labels(label).set(build.getStartTimeInMillis());
+    public void accept(String[] labels, Run build) {
+        ONE_BUILD_DURATION_FROM_LAST_STATISTICAL_PERIOD.labels(labels).set(build.getDuration());
+        ONE_BUILD_RESULT_FROM_LAST_STATISTICAL_PERIOD.labels(labels).set(build.getResult().ordinal);
+        ONE_BUILD_STARTTIME_FROM_LAST_STATISTICAL_PERIOD.labels(labels).set(build.getStartTimeInMillis());
         addCollector(ONE_BUILD_RESULT_FROM_LAST_STATISTICAL_PERIOD);
         addCollector(ONE_BUILD_DURATION_FROM_LAST_STATISTICAL_PERIOD);
         addCollector(ONE_BUILD_STARTTIME_FROM_LAST_STATISTICAL_PERIOD);

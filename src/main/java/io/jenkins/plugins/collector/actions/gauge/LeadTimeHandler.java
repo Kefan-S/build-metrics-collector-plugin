@@ -17,7 +17,7 @@ import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
 import static io.jenkins.plugins.collector.util.CustomizeMetrics.addCollector;
 
-public class LeadTimeHandler implements BiConsumer<String, Run>{
+public class LeadTimeHandler implements BiConsumer<String[], Run>{
     public Gauge LEAD_TIME_IN_LAST_STATISTICAL_PERIOD = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_merge_lead_time")
             .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
@@ -26,17 +26,17 @@ public class LeadTimeHandler implements BiConsumer<String, Run>{
             .create();
 
     @Override
-    public void accept(String label, Run successBuilds) {
+    public void accept(String[] labels, Run successBuilds) {
         Optional.of(successBuilds)
                 .filter(successBuild -> isFirstSuccessfulBuildAfterError(successBuild.getNextBuild(), successBuild))
                 .map(successBuild -> calculateLeadTime(successBuild.getPreviousBuild(), successBuild))
                 .filter(leadTime -> leadTime > 0)
-                .ifPresent(setLeadTimeThenPush(label));
+                .ifPresent(setLeadTimeThenPush(labels));
     }
 
-    private Consumer<Long> setLeadTimeThenPush(String label) {
+    private Consumer<Long> setLeadTimeThenPush(String[] labels) {
         return leadTime -> {
-            LEAD_TIME_IN_LAST_STATISTICAL_PERIOD.labels(label).set(leadTime);
+            LEAD_TIME_IN_LAST_STATISTICAL_PERIOD.labels(labels).set(leadTime);
             addCollector(LEAD_TIME_IN_LAST_STATISTICAL_PERIOD);
         };
     }
