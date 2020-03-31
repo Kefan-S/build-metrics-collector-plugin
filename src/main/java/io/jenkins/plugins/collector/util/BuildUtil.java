@@ -8,7 +8,7 @@ public class BuildUtil {
         if (matchedBuild == null) {
             return true;
         }
-        if (Result.UNSTABLE.isWorseOrEqualTo(currentBuild.getResult()) && isCompleteOvertime(currentBuild, matchedBuild)){
+        if (Result.UNSTABLE.isWorseOrEqualTo(currentBuild.getResult()) && isCompleteOvertime(currentBuild, matchedBuild)) {
             return false;
         }
         return isFirstSuccessfulBuildAfterError(matchedBuild.getNextBuild(), currentBuild);
@@ -19,7 +19,8 @@ public class BuildUtil {
     }
 
     public static long getBuildEndTime(Run build) {
-        return build.getStartTimeInMillis() + build.getDuration();
+        return build.isBuilding() ? Long.MAX_VALUE :
+                (build.getStartTimeInMillis() + build.getDuration());
     }
 
     public static boolean isAbortBuild(Run build) {

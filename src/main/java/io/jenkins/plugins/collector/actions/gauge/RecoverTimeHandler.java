@@ -48,7 +48,7 @@ public class RecoverTimeHandler implements BiConsumer<String, Run>{
                         && Result.UNSTABLE.isWorseOrEqualTo(matchedBuild.getResult()))){
             return Long.MIN_VALUE;
         }
-        if (Result.ABORTED.equals(matchedBuild.getResult()) && matchedBuild.isBuilding()){
+        if (Result.ABORTED.equals(matchedBuild.getResult())){
             return calculateRecoverTime(matchedBuild.getPreviousBuild(), currentBuild);
         }
         return Math.max(calculateRecoverTime(matchedBuild.getPreviousBuild(), currentBuild),
