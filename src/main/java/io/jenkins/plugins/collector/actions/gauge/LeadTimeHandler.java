@@ -44,7 +44,7 @@ public class LeadTimeHandler implements BiConsumer<String, Run>{
     Long calculateLeadTime(Run matchedBuild, Run currentBuild){
         if (matchedBuild == null ||
                 (!isCompleteOvertime(matchedBuild, currentBuild) && Result.UNSTABLE.isWorseOrEqualTo(matchedBuild.getResult()))){
-            return Long.MIN_VALUE;
+            return currentBuild.getDuration();
         }
         if (Result.ABORTED.equals(matchedBuild.getResult())){
             return calculateLeadTime(matchedBuild.getPreviousBuild(), currentBuild);
