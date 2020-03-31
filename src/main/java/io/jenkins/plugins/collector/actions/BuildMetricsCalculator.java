@@ -6,18 +6,19 @@ import hudson.model.Run;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isSuccessfulBuild;
 
 public class BuildMetricsCalculator {
     @Inject
-    @Named("buildInfoHandler")
-    private static BiConsumer buildInfoHandler;
+    @Named("buildInfoHandlerSupplier")
+    private static Supplier<BiConsumer<String, Run>> buildInfoHandler;
 
     @Inject
-    @Named("successBuildHandler")
-    private static BiConsumer<String, Run> successBuildHandler;
+    @Named("successBuildHandlerSupplier")
+    private static Supplier<BiConsumer<String, Run>> successBuildHandler;
 
     public static void handleBuild(String label, Run build) {
         if (Objects.isNull(build) || isAbortBuild(build)) {
@@ -25,9 +26,9 @@ public class BuildMetricsCalculator {
         }
 
         if (isSuccessfulBuild(build)) {
-            successBuildHandler.accept(label, build);
+            successBuildHandler.get().accept(label, build);
         }
 
-        buildInfoHandler.accept(label, build);
+        buildInfoHandler.get().accept(label, build);
     }
 }
