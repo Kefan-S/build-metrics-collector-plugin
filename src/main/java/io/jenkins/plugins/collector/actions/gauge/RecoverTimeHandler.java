@@ -19,7 +19,7 @@ import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuild
 
 public class RecoverTimeHandler implements BiConsumer<String, Run>{
 
-    public Gauge RECOVER_TIME_IN_LAST_STATISTICAL_PERIOD = Gauge.build()
+    private Gauge recoverTimeMetrics = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_failed_build_recovery_time")
             .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
             .labelNames(METRICS_LABEL_NAME_ARRAY)
@@ -37,8 +37,8 @@ public class RecoverTimeHandler implements BiConsumer<String, Run>{
 
     private Consumer<Long> setRecoverTimeThenPush(String label) {
         return recoverTime -> {
-            RECOVER_TIME_IN_LAST_STATISTICAL_PERIOD.labels(label).set(recoverTime);
-            CustomizeMetrics.addCollector(RECOVER_TIME_IN_LAST_STATISTICAL_PERIOD);
+            recoverTimeMetrics.labels(label).set(recoverTime);
+            CustomizeMetrics.addCollector(recoverTimeMetrics);
         };
     }
 
