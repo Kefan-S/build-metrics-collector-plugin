@@ -54,6 +54,7 @@ public class JobCollector extends Collector {
                 unhandledBuilds.remove(build);
               }
       );
+      logger.info("{} unhandleList: {}",jobFullName, unhandledBuilds);
       uncompletedBuildsMap.put(jobFullName, unhandledBuilds);
 
     });
