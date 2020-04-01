@@ -70,7 +70,7 @@ public class BuildUtil {
 
         Cause.UserIdCause userIdCause = (Cause.UserIdCause) build.getCause(Cause.UserIdCause.class);
         if(userIdCause != null) {
-            return Optional.ofNullable(userIdCause.getUserId()).orElse("Unknown User");
+            return Optional.ofNullable(userIdCause.getUserId()).orElse("UnKnown User");
         }
 
        return "UnKnown";
