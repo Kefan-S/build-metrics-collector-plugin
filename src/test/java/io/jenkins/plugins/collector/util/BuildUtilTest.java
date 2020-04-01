@@ -1,16 +1,22 @@
 package io.jenkins.plugins.collector.util;
 
+import hudson.model.Cause;
 import hudson.model.Job;
 import hudson.model.Result;
+import hudson.model.Run;
+import hudson.triggers.SCMTrigger;
 import io.jenkins.plugins.collector.builder.FakeBuild;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.TreeMap;
 
 import static io.jenkins.plugins.collector.builder.FakeJob.createMockProject;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class BuildUtilTest {
 
@@ -83,5 +89,55 @@ class BuildUtilTest {
     void should_return_max_value_when_calculate_end_time_given_previous_build_is_running_build() throws IOException {
         FakeBuild build = new FakeBuild(pipeline, null, 40, null);
         assertEquals(Long.MAX_VALUE, BuildUtil.getBuildEndTime(build));
+    }
+
+    @Test
+    void should_get_labels_when_get_labels_given_an_successful_run() {
+        Run fakeRun = Mockito.mock(Run.class, Mockito.RETURNS_DEEP_STUBS);
+        when(fakeRun.getParent().getName()).thenReturn("name");
+        when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
+        when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(new SCMTrigger.SCMTriggerCause("something"));
+
+        String[] labels = BuildUtil.getLabels(fakeRun);
+
+        assertArrayEquals(new String[]{"name", "SCM"}, labels);
+    }
+
+    @Test
+    void should_return_user_id_when_get_trigger_given_user_triggered_build() {
+        Run fakeRun = Mockito.mock(Run.class);
+
+        Cause.UserIdCause userIdCause = new Cause.UserIdCause("user-id");
+        when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
+        when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(null);
+        when(fakeRun.getCause(Cause.UserIdCause.class)).thenReturn(userIdCause);
+
+        String trigger = BuildUtil.getTrigger(fakeRun);
+        assertEquals("user-id", trigger);
+    }
+
+    @Test
+    void should_return_unKnown_user_when_get_trigger_given_anonymous_user_triggered_build() {
+        Run fakeRun = Mockito.mock(Run.class);
+
+        Cause.UserIdCause userIdCause = new Cause.UserIdCause(null);
+        when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
+        when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(null);
+        when(fakeRun.getCause(Cause.UserIdCause.class)).thenReturn(userIdCause);
+
+        String trigger = BuildUtil.getTrigger(fakeRun);
+        assertEquals("UnKnown User", trigger);
+    }
+
+    @Test
+    void should_return_unKnown_when_get_trigger_given_neither_scm_nor_user_triggered_build() {
+        Run fakeRun = Mockito.mock(Run.class);
+
+        when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
+        when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(null);
+        when(fakeRun.getCause(Cause.UserIdCause.class)).thenReturn(null);
+
+        String trigger = BuildUtil.getTrigger(fakeRun);
+        assertEquals("UnKnown", trigger);
     }
 }
