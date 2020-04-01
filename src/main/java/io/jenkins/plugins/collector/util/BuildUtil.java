@@ -5,7 +5,7 @@ import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
-import io.jenkins.plugins.collector.exceptions.NoJenkinsException;
+import io.jenkins.plugins.collector.exceptions.JenkinsInstanceMissingException;
 import jenkins.model.Jenkins;
 
 import java.util.Optional;
@@ -38,12 +38,19 @@ public class BuildUtil {
         return !build.isBuilding() && Result.UNSTABLE.isWorseOrEqualTo(build.getResult());
     }
 
+    public static String[] getLabels(Run build){
+        String jobFullName = build.getParent().getFullName();
+        String trigger = getTrigger(build);
+
+        return new String[]{jobFullName, trigger};
+    }
+
     private static String getTrigger(Run build) {
         Cause.UpstreamCause upstreamCause = (Cause.UpstreamCause) build.getCause(Cause.UpstreamCause.class);
         if (upstreamCause != null) {
             Job job = Optional.ofNullable(Jenkins.getInstanceOrNull())
                     .map(r -> r.getItemByFullName(upstreamCause.getUpstreamProject(), Job.class))
-                    .orElseThrow(NoJenkinsException::new);
+                    .orElseThrow(JenkinsInstanceMissingException::new);
 
             if (job != null) {
                 Run upstream = job.getBuildByNumber(upstreamCause.getUpstreamBuild());
@@ -64,12 +71,6 @@ public class BuildUtil {
         }
 
        return "UnKnown";
-    }
-
-    public static String[] getLabels(Run build){
-        String jobFullName = build.getParent().getFullName();
-        String trigger = getTrigger(build);
-        return new String[]{jobFullName, trigger};
     }
 
 }
