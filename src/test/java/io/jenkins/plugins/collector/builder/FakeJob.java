@@ -7,7 +7,6 @@ import hudson.model.TopLevelItemDescriptor;
 import org.junit.Rule;
 import org.jvnet.hudson.test.JenkinsRule;
 
-import java.io.IOException;
 import java.util.SortedMap;
 
 public class FakeJob extends Job implements TopLevelItem {
@@ -15,7 +14,7 @@ public class FakeJob extends Job implements TopLevelItem {
   @Rule
   public static JenkinsRule rule = new JenkinsRule();
 
-  int i;
+  private int i;
   private final SortedMap<Integer, FakeBuild> runs;
 
   public FakeJob(SortedMap<Integer, FakeBuild> runs) {
@@ -25,7 +24,7 @@ public class FakeJob extends Job implements TopLevelItem {
   }
 
   @Override
-  public int assignBuildNumber() throws IOException {
+  public int assignBuildNumber() {
     return i++;
   }
 
@@ -45,5 +44,9 @@ public class FakeJob extends Job implements TopLevelItem {
 
   public TopLevelItemDescriptor getDescriptor() {
     throw new AssertionError();
+  }
+
+  public static Job createMockProject(final SortedMap<Integer, FakeBuild> runs) {
+    return new FakeJob(runs);
   }
 }

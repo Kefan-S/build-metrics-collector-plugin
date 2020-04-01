@@ -4,6 +4,7 @@ import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 
 public class FakeBuild extends Run{
@@ -16,7 +17,7 @@ public class FakeBuild extends Run{
   }
 
   @Override
-  public int compareTo(Run o) {
+  public int compareTo(@Nonnull Run o) {
     return 0;
   }
 
