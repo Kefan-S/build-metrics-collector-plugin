@@ -92,15 +92,29 @@ class BuildUtilTest {
     }
 
     @Test
-    void should_get_labels_when_get_labels_given_an_successful_run() {
+    void should_get_labels_when_get_labels_given_an_successful_build() {
         Run fakeRun = Mockito.mock(Run.class, Mockito.RETURNS_DEEP_STUBS);
         when(fakeRun.getParent().getName()).thenReturn("name");
+        when(fakeRun.getResult()).thenReturn(Result.SUCCESS);
         when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
         when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(new SCMTrigger.SCMTriggerCause("something"));
 
         String[] labels = BuildUtil.getLabels(fakeRun);
 
-        assertArrayEquals(new String[]{"name", "SCM"}, labels);
+        assertArrayEquals(new String[]{"name", "SCM", "SUCCESS"}, labels);
+    }
+
+    @Test
+    void should_get_labels_when_get_labels_given_an_running_build() {
+        Run fakeRun = Mockito.mock(Run.class, Mockito.RETURNS_DEEP_STUBS);
+        when(fakeRun.getParent().getName()).thenReturn("name");
+        when(fakeRun.getResult()).thenReturn(null);
+        when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
+        when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(new SCMTrigger.SCMTriggerCause("something"));
+
+        String[] labels = BuildUtil.getLabels(fakeRun);
+
+        assertArrayEquals(new String[]{"name", "SCM", "RUNNING"}, labels);
     }
 
     @Test
