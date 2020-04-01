@@ -10,6 +10,8 @@ import jenkins.model.Jenkins;
 
 import java.util.Optional;
 
+import static io.jenkins.plugins.collector.config.Constant.BUILD_NO_RESULT_STATUS;
+
 public class BuildUtil {
     public static boolean isFirstSuccessfulBuildAfterError(Run matchedBuild, Run currentBuild) {
         if (matchedBuild == null) {
@@ -41,8 +43,9 @@ public class BuildUtil {
     public static String[] getLabels(Run build){
         String jobFullName = build.getParent().getFullName();
         String trigger = getTrigger(build);
-
-        return new String[]{jobFullName, trigger};
+        String result = Optional.ofNullable(build.getResult()).map(Result::toString)
+                .orElse(BUILD_NO_RESULT_STATUS);
+        return new String[]{jobFullName, trigger, result};
     }
 
     private static String getTrigger(Run build) {

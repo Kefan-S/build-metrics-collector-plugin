@@ -12,12 +12,6 @@ import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 import static io.jenkins.plugins.collector.util.CustomizeMetrics.addCollector;
 
 public class BuildInfoHandler implements BiConsumer<String[], Run> {
-    private Gauge buildResultMetrics = Gauge.build()
-            .name(METRICS_NAME_PREFIX + "_last_build_result_code")
-            .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-            .labelNames(METRICS_LABEL_NAME_ARRAY)
-            .help("One build result")
-            .create();
 
     private Gauge buildDurationMetrics = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
@@ -35,9 +29,7 @@ public class BuildInfoHandler implements BiConsumer<String[], Run> {
 
     public void accept(String[] labels, Run build) {
         buildDurationMetrics.labels(labels).set(build.getDuration());
-        buildResultMetrics.labels(labels).set(build.getResult().ordinal);
         buildStartTimeMetrics.labels(labels).set(build.getStartTimeInMillis());
-        addCollector(buildResultMetrics);
         addCollector(buildDurationMetrics);
         addCollector(buildStartTimeMetrics);
     }
