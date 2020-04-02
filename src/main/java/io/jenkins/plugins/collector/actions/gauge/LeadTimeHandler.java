@@ -8,27 +8,18 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
-import static io.jenkins.plugins.collector.config.Constant.METRICS_NAMESPACE;
-import static io.jenkins.plugins.collector.config.Constant.METRICS_NAME_PREFIX;
-import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
 
 public class LeadTimeHandler implements BiConsumer<String[], Run>{
-    CustomizeMetrics customizeMetrics;
+    private CustomizeMetrics customizeMetrics;
+    private Gauge leadTimeMetrics;
 
-    public LeadTimeHandler(CustomizeMetrics customizeMetrics) {
+    public LeadTimeHandler(CustomizeMetrics customizeMetrics, Gauge leadTimeMetrics) {
         this.customizeMetrics = customizeMetrics;
+        this.leadTimeMetrics = leadTimeMetrics;
     }
-
-    private Gauge leadTimeMetrics = Gauge.build()
-            .name(METRICS_NAME_PREFIX + "_merge_lead_time")
-            .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-            .labelNames(METRICS_LABEL_NAME_ARRAY)
-            .help("Code Merge Lead Time in milliseconds")
-            .create();
 
     @Override
     public void accept(String[] labels, Run successBuilds) {
