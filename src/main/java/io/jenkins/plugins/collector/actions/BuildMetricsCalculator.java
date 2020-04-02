@@ -4,12 +4,10 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.util.BuildUtil;
-
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isSuccessfulBuild;
 
 public class BuildMetricsCalculator {
@@ -22,7 +20,7 @@ public class BuildMetricsCalculator {
     private static Supplier<BiConsumer<String[], Run>> successBuildHandler;
 
     public static void handleBuild(Run build) {
-        if (Objects.isNull(build) || isAbortBuild(build)) {
+        if (Objects.isNull(build)) {
             return;
         }
 
