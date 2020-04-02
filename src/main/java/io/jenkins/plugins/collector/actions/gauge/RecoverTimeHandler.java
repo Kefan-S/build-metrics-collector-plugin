@@ -4,7 +4,6 @@ import hudson.model.Result;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.util.CustomizeMetrics;
 import io.prometheus.client.Gauge;
-
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -18,6 +17,12 @@ import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
 
 public class RecoverTimeHandler implements BiConsumer<String[], Run>{
+
+    CustomizeMetrics customizeMetrics;
+
+    public RecoverTimeHandler(CustomizeMetrics customizeMetrics) {
+        this.customizeMetrics = customizeMetrics;
+    }
 
     private Gauge recoverTimeMetrics = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_failed_build_recovery_time")
@@ -38,7 +43,7 @@ public class RecoverTimeHandler implements BiConsumer<String[], Run>{
     private Consumer<Long> setRecoverTimeThenPush(String[] labels) {
         return recoverTime -> {
             recoverTimeMetrics.labels(labels).set(recoverTime);
-            CustomizeMetrics.addCollector(recoverTimeMetrics);
+            customizeMetrics.addCollector(recoverTimeMetrics);
         };
     }
 

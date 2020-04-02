@@ -2,8 +2,8 @@ package io.jenkins.plugins.collector.actions.gauge;
 
 import hudson.model.Result;
 import hudson.model.Run;
+import io.jenkins.plugins.collector.util.CustomizeMetrics;
 import io.prometheus.client.Gauge;
-
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -15,9 +15,14 @@ import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
-import static io.jenkins.plugins.collector.util.CustomizeMetrics.addCollector;
 
 public class LeadTimeHandler implements BiConsumer<String[], Run>{
+    CustomizeMetrics customizeMetrics;
+
+    public LeadTimeHandler(CustomizeMetrics customizeMetrics) {
+        this.customizeMetrics = customizeMetrics;
+    }
+
     private Gauge leadTimeMetrics = Gauge.build()
             .name(METRICS_NAME_PREFIX + "_merge_lead_time")
             .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
@@ -37,7 +42,7 @@ public class LeadTimeHandler implements BiConsumer<String[], Run>{
     private Consumer<Long> setLeadTimeThenPush(String[] labels) {
         return leadTime -> {
             this.leadTimeMetrics.labels(labels).set(leadTime);
-            addCollector(this.leadTimeMetrics);
+            customizeMetrics.addCollector(this.leadTimeMetrics);
         };
     }
 
