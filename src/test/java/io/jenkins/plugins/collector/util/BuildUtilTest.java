@@ -15,7 +15,6 @@ import java.util.TreeMap;
 
 import static io.jenkins.plugins.collector.builder.FakeJob.createMockProject;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class BuildUtilTest {
@@ -94,7 +93,7 @@ class BuildUtilTest {
     @Test
     void should_get_labels_when_get_labels_given_an_successful_build() {
         Run fakeRun = Mockito.mock(Run.class, Mockito.RETURNS_DEEP_STUBS);
-        when(fakeRun.getParent().getName()).thenReturn("name");
+        when(fakeRun.getParent().getFullName()).thenReturn("name");
         when(fakeRun.getResult()).thenReturn(Result.SUCCESS);
         when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
         when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(new SCMTrigger.SCMTriggerCause("something"));
@@ -107,7 +106,7 @@ class BuildUtilTest {
     @Test
     void should_get_labels_when_get_labels_given_an_running_build() {
         Run fakeRun = Mockito.mock(Run.class, Mockito.RETURNS_DEEP_STUBS);
-        when(fakeRun.getParent().getName()).thenReturn("name");
+        when(fakeRun.getParent().getFullName()).thenReturn("name");
         when(fakeRun.getResult()).thenReturn(null);
         when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
         when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(new SCMTrigger.SCMTriggerCause("something"));

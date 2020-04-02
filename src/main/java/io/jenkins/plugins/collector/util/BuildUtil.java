@@ -41,11 +41,11 @@ public class BuildUtil {
     }
 
     public static String[] getLabels(Run build){
-        String jobName = build.getParent().getName();
+        String jobFullName = build.getParent().getFullName();
         String trigger = getTrigger(build);
         String result = Optional.ofNullable(build.getResult()).map(Result::toString)
                 .orElse(BUILD_NO_RESULT_STATUS);
-        return new String[]{jobName, trigger, result};
+        return new String[]{jobFullName, trigger, result};
     }
 
     static String getTrigger(Run build) {
