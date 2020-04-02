@@ -21,7 +21,6 @@ import static org.mockito.ArgumentMatchers.any;
 class BuildInfoHandlerTest {
 
   Gauge durationGauge;
-  ;
   Gauge startTimeGauge;
   private Child durationGaugeChild;
   private Child startTimeGaugeChild;
