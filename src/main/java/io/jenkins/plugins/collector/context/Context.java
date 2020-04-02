@@ -38,46 +38,49 @@ public class Context extends AbstractModule {
     @Singleton
     @Named("successBuildHandlerSupplier")
     Supplier<BiConsumer<String[], Run>> successBuildHandlerSupplier(@Named("customizeMetrics") CustomizeMetrics customizeMetrics) {
-        return () -> {
-            Gauge leadTimeMetrics = Gauge.build()
-                .name(METRICS_NAME_PREFIX + "_merge_lead_time")
-                .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-                .labelNames(METRICS_LABEL_NAME_ARRAY)
-                .help("Code Merge Lead Time in milliseconds")
-                .create();
+        Gauge leadTimeMetrics = Gauge.build()
+            .name(METRICS_NAME_PREFIX + "_merge_lead_time")
+            .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
+            .labelNames(METRICS_LABEL_NAME_ARRAY)
+            .help("Code Merge Lead Time in milliseconds")
+            .create();
 
-            Gauge recoverTimeMetrics = Gauge.build()
-                .name(METRICS_NAME_PREFIX + "_failed_build_recovery_time")
-                .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-                .labelNames(METRICS_LABEL_NAME_ARRAY)
-                .help("Failed Build Recovery Time in milliseconds")
-                .create();
+        Gauge recoverTimeMetrics = Gauge.build()
+            .name(METRICS_NAME_PREFIX + "_failed_build_recovery_time")
+            .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
+            .labelNames(METRICS_LABEL_NAME_ARRAY)
+            .help("Failed Build Recovery Time in milliseconds")
+            .create();
 
-            return new LeadTimeHandler(customizeMetrics, leadTimeMetrics)
-                .andThen(new RecoverTimeHandler(customizeMetrics, recoverTimeMetrics));
-        };
+        customizeMetrics.addCollector(leadTimeMetrics);
+        customizeMetrics.addCollector(recoverTimeMetrics);
+
+        return () -> new LeadTimeHandler(leadTimeMetrics)
+            .andThen(new RecoverTimeHandler(recoverTimeMetrics));
     }
 
     @Provides
     @Singleton
     @Named("buildInfoHandlerSupplier")
     Supplier<BiConsumer<String[], Run>> buildInfoHandlerSupplier(@Named("customizeMetrics") CustomizeMetrics customizeMetrics) {
-        return () -> {
-            Gauge buildDurationMetrics = Gauge.build()
-                .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
-                .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-                .labelNames(METRICS_LABEL_NAME_ARRAY)
-                .help("One build duration in milliseconds")
-                .create();
+        Gauge buildDurationMetrics = Gauge.build()
+            .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
+            .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
+            .labelNames(METRICS_LABEL_NAME_ARRAY)
+            .help("One build duration in milliseconds")
+            .create();
 
-            Gauge buildStartTimeMetrics = Gauge.build()
-                .name(METRICS_NAME_PREFIX + "_last_build_start_timestamp")
-                .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-                .labelNames(METRICS_LABEL_NAME_ARRAY)
-                .help("One build start timestamp")
-                .create();
-            return new BuildInfoHandler(customizeMetrics, buildDurationMetrics, buildStartTimeMetrics);
-        };
+        Gauge buildStartTimeMetrics = Gauge.build()
+            .name(METRICS_NAME_PREFIX + "_last_build_start_timestamp")
+            .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
+            .labelNames(METRICS_LABEL_NAME_ARRAY)
+            .help("One build start timestamp")
+            .create();
+
+        customizeMetrics.addCollector(buildDurationMetrics);
+        customizeMetrics.addCollector(buildStartTimeMetrics);
+
+        return () -> new BuildInfoHandler(buildDurationMetrics, buildStartTimeMetrics);
     }
 
 }
