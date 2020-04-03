@@ -32,14 +32,14 @@ class BuildInfoHandlerTest {
     durationGauge = Mockito.spy(Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames(METRICS_LABEL_NAME_ARRAY)
+        .labelNames((String[]) METRICS_LABEL_NAME_ARRAY.toArray())
         .help("One build duration in milliseconds")
         .create());
 
     startTimeGauge = Mockito.spy(Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_start_timestamp")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames(METRICS_LABEL_NAME_ARRAY)
+        .labelNames((String[]) METRICS_LABEL_NAME_ARRAY.toArray())
         .help("One build start timestamp")
         .create());
 
@@ -65,7 +65,7 @@ class BuildInfoHandlerTest {
 
   @Test
   void should_throws_illgegalAragumentException_while_label_count_less_than_required() {
-    String[] labels = Arrays.copyOf(METRICS_LABEL_NAME_ARRAY, METRICS_LABEL_NAME_ARRAY.length - 1);
+    String[] labels = Arrays.copyOf((String[]) METRICS_LABEL_NAME_ARRAY.toArray(), METRICS_LABEL_NAME_ARRAY.size() - 1);
     assertThrows(IllegalArgumentException.class, () -> {
       new BuildInfoHandler(durationGauge, startTimeGauge)
           .accept(labels, mockBuild);
@@ -78,7 +78,7 @@ class BuildInfoHandlerTest {
 
   @Test
   void should_throws_illgegalAragumentException_while_label_count_more_than_required() {
-    String[] labels = Arrays.copyOf(METRICS_LABEL_NAME_ARRAY, METRICS_LABEL_NAME_ARRAY.length + 1);
+    String[] labels = Arrays.copyOf((String[]) METRICS_LABEL_NAME_ARRAY.toArray(), METRICS_LABEL_NAME_ARRAY.size() + 1);
     assertThrows(IllegalArgumentException.class, () -> {
       new BuildInfoHandler(durationGauge, startTimeGauge).accept(labels, mockBuild);
     });
@@ -90,9 +90,9 @@ class BuildInfoHandlerTest {
 
   @Test
   void should_push_two_samples_to_collection_while_parameter_was_passed_correctly() {
-    new BuildInfoHandler(durationGauge, startTimeGauge).accept(METRICS_LABEL_NAME_ARRAY, mockBuild);
-    Mockito.verify(durationGauge, Mockito.times(1)).labels(METRICS_LABEL_NAME_ARRAY);
-    Mockito.verify(startTimeGauge, Mockito.times(1)).labels(METRICS_LABEL_NAME_ARRAY);
+    new BuildInfoHandler(durationGauge, startTimeGauge).accept((String[]) METRICS_LABEL_NAME_ARRAY.toArray(), mockBuild);
+    Mockito.verify(durationGauge, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
+    Mockito.verify(startTimeGauge, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
     Mockito.verify(durationGaugeChild, Mockito.times(1)).set(50L);
     Mockito.verify(startTimeGaugeChild, Mockito.times(1)).set(100L);
   }

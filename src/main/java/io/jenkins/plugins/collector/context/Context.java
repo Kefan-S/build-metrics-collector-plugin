@@ -41,14 +41,14 @@ public class Context extends AbstractModule {
     Gauge leadTimeMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_merge_lead_time")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames(METRICS_LABEL_NAME_ARRAY)
+        .labelNames((String[])METRICS_LABEL_NAME_ARRAY.toArray())
         .help("Code Merge Lead Time in milliseconds")
         .create();
 
     Gauge recoverTimeMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_failed_build_recovery_time")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames(METRICS_LABEL_NAME_ARRAY)
+        .labelNames((String[])METRICS_LABEL_NAME_ARRAY.toArray())
         .help("Failed Build Recovery Time in milliseconds")
         .create();
 
@@ -66,14 +66,14 @@ public class Context extends AbstractModule {
     Gauge buildDurationMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames(METRICS_LABEL_NAME_ARRAY)
+        .labelNames((String[])METRICS_LABEL_NAME_ARRAY.toArray())
         .help("One build duration in milliseconds")
         .create();
 
     Gauge buildStartTimeMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_start_timestamp")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames(METRICS_LABEL_NAME_ARRAY)
+        .labelNames((String[]) METRICS_LABEL_NAME_ARRAY.toArray())
         .help("One build start timestamp")
         .create();
 

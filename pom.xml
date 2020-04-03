@@ -182,6 +182,7 @@
           <configuration>
             <effort>Max</effort>
             <threshold>Low</threshold>
+            <excludeFilterFile>check/findbugs-exclude.xml</excludeFilterFile>
           </configuration>
           <executions>
             <execution>
