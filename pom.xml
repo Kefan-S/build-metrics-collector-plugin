@@ -152,7 +152,7 @@
           <artifactId>maven-checkstyle-plugin</artifactId>
           <version>2.17</version>
           <configuration>
-            <configLocation>google_checks.xml</configLocation>
+            <configLocation>check/checkstyle.xml</configLocation>
             <includeTestSourceDirectory>true</includeTestSourceDirectory>
             <consoleOutput>true</consoleOutput>
             <failOnViolation>true</failOnViolation>
@@ -181,9 +181,6 @@
             <targetJdk>1.8</targetJdk>
             <verbose>true</verbose>
             <failOnViolation>true</failOnViolation>
-            <failOnError>true</failOnError>
-            <violationSeverity>warning</violationSeverity>
-            <consoleOutput>true</consoleOutput>
           </configuration>
           <executions>
             <execution>

@@ -1,6 +1,7 @@
 package io.jenkins.plugins.collector.service;
 
 import io.jenkins.plugins.collector.JobCollector;
+import io.jenkins.plugins.collector.util.CustomizeMetrics;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.dropwizard.DropwizardExports;
 import io.prometheus.client.exporter.common.TextFormat;
@@ -18,10 +19,10 @@ public class DefaultPrometheusMetrics implements PrometheusMetrics {
   private final CollectorRegistry collectorRegistry;
   private final AtomicReference<String> cachedMetrics;
 
-  public DefaultPrometheusMetrics() {
+  public DefaultPrometheusMetrics(CustomizeMetrics customizeMetrics) {
     CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
     collectorRegistry.register(new DropwizardExports(Metrics.metricRegistry()));
-    collectorRegistry.register(new JobCollector());
+    collectorRegistry.register(new JobCollector(customizeMetrics));
 
     this.collectorRegistry = collectorRegistry;
     this.cachedMetrics = new AtomicReference<>("");

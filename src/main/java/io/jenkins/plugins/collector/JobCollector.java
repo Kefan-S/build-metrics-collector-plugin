@@ -6,18 +6,16 @@ import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import io.jenkins.plugins.collector.util.CustomizeMetrics;
 import io.jenkins.plugins.collector.util.Jobs;
 import io.prometheus.client.Collector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.jenkins.plugins.collector.actions.BuildMetricsCalculator.handleBuild;
-import static io.jenkins.plugins.collector.util.CustomizeMetrics.initMetrics;
 
 public class JobCollector extends Collector {
 
@@ -25,10 +23,16 @@ public class JobCollector extends Collector {
 
   private Map<String, List<Run>> uncompletedBuildsMap = new HashMap<>();
 
+  private CustomizeMetrics customizeMetrics;
+
+  public JobCollector(CustomizeMetrics customizeMetrics) {
+    this.customizeMetrics = customizeMetrics;
+  }
+
   @Override
   public List<MetricFamilySamples> collect() {
 
-    initMetrics();
+    customizeMetrics.initMetrics();
     Jobs.forEachJob(job -> {
 
       logger.debug("Determining if we are already appending metrics for job [{}]", job.getName());
@@ -47,18 +51,17 @@ public class JobCollector extends Collector {
       long statisticalPeriod = TimeUnit.SECONDS.toMillis(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
       unhandledBuilds.addAll(job.getBuilds().byTimestamp(end - statisticalPeriod, end));
       unhandledBuilds.stream()
-              .filter(build -> !build.isBuilding())
-              .findFirst().ifPresent(
-              build -> {
-                handleBuild(build);
-                unhandledBuilds.remove(build);
-              }
-      );
-      logger.info("{} unhandleList: {}",jobFullName, unhandledBuilds);
+          .filter(build -> !build.isBuilding())
+          .findFirst().ifPresent(
+            build -> {
+              handleBuild(build);
+              unhandledBuilds.remove(build);
+            });
+      logger.info("{} unhandleList: {}", jobFullName, unhandledBuilds);
       uncompletedBuildsMap.put(jobFullName, unhandledBuilds);
 
     });
 
-    return CustomizeMetrics.getMetricsList();
+    return customizeMetrics.getMetricsList();
   }
 }
