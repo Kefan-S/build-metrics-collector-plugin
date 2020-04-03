@@ -53,11 +53,10 @@ public class JobCollector extends Collector {
       unhandledBuilds.stream()
           .filter(build -> !build.isBuilding())
           .findFirst().ifPresent(
-          build -> {
-            handleBuild(build);
-            unhandledBuilds.remove(build);
-          }
-      );
+            build -> {
+              handleBuild(build);
+              unhandledBuilds.remove(build);
+            });
       logger.info("{} unhandleList: {}", jobFullName, unhandledBuilds);
       uncompletedBuildsMap.put(jobFullName, unhandledBuilds);
 

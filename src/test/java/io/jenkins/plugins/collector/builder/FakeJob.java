@@ -13,18 +13,18 @@ public class FakeJob extends Job implements TopLevelItem {
   @Rule
   public static JenkinsRule rule = new JenkinsRule();
 
-  private int i;
+  private int number;
   private final SortedMap<Integer, FakeBuild> runs;
 
   public FakeJob(SortedMap<Integer, FakeBuild> runs) {
     super(rule.jenkins, "name");
     this.runs = runs;
-    i = 1;
+    number = 1;
   }
 
   @Override
   public int assignBuildNumber() {
-    return i++;
+    return number++;
   }
 
   @Override

@@ -16,7 +16,7 @@ public class FakeBuild extends Run {
   }
 
   @Override
-  public int compareTo(@Nonnull Run o) {
+  public int compareTo(@Nonnull Run run) {
     return 0;
   }
 

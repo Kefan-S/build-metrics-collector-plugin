@@ -56,7 +56,8 @@ public class PrometheusConfiguration extends GlobalConfiguration {
         return value;
       }
     } catch (JSONException ignored) {
+      throw new FormException("CollectingMetricsPeriodInSeconds must be a positive integer", "collectingMetricsPeriodInSeconds");
     }
-    throw new FormException("CollectingMetricsPeriodInSeconds must be a positive integer", "collectingMetricsPeriodInSeconds");
+    return null;
   }
 }

@@ -35,8 +35,7 @@ public class RecoverTimeHandler implements BiConsumer<String[], Run> {
   }
 
   Long calculateRecoverTime(Run matchedBuild, Run currentBuild) {
-    if (matchedBuild == null ||
-        (!isCompleteOvertime(matchedBuild, currentBuild)
+    if (matchedBuild == null || (!isCompleteOvertime(matchedBuild, currentBuild)
             && Result.UNSTABLE.isWorseOrEqualTo(matchedBuild.getResult()))) {
       return Long.MIN_VALUE;
     }
