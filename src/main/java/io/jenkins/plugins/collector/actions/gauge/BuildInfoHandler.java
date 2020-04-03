@@ -7,16 +7,17 @@ import javax.annotation.Nonnull;
 
 public class BuildInfoHandler implements BiConsumer<String[], Run> {
 
-    private Gauge buildDurationMetrics;
-    private Gauge buildStartTimeMetrics;
+  private Gauge buildDurationMetrics;
+  private Gauge buildStartTimeMetrics;
 
-    public BuildInfoHandler(Gauge buildDurationMetrics, Gauge buildStartTimeMetrics) {
-        this.buildDurationMetrics = buildDurationMetrics;
-        this.buildStartTimeMetrics = buildStartTimeMetrics;
-    }
+  public BuildInfoHandler(Gauge buildDurationMetrics, Gauge buildStartTimeMetrics) {
+    this.buildDurationMetrics = buildDurationMetrics;
+    this.buildStartTimeMetrics = buildStartTimeMetrics;
+  }
 
-    public void accept(@Nonnull String[] labels, @Nonnull Run build) {
-        buildDurationMetrics.labels(labels).set(build.getDuration());
-        buildStartTimeMetrics.labels(labels).set(build.getStartTimeInMillis());
-    }
+  @Override
+  public void accept(@Nonnull String[] labels, @Nonnull Run build) {
+    buildDurationMetrics.labels(labels).set(build.getDuration());
+    buildStartTimeMetrics.labels(labels).set(build.getStartTimeInMillis());
+  }
 }

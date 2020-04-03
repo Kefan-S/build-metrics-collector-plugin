@@ -51,14 +51,14 @@ public class JobCollector extends Collector {
       long statisticalPeriod = TimeUnit.SECONDS.toMillis(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
       unhandledBuilds.addAll(job.getBuilds().byTimestamp(end - statisticalPeriod, end));
       unhandledBuilds.stream()
-              .filter(build -> !build.isBuilding())
-              .findFirst().ifPresent(
-              build -> {
-                handleBuild(build);
-                unhandledBuilds.remove(build);
-              }
+          .filter(build -> !build.isBuilding())
+          .findFirst().ifPresent(
+          build -> {
+            handleBuild(build);
+            unhandledBuilds.remove(build);
+          }
       );
-      logger.info("{} unhandleList: {}",jobFullName, unhandledBuilds);
+      logger.info("{} unhandleList: {}", jobFullName, unhandledBuilds);
       uncompletedBuildsMap.put(jobFullName, unhandledBuilds);
 
     });

@@ -2,14 +2,13 @@ package io.jenkins.plugins.collector.config;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
+import java.util.concurrent.TimeUnit;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
-
-import java.util.concurrent.TimeUnit;
 
 @Extension(dynamicLoadable = YesNoMaybe.NO)
 public class PrometheusConfiguration extends GlobalConfiguration {

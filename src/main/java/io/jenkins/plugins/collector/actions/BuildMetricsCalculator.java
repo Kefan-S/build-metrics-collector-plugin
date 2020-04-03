@@ -11,24 +11,25 @@ import java.util.function.Supplier;
 import static io.jenkins.plugins.collector.util.BuildUtil.isSuccessfulBuild;
 
 public class BuildMetricsCalculator {
-    @Inject
-    @Named("buildInfoHandlerSupplier")
-    private static Supplier<BiConsumer<String[], Run>> buildInfoHandler;
 
-    @Inject
-    @Named("successBuildHandlerSupplier")
-    private static Supplier<BiConsumer<String[], Run>> successBuildHandler;
+  @Inject
+  @Named("buildInfoHandlerSupplier")
+  private static Supplier<BiConsumer<String[], Run>> buildInfoHandler;
 
-    public static void handleBuild(Run build) {
-        if (Objects.isNull(build)) {
-            return;
-        }
+  @Inject
+  @Named("successBuildHandlerSupplier")
+  private static Supplier<BiConsumer<String[], Run>> successBuildHandler;
 
-        String[] labels = BuildUtil.getLabels(build);
-        if (isSuccessfulBuild(build)) {
-            successBuildHandler.get().accept(labels, build);
-        }
-
-        buildInfoHandler.get().accept(labels, build);
+  public static void handleBuild(Run build) {
+    if (Objects.isNull(build)) {
+      return;
     }
+
+    String[] labels = BuildUtil.getLabels(build);
+    if (isSuccessfulBuild(build)) {
+      successBuildHandler.get().accept(labels, build);
+    }
+
+    buildInfoHandler.get().accept(labels, build);
+  }
 }
