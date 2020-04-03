@@ -3,7 +3,6 @@ package io.jenkins.plugins.collector.actions.gauge;
 import hudson.model.Result;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
-import io.jenkins.plugins.collector.util.CustomizeMetrics;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Gauge.Child;
 import java.util.Arrays;
@@ -24,7 +23,6 @@ public class BuildInfoHandlerTest {
   private Child durationGaugeChild;
   private Child startTimeGaugeChild;
   private MockBuild mockBuild;
-  private CustomizeMetrics mockMetrics;
 
   @Before
   public void setUp() {
