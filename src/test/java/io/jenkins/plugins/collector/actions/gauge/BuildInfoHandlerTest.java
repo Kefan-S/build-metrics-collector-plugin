@@ -7,18 +7,17 @@ import io.jenkins.plugins.collector.util.CustomizeMetrics;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Gauge.Child;
 import java.util.Arrays;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAMESPACE;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAME_PREFIX;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 
-class BuildInfoHandlerTest {
+public class BuildInfoHandlerTest {
 
   Gauge durationGauge;
   Gauge startTimeGauge;
@@ -27,8 +26,8 @@ class BuildInfoHandlerTest {
   private MockBuild mockBuild;
   private CustomizeMetrics mockMetrics;
 
-  @BeforeEach
-  void setUp() {
+  @Before
+  public void setUp() {
     durationGauge = Mockito.spy(Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
