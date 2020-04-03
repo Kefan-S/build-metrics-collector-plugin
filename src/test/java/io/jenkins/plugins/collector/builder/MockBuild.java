@@ -13,7 +13,7 @@ public class MockBuild extends Run {
     super(job);
   }
 
-  MockBuild createPreviousBuild(long interval, long duration, Result result) {
+  public MockBuild createPreviousBuild(Long interval, Long duration, Result result) {
     if (interval <= 0 || duration <= 0 || (getStartTimeInMillis() - interval <= 0)) {
       throw new IllegalArgumentException();
     }
@@ -27,7 +27,7 @@ public class MockBuild extends Run {
     return previousBuild;
   }
 
-  MockBuild createNextBuild(long interval, long duration, Result result) {
+  public MockBuild createNextBuild(Long interval, Long duration, Result result) {
     if (interval <= 0 || duration <= 0) {
       throw new IllegalArgumentException();
     }

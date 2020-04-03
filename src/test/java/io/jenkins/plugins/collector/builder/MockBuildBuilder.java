@@ -4,6 +4,8 @@ import hudson.model.Result;
 import hudson.model.Run;
 import org.mockito.Mockito;
 
+import static org.mockito.ArgumentMatchers.any;
+
 public class MockBuildBuilder {
 
   Run previousBuild;
@@ -44,6 +46,8 @@ public class MockBuildBuilder {
     Mockito.when(mockBuild.getDuration()).thenReturn(duration);
     Mockito.when(mockBuild.getNextBuild()).thenReturn(nextBuild);
     Mockito.when(mockBuild.getPreviousBuild()).thenReturn(previousBuild);
+    Mockito.when(mockBuild.createNextBuild(any(), any(), any())).thenCallRealMethod();
+    Mockito.when(mockBuild.createPreviousBuild(any(), any(), any())).thenCallRealMethod();
     return mockBuild;
   }
 }
