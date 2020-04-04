@@ -41,6 +41,7 @@ public class MockBuildBuilder {
 
   public MockBuild create() {
     MockBuild mockBuild = Mockito.mock(MockBuild.class);
+    Mockito.when(mockBuild.isBuilding()).thenReturn(result == null);
     Mockito.when(mockBuild.getStartTimeInMillis()).thenReturn(startTimeInMillis);
     Mockito.when(mockBuild.getResult()).thenReturn(result);
     Mockito.when(mockBuild.getDuration()).thenReturn(duration);

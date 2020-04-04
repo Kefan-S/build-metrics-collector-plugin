@@ -40,13 +40,13 @@ public class BuildUtil {
     return !build.isBuilding() && Result.UNSTABLE.isWorseOrEqualTo(build.getResult());
   }
 
-    public static String[] getLabels(Run build){
-        String jobFullName = build.getParent().getFullName();
-        String trigger = getTrigger(build);
-        String result = Optional.ofNullable(build.getResult()).map(Result::toString)
-                .orElse(BUILD_NO_RESULT_STATUS);
-        return new String[]{jobFullName, trigger, result};
-    }
+  public static String[] getLabels(Run build) {
+    String jobFullName = build.getParent().getFullName();
+    String trigger = getTrigger(build);
+    String result = Optional.ofNullable(build.getResult()).map(Result::toString)
+        .orElse(BUILD_NO_RESULT_STATUS);
+    return new String[]{jobFullName, trigger, result};
+  }
 
   static String getTrigger(Run build) {
     Cause.UpstreamCause upstreamCause = (Cause.UpstreamCause) build.getCause(Cause.UpstreamCause.class);

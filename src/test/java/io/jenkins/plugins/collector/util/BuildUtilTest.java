@@ -1,19 +1,15 @@
 package io.jenkins.plugins.collector.util;
 
 import hudson.model.Cause;
-import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
-import io.jenkins.plugins.collector.builder.FakeBuild;
-import java.io.IOException;
-import java.util.TreeMap;
-import org.junit.Before;
+import io.jenkins.plugins.collector.builder.MockBuild;
+import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.Mockito;
 
-import static io.jenkins.plugins.collector.builder.FakeJob.createMockProject;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -22,82 +18,92 @@ import static org.mockito.Mockito.when;
 
 public class BuildUtilTest {
 
-  private Job pipeline;
-
-  @Before
-  public void setUp() {
-    pipeline = createMockProject(new TreeMap<>());
-  }
-
   @Test
-  public void should_be_calculated_when_check_success_build_given_a_success_build_after_failed_build() throws IOException {
-    FakeBuild previousBuild = new FakeBuild(pipeline, Result.FAILURE, 20, null);
-    FakeBuild lastBuild = new FakeBuild(pipeline, Result.SUCCESS, 40, previousBuild);
+  public void should_be_calculated_when_check_success_build_given_a_first_success_build() {
+    MockBuild lastBuild = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(Result.SUCCESS).previousBuild(null).create();
 
     assertTrue(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild.getNextBuild(), lastBuild));
   }
 
   @Test
-  public void should_not_be_calculated_when_check_success_build_given_a_success_build_before_failed_build() throws IOException {
-    FakeBuild previousBuild = new FakeBuild(pipeline, Result.SUCCESS, 40, null);
-    FakeBuild lastBuild = new FakeBuild(pipeline, Result.FAILURE, 20, previousBuild);
-    assertFalse(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild, previousBuild));
+  public void should_be_calculated_when_check_success_build_given_a_last_success_build_after_failed_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(Result.FAILURE).previousBuild(null).create();
+    MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
+
+    assertTrue(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild.getNextBuild(), lastBuild));
   }
 
-
   @Test
-  public void should_not_be_calculated_when_check_success_build_given_a_success_build_before_success_build() throws IOException {
-    FakeBuild previousBuild = new FakeBuild(pipeline, Result.SUCCESS, 40, null);
-    FakeBuild lastBuild = new FakeBuild(pipeline, Result.SUCCESS, 20, previousBuild);
+  public void should_be_calculated_when_check_success_build_given_a_last_success_build_after_success_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(Result.SUCCESS).previousBuild(null).create();
+    MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
 
-    assertFalse(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild, previousBuild));
+    assertTrue(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild.getNextBuild(), lastBuild));
   }
 
-
   @Test
-  public void should_not_be_calculated_when_check_success_build_given_a_success_build_before_a_running_build() throws IOException {
-    FakeBuild previousBuild = new FakeBuild(pipeline, Result.SUCCESS, 20, null);
-    FakeBuild lastBuild = new FakeBuild(pipeline, null, 40, previousBuild);
+  public void should_be_calculated_when_check_success_build_given_a_last_success_build_before_a_running_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(Result.SUCCESS).previousBuild(null).create();
+    MockBuild lastBuild = previousBuild.createNextBuild(10L, 100L, null);
 
     assertTrue(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild, previousBuild));
   }
 
   @Test
-  public void is_complete_over_time_given_previous_build_is_running_after_next_build() throws IOException {
-    FakeBuild previousBuild = new FakeBuild(pipeline, null, 40, null);
-    FakeBuild lastBuild = new FakeBuild(pipeline, Result.FAILURE, 20, previousBuild);
+  public void should_not_be_calculated_given_a_previous_success_build_completed_after_failed_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(100).result(Result.SUCCESS).previousBuild(null).create();
+    MockBuild lastBuild = previousBuild.createNextBuild(10L, 20L, Result.FAILURE);
+
+    assertFalse(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild, previousBuild));
+  }
+
+  @Test
+  public void should_not_be_calculated_given_a_previous_success_build_completed_after_success_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(100).result(Result.SUCCESS).previousBuild(null).create();
+    MockBuild lastBuild = previousBuild.createNextBuild(10L, 20L, Result.SUCCESS);
+
+    assertFalse(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild, previousBuild));
+  }
+
+  @Test
+  public void is_complete_over_time_given_previous_build_is_running_after_next_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(100).result(null).previousBuild(null).create();
+    MockBuild lastBuild = previousBuild.createNextBuild(10L, 20L, Result.SUCCESS);
 
     assertTrue(BuildUtil.isCompleteOvertime(previousBuild, lastBuild));
   }
 
-
   @Test
-  public void is_complete_over_time_given_previous_build_complete_after_next_build() throws IOException {
-    FakeBuild previousBuild = new FakeBuild(pipeline, Result.SUCCESS, 40, null);
-    FakeBuild lastBuild = new FakeBuild(pipeline, Result.SUCCESS, 20, previousBuild);
+  public void is_complete_over_time_given_previous_build_complete_after_next_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(100).result(Result.SUCCESS).previousBuild(null).create();
+    MockBuild lastBuild = previousBuild.createNextBuild(10L, 20L, Result.SUCCESS);
 
     assertTrue(BuildUtil.isCompleteOvertime(previousBuild, lastBuild));
   }
 
   @Test
-  public void is_not_complete_over_time_given_previous_build_complete_before_next_build() throws IOException {
-    FakeBuild previousBuild = new FakeBuild(pipeline, Result.FAILURE, 20, null);
-    FakeBuild lastBuild = new FakeBuild(pipeline, Result.SUCCESS, 40, previousBuild);
+  public void is_not_complete_over_time_given_previous_build_complete_before_next_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(Result.FAILURE).previousBuild(null).create();
+    MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
 
     assertFalse(BuildUtil.isCompleteOvertime(previousBuild, lastBuild));
   }
 
   @Test
-  public void should_return_max_value_when_calculate_end_time_given_previous_build_is_running_build() throws IOException {
-    FakeBuild build = new FakeBuild(pipeline, null, 40, null);
+  public void should_return_max_value_when_calculate_end_time_given_a_running_build() {
+    MockBuild build = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(null).previousBuild(null).create();
     assertEquals(Long.MAX_VALUE, BuildUtil.getBuildEndTime(build));
+  }
+
+  @Test
+  public void should_return_build_end_time_when_calculate_end_time_given_a_completed_build() {
+    MockBuild build = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(Result.SUCCESS).previousBuild(null).create();
+    assertEquals(20, BuildUtil.getBuildEndTime(build));
   }
 
   @Test
   public void should_get_labels_when_get_labels_given_an_successful_build() {
     Run fakeRun = Mockito.mock(Run.class, Answers.RETURNS_DEEP_STUBS);
-//    FakeBuild fakeBuild = Mockito.mock(FakeBuild.class);
-//    when(fakeBuild.getResult()).thenReturn(Result.SUCCESS);
     when(fakeRun.getParent().getFullName()).thenReturn("name");
     when(fakeRun.getResult()).thenReturn(Result.SUCCESS);
     when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
