@@ -7,5 +7,5 @@ script:
   - mvn compile
   - mvn checkstyle:check
   - mvn pmd:check
-  - mvn findbugs:check
+  - mvn spotbugs:check
   - mvn install
