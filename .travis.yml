@@ -4,8 +4,9 @@ cache:
     - .autoconf
     - $HOME/.m2
 script:
-  - mvn compile
+  - mvn clean compile
   - mvn checkstyle:check
   - mvn pmd:check
   - mvn spotbugs:check
+  - mvn test
   - mvn install
