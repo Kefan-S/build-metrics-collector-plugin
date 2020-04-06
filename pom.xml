@@ -182,26 +182,6 @@
         </plugin>
 
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>3.0.1</version>
-          <configuration>
-            <effort>Max</effort>
-            <threshold>Low</threshold>
-            <excludeFilterFile>check/findbugs-exclude.xml</excludeFilterFile>
-          </configuration>
-          <executions>
-            <execution>
-              <id>analyze-findbugs</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-
-        <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
           <version>4.0.0</version>
