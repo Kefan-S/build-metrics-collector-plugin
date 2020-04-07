@@ -1,6 +1,9 @@
 package io.jenkins.plugins.collector.actions.gauge;
 
+import hudson.model.Result;
 import hudson.model.Run;
+import io.jenkins.plugins.collector.builder.MockBuild;
+import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Gauge.Child;
@@ -13,6 +16,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
@@ -91,5 +95,57 @@ public class LeadTimeHandlerTest {
     verify(leadTimeHandler, times(1)).calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
     verify(leadTimeMetrics, times(0)).labels(LEADTIME_HANDLER_LABELS);
     verify(leadTimeMetricsChild, times(0)).set(1L);
+  }
+
+  @Test
+  public void should_lead_time_be_duration_if_current_build_is_first_build() {
+    Gauge leadTimeMetrics = Mockito.mock(Gauge.class);
+    LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(1000).duration(1000).result(Result.SUCCESS).create();
+    Long calculateLeadTime = leadTimeHandler.calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
+    assertEquals(currentBuild.getDuration(), calculateLeadTime.longValue());
+  }
+
+  @Test
+  public void should_lead_time_be_duration_if_there_is_a_unovertime_successful_build_before_current_build() {
+    Gauge leadTimeMetrics = Mockito.mock(Gauge.class);
+    LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(3000).duration(1000).result(Result.SUCCESS).create();
+    currentBuild.createPreviousBuild(1000L, 500L, Result.SUCCESS);
+    Long calculateLeadTime = leadTimeHandler.calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
+    assertEquals(currentBuild.getDuration(), calculateLeadTime.longValue());
+  }
+
+  @Test
+  public void should_lead_time_be_right_if_there_is_a_uncompleted_build_before_current_build() {
+    Gauge leadTimeMetrics = Mockito.mock(Gauge.class);
+    LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(3000).duration(1000).result(Result.SUCCESS).create();
+    MockBuild previousBuild = currentBuild.createPreviousBuild(1000L, 6000L, null);
+    Long calculateLeadTime = leadTimeHandler.calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
+    long expected = currentBuild.getStartTimeInMillis() + currentBuild.getDuration() - previousBuild.getStartTimeInMillis();
+    assertEquals(expected, calculateLeadTime.longValue());
+  }
+
+  @Test
+  public void should_lead_time_be_right_if_there_is_a_unovertime_error_build_before_current_build() {
+    Gauge leadTimeMetrics = Mockito.mock(Gauge.class);
+    LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(3000).duration(1000).result(Result.SUCCESS).create();
+    MockBuild previousBuild = currentBuild.createPreviousBuild(1000L, 500L, Result.FAILURE);
+    Long calculateLeadTime = leadTimeHandler.calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
+    long expected = currentBuild.getStartTimeInMillis() + currentBuild.getDuration() - previousBuild.getStartTimeInMillis();
+    assertEquals(expected, calculateLeadTime.longValue());
+  }
+
+  @Test
+  public void should_lead_time_be_right_if_there_is_a_overtime_error_build_before_current_build() {
+    Gauge leadTimeMetrics = Mockito.mock(Gauge.class);
+    LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(3000).duration(1000).result(Result.SUCCESS).create();
+    MockBuild previousBuild = currentBuild.createPreviousBuild(1000L, 50000L, Result.FAILURE);
+    Long calculateLeadTime = leadTimeHandler.calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
+    long expected = currentBuild.getStartTimeInMillis() + currentBuild.getDuration() - previousBuild.getStartTimeInMillis();
+    assertEquals(expected, calculateLeadTime.longValue());
   }
 }
