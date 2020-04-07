@@ -29,9 +29,7 @@ public class LeadTimeHandler implements BiConsumer<String[], Run> {
   }
 
   private Consumer<Long> setLeadTimeThenPush(String... labels) {
-    return leadTime -> {
-      this.leadTimeMetrics.labels(labels).set(leadTime);
-    };
+    return leadTime -> this.leadTimeMetrics.labels(labels).set(leadTime);
   }
 
   Long calculateLeadTime(Run matchedBuild, Run currentBuild) {
