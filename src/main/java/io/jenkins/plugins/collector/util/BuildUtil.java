@@ -77,8 +77,4 @@ public class BuildUtil {
 
     return "UnKnown";
   }
-
-  public static List getResult() {
-    return new ArrayList<String>();
-  }
 }
