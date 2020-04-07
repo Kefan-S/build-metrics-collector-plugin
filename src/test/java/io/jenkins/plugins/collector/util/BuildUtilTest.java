@@ -1,21 +1,33 @@
 package io.jenkins.plugins.collector.util;
 
 import hudson.model.Cause;
+import hudson.model.Cause.UpstreamCause;
+import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
+import io.jenkins.plugins.collector.exceptions.JenkinsInstanceMissingException;
+import jenkins.model.Jenkins;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Jenkins.class, BuildUtil.class})
 public class BuildUtilTest {
 
   @Test
@@ -163,5 +175,107 @@ public class BuildUtilTest {
 
     String trigger = BuildUtil.getTrigger(fakeRun);
     assertEquals("UnKnown", trigger);
+  }
+
+  @Test
+  public void should_return_scm_when_get_trigger_given_scm_triggered_upstream_build() {
+    Run fakeUpstreamRun = Mockito.mock(Run.class);
+    Run fakeRun = Mockito.mock(Run.class);
+    mockStatic(Jenkins.class);
+    Job fakeJob = Mockito.mock(Job.class);
+    Jenkins jenkins = Mockito.mock(Jenkins.class);
+    UpstreamCause upstreamCause = Mockito.mock(UpstreamCause.class);
+
+    when(fakeRun.getCause(UpstreamCause.class)).thenReturn(upstreamCause);
+    when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
+    when(jenkins.getItemByFullName(any(), any())).thenReturn(fakeJob);
+    Mockito.doReturn(fakeUpstreamRun).when(fakeJob).getBuildByNumber(anyInt());
+
+    Mockito.doReturn(null).when(fakeUpstreamRun).getCause(Cause.UpstreamCause.class);
+    Mockito.doReturn(new SCMTrigger.SCMTriggerCause("something")).when(fakeUpstreamRun).getCause(SCMTrigger.SCMTriggerCause.class);
+
+    assertEquals("SCM", BuildUtil.getTrigger(fakeRun));
+  }
+
+  @Test
+  public void should_return_user_id_when_get_trigger_given_user_triggered_upstream_build() {
+    Run fakeUpstreamRun = Mockito.mock(Run.class);
+    Run fakeRun = Mockito.mock(Run.class);
+    mockStatic(Jenkins.class);
+    Job fakeJob = Mockito.mock(Job.class);
+    Jenkins jenkins = Mockito.mock(Jenkins.class);
+    UpstreamCause upstreamCause = Mockito.mock(UpstreamCause.class);
+
+    when(fakeRun.getCause(UpstreamCause.class)).thenReturn(upstreamCause);
+    when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
+    when(jenkins.getItemByFullName(any(), any())).thenReturn(fakeJob);
+    Mockito.doReturn(fakeUpstreamRun).when(fakeJob).getBuildByNumber(anyInt());
+
+    Mockito.doReturn(null).when(fakeUpstreamRun).getCause(Cause.UpstreamCause.class);
+    Mockito.doReturn(new Cause.UserIdCause("user-id")).when(fakeUpstreamRun).getCause(Cause.UserIdCause.class);
+
+    assertEquals("user-id", BuildUtil.getTrigger(fakeRun));
+  }
+
+  @Test
+  public void should_return_UnKnown_User_when_get_trigger_given_anonymous_user_triggered_upstream_build() {
+    Run fakeUpstreamRun = Mockito.mock(Run.class);
+    Run fakeRun = Mockito.mock(Run.class);
+    mockStatic(Jenkins.class);
+    Job fakeJob = Mockito.mock(Job.class);
+    Jenkins jenkins = Mockito.mock(Jenkins.class);
+    UpstreamCause upstreamCause = Mockito.mock(UpstreamCause.class);
+
+    when(fakeRun.getCause(UpstreamCause.class)).thenReturn(upstreamCause);
+    when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
+    when(jenkins.getItemByFullName(any(), any())).thenReturn(fakeJob);
+    Mockito.doReturn(fakeUpstreamRun).when(fakeJob).getBuildByNumber(anyInt());
+
+    Mockito.doReturn(null).when(fakeUpstreamRun).getCause(Cause.UpstreamCause.class);
+    Mockito.doReturn(new Cause.UserIdCause(null)).when(fakeUpstreamRun).getCause(Cause.UserIdCause.class);
+
+    assertEquals("UnKnown User", BuildUtil.getTrigger(fakeRun));
+  }
+
+  @Test
+  public void should_return_UnKnown_when_get_trigger_given_neither_scm_nor_user_triggered_upstream_build() {
+    Run fakeUpstreamRun = Mockito.mock(Run.class);
+    Run fakeRun = Mockito.mock(Run.class);
+    mockStatic(Jenkins.class);
+    Job fakeJob = Mockito.mock(Job.class);
+    Jenkins jenkins = Mockito.mock(Jenkins.class);
+    UpstreamCause upstreamCause = Mockito.mock(UpstreamCause.class);
+
+    when(fakeRun.getCause(UpstreamCause.class)).thenReturn(upstreamCause);
+    when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
+    when(jenkins.getItemByFullName(any(), any())).thenReturn(fakeJob);
+    Mockito.doReturn(fakeUpstreamRun).when(fakeJob).getBuildByNumber(anyInt());
+
+    Mockito.doReturn(null).when(fakeUpstreamRun).getCause(Cause.UpstreamCause.class);
+
+    assertEquals("UnKnown", BuildUtil.getTrigger(fakeRun));
+  }
+
+  @Test(expected = JenkinsInstanceMissingException.class)
+  public void should_throw_Jenkins_Instance_MissingException_when_get_trigger_given_job_absent() {
+    Run fakeRun = Mockito.mock(Run.class);
+    mockStatic(Jenkins.class);
+    Jenkins jenkins = Mockito.mock(Jenkins.class);
+    UpstreamCause upstreamCause = Mockito.mock(UpstreamCause.class);
+
+    when(fakeRun.getCause(UpstreamCause.class)).thenReturn(upstreamCause);
+    when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
+    BuildUtil.getTrigger(fakeRun);
+  }
+
+  @Test(expected = JenkinsInstanceMissingException.class)
+  public void should_throw_Jenkins_Instance_MissingException_when_get_trigger_given_jenkins_instance_absent() {
+    Run fakeRun = Mockito.mock(Run.class);
+    mockStatic(Jenkins.class);
+    UpstreamCause upstreamCause = Mockito.mock(UpstreamCause.class);
+
+    when(fakeRun.getCause(UpstreamCause.class)).thenReturn(upstreamCause);
+    when(Jenkins.getInstanceOrNull()).thenReturn(null);
+    BuildUtil.getTrigger(fakeRun);
   }
 }

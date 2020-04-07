@@ -6,12 +6,16 @@ import hudson.model.Result;
 import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
 import io.jenkins.plugins.collector.exceptions.JenkinsInstanceMissingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import jenkins.model.Jenkins;
 
 import static io.jenkins.plugins.collector.config.Constant.BUILD_NO_RESULT_STATUS;
 
 public class BuildUtil {
+
+  private static final UpstreamJobGetter UPSTREAM_JOB_GETTER = new UpstreamJobGetter();
 
   public static boolean isFirstSuccessfulBuildAfterError(Run matchedBuild, Run currentBuild) {
     if (matchedBuild == null) {
@@ -52,14 +56,12 @@ public class BuildUtil {
     Cause.UpstreamCause upstreamCause = (Cause.UpstreamCause) build.getCause(Cause.UpstreamCause.class);
     if (upstreamCause != null) {
       Job job = Optional.ofNullable(Jenkins.getInstanceOrNull())
-          .map(r -> r.getItemByFullName(upstreamCause.getUpstreamProject(), Job.class))
+          .map(r -> UPSTREAM_JOB_GETTER.apply(r, upstreamCause))
           .orElseThrow(JenkinsInstanceMissingException::new);
 
-      if (job != null) {
-        Run upstream = job.getBuildByNumber(upstreamCause.getUpstreamBuild());
-        if (upstream != null) {
-          return getTrigger(upstream);
-        }
+      Run upstream = job.getBuildByNumber(upstreamCause.getUpstreamBuild());
+      if (upstream != null) {
+        return getTrigger(upstream);
       }
     }
 
@@ -76,4 +78,7 @@ public class BuildUtil {
     return "UnKnown";
   }
 
+  public static List getResult() {
+    return new ArrayList<String>();
+  }
 }
