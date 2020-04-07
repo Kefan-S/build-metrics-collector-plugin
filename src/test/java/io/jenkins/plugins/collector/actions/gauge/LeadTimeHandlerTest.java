@@ -73,7 +73,7 @@ public class LeadTimeHandlerTest {
   }
 
   @Test
-  public void should_not_set_value_to_metrics_if_calculated_lead_time_is_nagtive() {
+  public void should_not_set_value_to_metrics_if_calculated_lead_time_is_negative() {
     Gauge leadTimeMetrics = Mockito.mock(Gauge.class);
     Child leadTimeMetricsChild = Mockito.mock(Child.class);
     LeadTimeHandler leadTimeHandler = Mockito.mock(LeadTimeHandler.class);
