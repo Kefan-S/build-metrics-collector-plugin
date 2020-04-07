@@ -1,7 +1,6 @@
 package io.jenkins.plugins.collector.actions.gauge;
 
 import hudson.model.Result;
-import hudson.model.Run;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.util.BuildUtil;
@@ -12,11 +11,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
-import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
-import static io.jenkins.plugins.collector.util.BuildUtil.isSuccessfulBuild;
 import static org.mockito.ArgumentMatchers.any;
 
 public class RecoverTimeHandlerTest {
