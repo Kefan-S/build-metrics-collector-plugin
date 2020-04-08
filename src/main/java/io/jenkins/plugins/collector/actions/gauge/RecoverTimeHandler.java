@@ -29,8 +29,7 @@ public class RecoverTimeHandler implements BiConsumer<String[], Run> {
   }
 
   private Consumer<Long> setRecoverTimeThenPush(String... labels) {
-    return recoverTime ->
-        recoverTimeMetrics.labels(labels).set(recoverTime);
+    return recoverTime -> recoverTimeMetrics.labels(labels).set(recoverTime);
   }
 
   Long calculateRecoverTime(Run matchedBuild, Run currentBuild) {

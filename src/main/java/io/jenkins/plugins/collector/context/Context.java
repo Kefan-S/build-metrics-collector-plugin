@@ -35,8 +35,8 @@ public class Context extends AbstractModule {
 
   @Provides
   @Singleton
-  @Named("successBuildHandlerSupplier")
-  BiConsumer<String[], Run> successBuildHandlerSupplier(@Named("customizeMetrics") CustomizeMetrics customizeMetrics) {
+  @Named("successBuildHandler")
+  BiConsumer<String[], Run> successBuildHandler(@Named("customizeMetrics") CustomizeMetrics customizeMetrics) {
     Gauge leadTimeMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_merge_lead_time")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
@@ -60,8 +60,8 @@ public class Context extends AbstractModule {
 
   @Provides
   @Singleton
-  @Named("buildInfoHandlerSupplier")
-  BiConsumer<String[], Run> buildInfoHandlerSupplier(@Named("customizeMetrics") CustomizeMetrics customizeMetrics) {
+  @Named("buildInfoHandler")
+  BiConsumer<String[], Run> buildInfoHandler(@Named("customizeMetrics") CustomizeMetrics customizeMetrics) {
     Gauge buildDurationMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
