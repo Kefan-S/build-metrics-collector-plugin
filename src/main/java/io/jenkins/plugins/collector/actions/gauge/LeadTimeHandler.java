@@ -20,10 +20,10 @@ public class LeadTimeHandler implements BiConsumer<String[], Run> {
   }
 
   @Override
-  public void accept(String[] labels, Run successBuilds) {
-    Optional.of(successBuilds)
-        .filter(successBuild -> isFirstSuccessfulBuildAfterError(successBuild.getNextBuild(), successBuild))
-        .map(successBuild -> calculateLeadTime(successBuild.getPreviousBuild(), successBuild))
+  public void accept(String[] labels, Run successBuild) {
+    Optional.of(successBuild)
+        .filter(build -> isFirstSuccessfulBuildAfterError(build.getNextBuild(), build))
+        .map(firstSuccessBuild -> calculateLeadTime(firstSuccessBuild.getPreviousBuild(), firstSuccessBuild))
         .ifPresent(setLeadTimeThenPush(labels));
   }
 
@@ -31,17 +31,15 @@ public class LeadTimeHandler implements BiConsumer<String[], Run> {
     return leadTime -> this.leadTimeMetrics.labels(labels).set(leadTime);
   }
 
-  private Long calculateLeadTime(Run matchedBuild, Run currentBuild) {
-    if (isASuccessAndFinishedMatchedBuild(matchedBuild, currentBuild)) {
-      return currentBuild.getDuration();
+  private Long calculateLeadTime(Run matchedBuild, Run successBuild) {
+    long leadTime = successBuild.getDuration();
+    while (!isASuccessAndFinishedMatchedBuild(matchedBuild, successBuild)) {
+      if (!Result.ABORTED.equals(matchedBuild.getResult())) {
+        leadTime = Math.max(leadTime, getBuildEndTime(successBuild) - matchedBuild.getStartTimeInMillis());
+      }
+      matchedBuild = matchedBuild.getPreviousBuild();
     }
-
-    if (Result.ABORTED.equals(matchedBuild.getResult())) {
-      return calculateLeadTime(matchedBuild.getPreviousBuild(), currentBuild);
-    }
-
-    return Math.max(calculateLeadTime(matchedBuild.getPreviousBuild(), currentBuild),
-        getBuildEndTime(currentBuild) - matchedBuild.getStartTimeInMillis());
+    return leadTime;
   }
 
   private boolean isASuccessAndFinishedMatchedBuild(Run matchedBuild, Run currentBuild) {

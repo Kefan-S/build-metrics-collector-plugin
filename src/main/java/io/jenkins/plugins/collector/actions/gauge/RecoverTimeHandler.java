@@ -20,10 +20,10 @@ public class RecoverTimeHandler implements BiConsumer<String[], Run> {
   }
 
   @Override
-  public void accept(String[] labels, Run successBuilds) {
-    Optional.of(successBuilds)
-        .filter(successBuild -> isFirstSuccessfulBuildAfterError(successBuild.getNextBuild(), successBuild))
-        .map(successBuild -> calculateRecoverTime(successBuild.getPreviousBuild(), successBuild))
+  public void accept(String[] labels, Run successBuild) {
+    Optional.of(successBuild)
+        .filter(build -> isFirstSuccessfulBuildAfterError(build.getNextBuild(), build))
+        .map(firstSuccessBuild -> calculateRecoverTime(firstSuccessBuild.getPreviousBuild(), firstSuccessBuild))
         .filter(recoverTime -> recoverTime > 0)
         .ifPresent(setRecoverTimeThenPush(labels));
   }
@@ -33,16 +33,14 @@ public class RecoverTimeHandler implements BiConsumer<String[], Run> {
   }
 
   Long calculateRecoverTime(Run matchedBuild, Run currentBuild) {
-    if (isASuccessAndFinishedMatchedBuild(matchedBuild, currentBuild)) {
-      return Long.MIN_VALUE;
+    long recoverTime = Long.MIN_VALUE;
+    while (!isASuccessAndFinishedMatchedBuild(matchedBuild, currentBuild)) {
+      if (!Result.ABORTED.equals(matchedBuild.getResult())) {
+        recoverTime = Math.max(recoverTime, getBuildEndTime(currentBuild) - getBuildEndTime(matchedBuild));
+      }
+      matchedBuild = matchedBuild.getPreviousBuild();
     }
-
-    if (Result.ABORTED.equals(matchedBuild.getResult())) {
-      return calculateRecoverTime(matchedBuild.getPreviousBuild(), currentBuild);
-    }
-
-    return Math.max(calculateRecoverTime(matchedBuild.getPreviousBuild(), currentBuild),
-        getBuildEndTime(currentBuild) - getBuildEndTime(matchedBuild));
+    return recoverTime;
   }
 
   private boolean isASuccessAndFinishedMatchedBuild(Run matchedBuild, Run currentBuild) {
