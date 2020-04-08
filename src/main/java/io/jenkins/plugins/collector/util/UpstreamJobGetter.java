@@ -8,7 +8,7 @@ import jenkins.model.Jenkins;
 public class UpstreamJobGetter implements BiFunction<Jenkins, UpstreamCause, Job> {
 
   @Override
-  public  Job apply(Jenkins jenkins, UpstreamCause upstreamCause) {
+  public Job apply(Jenkins jenkins, UpstreamCause upstreamCause) {
     return jenkins.getItemByFullName(upstreamCause.getUpstreamProject(), Job.class);
   }
 }

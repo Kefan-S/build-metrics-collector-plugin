@@ -8,7 +8,7 @@ import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
-import io.jenkins.plugins.collector.exceptions.JenkinsInstanceMissingException;
+import io.jenkins.plugins.collector.exceptions.InstanceMissingException;
 import jenkins.model.Jenkins;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -238,7 +238,7 @@ public class BuildUtilTest {
     assertEquals("UnKnown", BuildUtil.getTrigger(fakeRun));
   }
 
-  @Test(expected = JenkinsInstanceMissingException.class)
+  @Test(expected = InstanceMissingException.class)
   public void should_throw_Jenkins_Instance_MissingException_when_get_trigger_given_job_absent() {
     Run fakeRun = Mockito.mock(Run.class);
     mockStatic(Jenkins.class);
@@ -250,7 +250,7 @@ public class BuildUtilTest {
     BuildUtil.getTrigger(fakeRun);
   }
 
-  @Test(expected = JenkinsInstanceMissingException.class)
+  @Test(expected = InstanceMissingException.class)
   public void should_throw_Jenkins_Instance_MissingException_when_get_trigger_given_jenkins_instance_absent() {
     Run fakeRun = Mockito.mock(Run.class);
     mockStatic(Jenkins.class);

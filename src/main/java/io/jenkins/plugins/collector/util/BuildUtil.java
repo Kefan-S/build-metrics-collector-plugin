@@ -5,9 +5,7 @@ import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
-import io.jenkins.plugins.collector.exceptions.JenkinsInstanceMissingException;
-import java.util.ArrayList;
-import java.util.List;
+import io.jenkins.plugins.collector.exceptions.InstanceMissingException;
 import java.util.Optional;
 import jenkins.model.Jenkins;
 
@@ -57,7 +55,7 @@ public class BuildUtil {
     if (upstreamCause != null) {
       Job job = Optional.ofNullable(Jenkins.getInstanceOrNull())
           .map(r -> UPSTREAM_JOB_GETTER.apply(r, upstreamCause))
-          .orElseThrow(JenkinsInstanceMissingException::new);
+          .orElseThrow(InstanceMissingException::new);
 
       Run upstream = job.getBuildByNumber(upstreamCause.getUpstreamBuild());
       if (upstream != null) {
