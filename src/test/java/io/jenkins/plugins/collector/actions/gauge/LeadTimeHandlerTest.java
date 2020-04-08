@@ -14,12 +14,9 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -27,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(BuildUtil.class)
+@PrepareForTest({BuildUtil.class, LeadTimeHandler.class})
 public class LeadTimeHandlerTest {
 
 
@@ -46,53 +43,53 @@ public class LeadTimeHandlerTest {
   }
 
   @Test
-  public void should_do_nothing_if_current_build_is_not_first_successful_build_after_error() {
-    LeadTimeHandler leadTimeHandler = Mockito.mock(LeadTimeHandler.class);
-    Run currentBuild = Mockito.mock(Run.class);
+  public void should_do_nothing_if_current_build_is_not_first_successful_build_after_error() throws Exception {
+    LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    Run currentBuild = new MockBuildBuilder().create();
+    Run previousBuild = currentBuild.getPreviousBuild();
+    Run nextBuild = currentBuild.getNextBuild();
 
-    Whitebox.setInternalState(leadTimeHandler, "leadTimeMetrics", leadTimeMetrics);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(false);
-    when(leadTimeHandler.calculateLeadTime(currentBuild.getNextBuild(), currentBuild)).thenReturn(1L);
-    doCallRealMethod().when(leadTimeHandler).accept(LEADTIME_HANDLER_LABELS, currentBuild);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(false);
+    PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
 
-    leadTimeHandler.accept(METRICS_LABEL_NAME_ARRAY.toArray(new String[0]), currentBuild);
+    leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
 
-    verify(leadTimeHandler, never()).calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", previousBuild, currentBuild);
     verify(leadTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
-    verify(leadTimeMetricsChild, never()).set(anyDouble());
+    verify(leadTimeMetricsChild, never()).set(1L);
 
   }
 
   @Test
-  public void should_calculate_lead_time_if_current_build_is_first_successful_build_after_error() {
-    LeadTimeHandler leadTimeHandler = Mockito.mock(LeadTimeHandler.class);
-    Run currentBuild = Mockito.mock(Run.class);
+  public void should_calculate_lead_time_if_current_build_is_first_successful_build_after_error() throws Exception {
+    LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    Run currentBuild = new MockBuildBuilder().create();
+    Run previousBuild = currentBuild.getPreviousBuild();
+    Run nextBuild = currentBuild.getNextBuild();
 
-    Whitebox.setInternalState(leadTimeHandler, "leadTimeMetrics", leadTimeMetrics);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
-    when(leadTimeHandler.calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild)).thenReturn(1L);
-    doCallRealMethod().when(leadTimeHandler).accept(LEADTIME_HANDLER_LABELS, currentBuild);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(true);
+    PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
 
-    verify(leadTimeHandler, times(1)).calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("calculateLeadTime", previousBuild, currentBuild);
     verify(leadTimeMetrics, times(1)).labels(LEADTIME_HANDLER_LABELS);
     verify(leadTimeMetricsChild, times(1)).set(1L);
   }
 
   @Test
-  public void should_not_set_value_to_metrics_if_calculated_lead_time_is_negative() {
-    LeadTimeHandler leadTimeHandler = Mockito.mock(LeadTimeHandler.class);
-    Run currentBuild = Mockito.mock(Run.class);
+  public void should_not_set_value_to_metrics_if_calculated_lead_time_is_negative() throws Exception {
+    LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    Run currentBuild = new MockBuildBuilder().create();
+    Run previousBuild = currentBuild.getPreviousBuild();
+    Run nextBuild = currentBuild.getNextBuild();
 
-    Whitebox.setInternalState(leadTimeHandler, "leadTimeMetrics", leadTimeMetrics);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
-    when(leadTimeHandler.calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild)).thenReturn(-1L);
-    doCallRealMethod().when(leadTimeHandler).accept(LEADTIME_HANDLER_LABELS, currentBuild);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(true);
+    PowerMockito.doReturn(-1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
 
-    verify(leadTimeHandler, times(1)).calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("calculateLeadTime", previousBuild, currentBuild);
     verify(leadTimeMetrics, times(0)).labels(LEADTIME_HANDLER_LABELS);
     verify(leadTimeMetricsChild, times(0)).set(1L);
   }
@@ -219,4 +216,6 @@ public class LeadTimeHandlerTest {
 
     verify(leadTimeMetricsChild, times(1)).set(expected);
   }
+
+
 }

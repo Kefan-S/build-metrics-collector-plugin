@@ -32,7 +32,7 @@ public class LeadTimeHandler implements BiConsumer<String[], Run> {
     return leadTime -> this.leadTimeMetrics.labels(labels).set(leadTime);
   }
 
-  Long calculateLeadTime(Run matchedBuild, Run currentBuild) {
+  private Long calculateLeadTime(Run matchedBuild, Run currentBuild) {
     if (matchedBuild == null
         || (!isCompleteOvertime(matchedBuild, currentBuild) && Result.UNSTABLE.isWorseOrEqualTo(matchedBuild.getResult()))) {
       return currentBuild.getDuration();
