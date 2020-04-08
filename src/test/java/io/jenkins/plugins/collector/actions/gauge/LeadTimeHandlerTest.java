@@ -40,6 +40,7 @@ public class LeadTimeHandlerTest {
     doReturn(leadTimeMetricsChild).when(leadTimeMetrics).labels(LEADTIME_HANDLER_LABELS);
     when(BuildUtil.isCompleteOvertime(any(), any())).thenCallRealMethod();
     when(BuildUtil.getBuildEndTime(any())).thenCallRealMethod();
+    when(BuildUtil.isFirstSuccessfulBuildAfterError(any(), any())).thenCallRealMethod();
   }
 
   @Test
@@ -98,7 +99,6 @@ public class LeadTimeHandlerTest {
   public void should_lead_time_be_duration_of_current_build_if_current_build_is_first_build() {
     LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
     MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(1000).duration(1000).result(Result.SUCCESS).create();
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
 
@@ -110,7 +110,6 @@ public class LeadTimeHandlerTest {
     LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
     MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(3000).duration(1000).result(Result.SUCCESS).create();
     currentBuild.createPreviousBuild(1000L, 500L, Result.ABORTED);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
 
@@ -122,7 +121,6 @@ public class LeadTimeHandlerTest {
     LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
     MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(3000).duration(1000).result(Result.SUCCESS).create();
     currentBuild.createPreviousBuild(1000L, 500L, Result.SUCCESS);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
 
@@ -134,7 +132,6 @@ public class LeadTimeHandlerTest {
     LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
     MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(3000).duration(1000).result(Result.SUCCESS).create();
     MockBuild previousUncompletedBuild = currentBuild.createPreviousBuild(1000L, 6000L, null);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
     long expected = currentBuild.getStartTimeInMillis() + currentBuild.getDuration() - previousUncompletedBuild.getStartTimeInMillis();
@@ -147,7 +144,6 @@ public class LeadTimeHandlerTest {
     LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
     MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(3000).duration(1000).result(Result.SUCCESS).create();
     MockBuild previousUnovertimeErrorBuild = currentBuild.createPreviousBuild(1000L, 500L, Result.FAILURE);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
     long expected = currentBuild.getStartTimeInMillis() + currentBuild.getDuration() - previousUnovertimeErrorBuild.getStartTimeInMillis();
@@ -160,7 +156,6 @@ public class LeadTimeHandlerTest {
     LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
     MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(3000).duration(1000).result(Result.SUCCESS).create();
     MockBuild previousOvertimeSuccessfulBuild = currentBuild.createPreviousBuild(1000L, 50000L, Result.FAILURE);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
     long expected = currentBuild.getStartTimeInMillis() + currentBuild.getDuration() - previousOvertimeSuccessfulBuild.getStartTimeInMillis();
@@ -176,7 +171,6 @@ public class LeadTimeHandlerTest {
         .createPreviousBuild(1000L, 500L, Result.FAILURE)
         .createPreviousBuild(1000L, 20000L, null);
     firstUnsuccessfulBuild.createPreviousBuild(1000L, 1000L, Result.SUCCESS);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
     long expected = currentBuild.getStartTimeInMillis() + currentBuild.getDuration() - firstUnsuccessfulBuild.getStartTimeInMillis();
@@ -193,7 +187,6 @@ public class LeadTimeHandlerTest {
         .createPreviousBuild(1000L, 500L, Result.FAILURE)
         .createPreviousBuild(1000L, 20000L, null)
         .createPreviousBuild(1000L, 30000L, Result.SUCCESS);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
     long expected = currentBuild.getStartTimeInMillis() + currentBuild.getDuration() - overtimeSuccessfulBuild.getStartTimeInMillis();
@@ -209,7 +202,6 @@ public class LeadTimeHandlerTest {
         .createPreviousBuild(1000L, 500L, Result.FAILURE)
         .createPreviousBuild(1000L, 20000L, null);
     firstUnsuccessfulBuild.createPreviousBuild(1000L, 30000L, Result.ABORTED);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
 
     leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
     long expected = currentBuild.getStartTimeInMillis() + currentBuild.getDuration() - firstUnsuccessfulBuild.getStartTimeInMillis();
