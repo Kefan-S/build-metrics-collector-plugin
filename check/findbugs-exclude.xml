@@ -26,6 +26,18 @@
   </Match>
 
   <Match>
+    <Class name="io.jenkins.plugins.collector.actions.gauge.LeadTimeHandler"/>
+    <Method name="isASuccessAndFinishedMatchedBuild"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
+  <Match>
+    <Class name="io.jenkins.plugins.collector.actions.gauge.RecoverTimeHandler"/>
+    <Method name="isASuccessAndFinishedMatchedBuild"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
+  <Match>
     <Class name="io.jenkins.plugins.collector.rest.PrometheusAction"/>
     <Bug code="UwF"/>
   </Match>

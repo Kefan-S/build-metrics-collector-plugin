@@ -81,23 +81,6 @@ public class LeadTimeHandlerTest {
   }
 
   @Test
-  public void should_not_set_value_to_metrics_if_calculated_lead_time_is_negative() {
-    LeadTimeHandler leadTimeHandler = Mockito.mock(LeadTimeHandler.class);
-    Run currentBuild = Mockito.mock(Run.class);
-
-    Whitebox.setInternalState(leadTimeHandler, "leadTimeMetrics", leadTimeMetrics);
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild.getNextBuild(), currentBuild)).thenReturn(true);
-    when(leadTimeHandler.calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild)).thenReturn(-1L);
-    doCallRealMethod().when(leadTimeHandler).accept(LEADTIME_HANDLER_LABELS, currentBuild);
-
-    leadTimeHandler.accept(LEADTIME_HANDLER_LABELS, currentBuild);
-
-    verify(leadTimeHandler, times(1)).calculateLeadTime(currentBuild.getPreviousBuild(), currentBuild);
-    verify(leadTimeMetrics, times(0)).labels(LEADTIME_HANDLER_LABELS);
-    verify(leadTimeMetricsChild, times(0)).set(1L);
-  }
-
-  @Test
   public void should_lead_time_be_duration_of_current_build_if_current_build_is_first_build() {
     LeadTimeHandler leadTimeHandler = Mockito.spy(new LeadTimeHandler(leadTimeMetrics));
     MockBuild currentBuild = new MockBuildBuilder().startTimeInMillis(1000).duration(1000).result(Result.SUCCESS).create();

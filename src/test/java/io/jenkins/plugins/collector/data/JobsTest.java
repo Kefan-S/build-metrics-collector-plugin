@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.util;
+package io.jenkins.plugins.collector.data;
 
 import hudson.model.Item;
 import hudson.model.Job;

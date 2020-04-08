@@ -29,20 +29,25 @@ public class RecoverTimeHandler implements BiConsumer<String[], Run> {
   }
 
   private Consumer<Long> setRecoverTimeThenPush(String... labels) {
-    return recoverTime -> {
-      recoverTimeMetrics.labels(labels).set(recoverTime);
-    };
+    return recoverTime ->
+        recoverTimeMetrics.labels(labels).set(recoverTime);
   }
 
   Long calculateRecoverTime(Run matchedBuild, Run currentBuild) {
-    if (matchedBuild == null || (!isCompleteOvertime(matchedBuild, currentBuild)
-            && Result.UNSTABLE.isWorseOrEqualTo(matchedBuild.getResult()))) {
+    if (isASuccessAndFinishedMatchedBuild(matchedBuild, currentBuild)) {
       return Long.MIN_VALUE;
     }
+
     if (Result.ABORTED.equals(matchedBuild.getResult())) {
       return calculateRecoverTime(matchedBuild.getPreviousBuild(), currentBuild);
     }
+
     return Math.max(calculateRecoverTime(matchedBuild.getPreviousBuild(), currentBuild),
         getBuildEndTime(currentBuild) - getBuildEndTime(matchedBuild));
+  }
+
+  private boolean isASuccessAndFinishedMatchedBuild(Run matchedBuild, Run currentBuild) {
+    return matchedBuild == null
+        || (!isCompleteOvertime(matchedBuild, currentBuild) && Result.UNSTABLE.isWorseOrEqualTo(matchedBuild.getResult()));
   }
 }
