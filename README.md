@@ -35,36 +35,36 @@ Only care the current status.
 
 **Deployment Frequency In One Day:**
 ```
-sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkins_job="metrics-dev/metrics-dev-sample-pipeline"}[1d]))
+sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d]))
 ```
 ![Deployment Frequency](demo/deployment_frequency.png)
 
 **Average Failure Rate In One Day:**
 ```
-sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkins_job="metrics-dev/metrics-dev-sample-pipeline",result="FAILURE"}[1d]))/sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkins_job="metrics-dev/metrics-dev-sample-pipeline"}[1d]))
+sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result="FAILURE"}[1d]))/sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d]))
 ```
 ![Failure Rate](demo/failure_rate.png)
 
 **Average Lead Time In One Day:**
 ```
-avg_over_time(default_jenkins_builds_merge_lead_time[1d])
+avg_over_time(default_jenkins_builds_merge_lead_time{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d])
 ```
 ![Lead Time](demo/lead_time.png)
 
 **Average Recovery Time In One Day:**
 ```
-avg_over_time(default_jenkins_builds_failed_build_recovery_time[1d])
+avg_over_time(default_jenkins_builds_failed_build_recovery_time{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d])
 ```
 ![Recovery Time](demo/recovery_time.png)
 
 **Triggered By:**
 ```
-count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkins_job="metrics-dev/metrics-dev-sample-pipeline",result=~".*"}[1d])
+count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result=~".*"}[1d])
 ```
 ![Triggered By](demo/triggered_by.png)
 
 **Start Time:**
 ```
-hour(default_jenkins_builds_last_build_start_timestamp{jenkins_job="metrics-dev/metrics-dev-sample-pipeline",result=~".*"})
+hour(default_jenkins_builds_last_build_start_timestamp{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result=~".*"})
 ```
 ![Triggered By](demo/start_time.png)
