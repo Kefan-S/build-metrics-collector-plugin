@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.actions.gauge;
+package io.jenkins.plugins.collector.actions;
 
 import hudson.model.Run;
 import io.prometheus.client.Gauge;
