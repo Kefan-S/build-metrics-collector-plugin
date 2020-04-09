@@ -19,6 +19,13 @@ Only care the current status.
 
 **Notice:** this value should be equal to the scrape_interval of the prometheus to ensure the correctness of the metrics data.
 
+## System Context
+![System context](demo/system_context.png)
+
+
+## Implement Context
+![Implement context](demo/implement_context.png)
+
 ## Collected data
 **Values**
 * *default_jenkins_builds_last_build_duration_in_millisecond*: Last Build duration times in milliseconds
@@ -65,6 +72,6 @@ count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenki
 
 **Start Time:**
 ```
-hour(default_jenkins_builds_last_build_start_timestamp{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result=~".*"})
+(hour(default_jenkins_builds_last_build_start_timestamp{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result=~".*"}/1000)+8)
 ```
 ![Triggered By](demo/start_time.png)
