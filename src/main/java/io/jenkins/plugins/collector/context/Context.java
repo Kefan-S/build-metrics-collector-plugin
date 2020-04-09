@@ -11,9 +11,10 @@ import io.jenkins.plugins.collector.actions.BuildMetricsCalculator;
 import io.jenkins.plugins.collector.actions.gauge.BuildInfoHandler;
 import io.jenkins.plugins.collector.actions.gauge.LeadTimeHandler;
 import io.jenkins.plugins.collector.actions.gauge.RecoverTimeHandler;
+import io.jenkins.plugins.collector.data.CustomizeMetrics;
+import io.jenkins.plugins.collector.data.JobCollector;
 import io.jenkins.plugins.collector.service.DefaultPrometheusMetrics;
 import io.jenkins.plugins.collector.service.PrometheusMetrics;
-import io.jenkins.plugins.collector.data.CustomizeMetrics;
 import io.prometheus.client.Gauge;
 import java.util.function.BiConsumer;
 
@@ -28,7 +29,7 @@ public class Context extends AbstractModule {
   @Override
   public void configure() {
     CustomizeMetrics metrics = new CustomizeMetrics();
-    bind(PrometheusMetrics.class).toInstance(new DefaultPrometheusMetrics(metrics));
+    bind(PrometheusMetrics.class).toInstance(new DefaultPrometheusMetrics(new JobCollector(metrics)));
     bind(CustomizeMetrics.class).annotatedWith(Names.named("customizeMetrics")).toInstance(metrics);
     requestStaticInjection(BuildMetricsCalculator.class);
   }
@@ -37,17 +38,17 @@ public class Context extends AbstractModule {
   @Singleton
   @Named("successBuildHandler")
   BiConsumer<String[], Run> successBuildHandler(@Named("customizeMetrics") CustomizeMetrics customizeMetrics) {
-    Gauge leadTimeMetrics = Gauge.build()
-        .name(METRICS_NAME_PREFIX + "_merge_lead_time")
-        .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames((String[])METRICS_LABEL_NAME_ARRAY.toArray())
-        .help("Code Merge Lead Time in milliseconds")
-        .create();
+      Gauge leadTimeMetrics = Gauge.build()
+          .name(METRICS_NAME_PREFIX + "_merge_lead_time")
+          .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
+          .labelNames(METRICS_LABEL_NAME_ARRAY.toArray(new String[0]))
+          .help("Code Merge Lead Time in milliseconds")
+          .create();
 
     Gauge recoverTimeMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_failed_build_recovery_time")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames((String[])METRICS_LABEL_NAME_ARRAY.toArray())
+        .labelNames(METRICS_LABEL_NAME_ARRAY.toArray(new String[0]))
         .help("Failed Build Recovery Time in milliseconds")
         .create();
 
@@ -65,14 +66,14 @@ public class Context extends AbstractModule {
     Gauge buildDurationMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames((String[])METRICS_LABEL_NAME_ARRAY.toArray())
+        .labelNames(METRICS_LABEL_NAME_ARRAY.toArray(new String[0]))
         .help("One build duration in milliseconds")
         .create();
 
     Gauge buildStartTimeMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_start_timestamp")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames((String[]) METRICS_LABEL_NAME_ARRAY.toArray())
+        .labelNames(METRICS_LABEL_NAME_ARRAY.toArray(new String[0]))
         .help("One build start timestamp")
         .create();
 
