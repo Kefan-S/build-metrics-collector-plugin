@@ -11,13 +11,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAMESPACE;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAME_PREFIX;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 
+@RunWith(PowerMockRunner.class)
 public class DefaultPrometheusMetricsTest {
 
   @Test
