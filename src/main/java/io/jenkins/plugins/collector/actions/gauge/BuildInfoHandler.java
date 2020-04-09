@@ -2,10 +2,12 @@ package io.jenkins.plugins.collector.actions.gauge;
 
 import hudson.model.Run;
 import io.prometheus.client.Gauge;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 
-public class BuildInfoHandler implements BiConsumer<String[], Run> {
+import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
+
+public class BuildInfoHandler implements Consumer<Run> {
 
   private Gauge buildDurationMetrics;
   private Gauge buildStartTimeMetrics;
@@ -16,8 +18,9 @@ public class BuildInfoHandler implements BiConsumer<String[], Run> {
   }
 
   @Override
-  public void accept(@Nonnull String[] labels, @Nonnull Run build) {
-    buildDurationMetrics.labels(labels).set(build.getDuration());
-    buildStartTimeMetrics.labels(labels).set(build.getStartTimeInMillis());
+  public void accept(@Nonnull Run build) {
+    buildDurationMetrics.labels(getLabels(build)).set(build.getDuration());
+    buildStartTimeMetrics.labels(getLabels(build)).set(build.getStartTimeInMillis());
   }
+
 }

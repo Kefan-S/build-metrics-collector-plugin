@@ -4,19 +4,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 import hudson.Extension;
 import hudson.model.Run;
-import io.jenkins.plugins.collector.actions.BuildMetricsCalculator;
 import io.jenkins.plugins.collector.actions.gauge.BuildInfoHandler;
 import io.jenkins.plugins.collector.actions.gauge.LeadTimeHandler;
 import io.jenkins.plugins.collector.actions.gauge.RecoverTimeHandler;
 import io.jenkins.plugins.collector.data.CustomizeMetrics;
-import io.jenkins.plugins.collector.data.JobCollector;
 import io.jenkins.plugins.collector.service.DefaultPrometheusMetrics;
 import io.jenkins.plugins.collector.service.PrometheusMetrics;
 import io.prometheus.client.Gauge;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAMESPACE;
@@ -28,16 +25,14 @@ public class Context extends AbstractModule {
 
   @Override
   public void configure() {
-    CustomizeMetrics metrics = new CustomizeMetrics();
-    bind(PrometheusMetrics.class).toInstance(new DefaultPrometheusMetrics(new JobCollector(metrics)));
-    bind(CustomizeMetrics.class).annotatedWith(Names.named("customizeMetrics")).toInstance(metrics);
-    requestStaticInjection(BuildMetricsCalculator.class);
+    bind(PrometheusMetrics.class).to(DefaultPrometheusMetrics.class).in(Singleton.class);
+    bind(CustomizeMetrics.class).in(Singleton.class);
   }
 
   @Provides
   @Singleton
   @Named("successBuildHandler")
-  BiConsumer<String[], Run> successBuildHandler(@Named("customizeMetrics") CustomizeMetrics customizeMetrics) {
+  Consumer<Run> successBuildHandler(CustomizeMetrics customizeMetrics) {
       Gauge leadTimeMetrics = Gauge.build()
           .name(METRICS_NAME_PREFIX + "_merge_lead_time")
           .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
@@ -62,7 +57,7 @@ public class Context extends AbstractModule {
   @Provides
   @Singleton
   @Named("buildInfoHandler")
-  BiConsumer<String[], Run> buildInfoHandler(@Named("customizeMetrics") CustomizeMetrics customizeMetrics) {
+  Consumer<Run> buildInfoHandler(CustomizeMetrics customizeMetrics) {
     Gauge buildDurationMetrics = Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
@@ -83,4 +78,11 @@ public class Context extends AbstractModule {
     return new BuildInfoHandler(buildDurationMetrics, buildStartTimeMetrics);
   }
 
+  @Provides
+  @Singleton
+  @Named("buildHandler")
+  Consumer<Run> buildHandler(@Named("successBuildHandler")Consumer<Run> successBuildHandler,
+                             @Named("buildInfoHandler")Consumer<Run> buildInfoHandler){
+    return successBuildHandler.andThen(buildInfoHandler);
+  }
 }

@@ -1,6 +1,8 @@
 package io.jenkins.plugins.collector.data;
 
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import io.prometheus.client.Collector;
@@ -11,21 +13,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.jenkins.plugins.collector.actions.BuildMetricsCalculator.handleBuild;
 
 public class JobCollector extends Collector {
 
   private static final Logger logger = LoggerFactory.getLogger(JobCollector.class);
+  private final Consumer<Run> buildHandler;
 
   private Map<String, List<Run>> uncompletedBuildsMap = new HashMap<>();
 
   private CustomizeMetrics customizeMetrics;
 
-  public JobCollector(CustomizeMetrics customizeMetrics) {
+  @Inject
+  public JobCollector(CustomizeMetrics customizeMetrics,
+                      @Named("buildHandler") Consumer<Run> buildHandler) {
     this.customizeMetrics = customizeMetrics;
+    this.buildHandler = buildHandler;
   }
 
   @Override
@@ -62,7 +67,7 @@ public class JobCollector extends Collector {
         .findFirst();
 
     if (unhandledBuild.isPresent()) {
-      handleBuild(unhandledBuild.get());
+      buildHandler.accept(unhandledBuild.get());
       unhandledBuilds.remove(unhandledBuild.get());
     }
   }
