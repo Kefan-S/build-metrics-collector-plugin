@@ -10,6 +10,6 @@ public class Constant {
   public static final String METRICS_NAME_PREFIX = "builds";
   public static final String METRICS_NAMESPACE = "default";
   public static final String METRICS_SUBSYSTEM = "jenkins";
-  public static final List<String> METRICS_LABEL_NAME_ARRAY = unmodifiableList(asList("jenkins_job", "triggeredBy", "result"));
+  public static final List<String> METRICS_LABEL_NAME_ARRAY = unmodifiableList(asList("jenkins_job", "triggered_by", "result"));
   public static final String BUILD_NO_RESULT_STATUS = "RUNNING";
 }
