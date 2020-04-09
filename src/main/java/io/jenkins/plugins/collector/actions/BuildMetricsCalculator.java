@@ -11,13 +11,15 @@ import static io.jenkins.plugins.collector.util.BuildUtil.isSuccessfulBuild;
 
 public class BuildMetricsCalculator {
 
-  @Inject
-  @Named("buildInfoHandler")
   private static BiConsumer<String[], Run> buildInfoHandler;
 
-  @Inject
-  @Named("successBuildHandler")
   private static BiConsumer<String[], Run> successBuildHandler;
+
+  @Inject
+  BuildMetricsCalculator(@Named("buildInfoHandler") BiConsumer<String[], Run> buildInfoHandler, @Named("successBuildHandler") BiConsumer<String[], Run> successBuildHandler) {
+    this.buildInfoHandler = buildInfoHandler;
+    this.successBuildHandler = successBuildHandler;
+  }
 
   public static void handleBuild(Run build) {
     if (Objects.isNull(build)) {
