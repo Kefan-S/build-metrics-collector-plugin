@@ -38,7 +38,7 @@ public class BuildMetricsCalculatorTest {
 
   @Test
   public void should_not_invoke_build_handler_when_handle_build_given_build_is_null() {
-    buildMetricsCalculator.handleBuild(null);
+    BuildMetricsCalculator.handleBuild(null);
 
     verify(successBuildHandler, never()).accept(any(), any());
     verify(buildInfoHandler, never()).accept(any(), any());
@@ -50,7 +50,7 @@ public class BuildMetricsCalculatorTest {
     PowerMockito.when(BuildUtil.getLabels(any())).thenReturn((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
     PowerMockito.when(BuildUtil.isSuccessfulBuild(any())).thenReturn(true);
 
-    buildMetricsCalculator.handleBuild(mock(Run.class));
+    BuildMetricsCalculator.handleBuild(mock(Run.class));
 
     verify(successBuildHandler, times(1)).accept(any(), any());
     verify(buildInfoHandler, times(1)).accept(any(), any());
@@ -62,7 +62,7 @@ public class BuildMetricsCalculatorTest {
     PowerMockito.when(BuildUtil.getLabels(any())).thenReturn((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
     PowerMockito.when(BuildUtil.isSuccessfulBuild(any())).thenReturn(false);
 
-    buildMetricsCalculator.handleBuild(mock(Run.class));
+    BuildMetricsCalculator.handleBuild(mock(Run.class));
 
     verify(successBuildHandler, never()).accept(any(), any());
     verify(buildInfoHandler, times(1)).accept(any(), any());
