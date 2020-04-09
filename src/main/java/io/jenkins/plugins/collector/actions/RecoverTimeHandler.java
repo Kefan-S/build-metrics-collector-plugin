@@ -1,5 +1,7 @@
 package io.jenkins.plugins.collector.actions;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import hudson.model.Result;
 import hudson.model.Run;
 import io.prometheus.client.Gauge;
@@ -16,7 +18,8 @@ public class RecoverTimeHandler implements Consumer<Run> {
 
   private Gauge recoverTimeMetrics;
 
-  public RecoverTimeHandler(Gauge recoverTimeMetrics) {
+  @Inject
+  public RecoverTimeHandler(@Named("recoverTimeGauge") Gauge recoverTimeMetrics) {
     this.recoverTimeMetrics = recoverTimeMetrics;
   }
 

@@ -2,7 +2,6 @@ package io.jenkins.plugins.collector.data;
 
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import io.prometheus.client.Collector;
@@ -28,7 +27,7 @@ public class JobCollector extends Collector {
 
   @Inject
   public JobCollector(CustomizeMetrics customizeMetrics,
-                      @Named("buildHandler") Consumer<Run> buildHandler) {
+                      Consumer<Run> buildHandler) {
     this.customizeMetrics = customizeMetrics;
     this.buildHandler = buildHandler;
   }

@@ -1,5 +1,7 @@
 package io.jenkins.plugins.collector.actions;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import hudson.model.Run;
 import io.prometheus.client.Gauge;
 import java.util.function.Consumer;
@@ -12,7 +14,9 @@ public class BuildInfoHandler implements Consumer<Run> {
   private Gauge buildDurationMetrics;
   private Gauge buildStartTimeMetrics;
 
-  public BuildInfoHandler(Gauge buildDurationMetrics, Gauge buildStartTimeMetrics) {
+  @Inject
+  public BuildInfoHandler(@Named("durationGauge") Gauge buildDurationMetrics,
+                          @Named("startTimeGauge") Gauge buildStartTimeMetrics) {
     this.buildDurationMetrics = buildDurationMetrics;
     this.buildStartTimeMetrics = buildStartTimeMetrics;
   }

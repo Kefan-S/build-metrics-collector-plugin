@@ -1,5 +1,7 @@
 package io.jenkins.plugins.collector.actions;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import hudson.model.Result;
 import hudson.model.Run;
 import io.prometheus.client.Gauge;
@@ -16,7 +18,8 @@ public class LeadTimeHandler implements Consumer<Run> {
 
   private Gauge leadTimeMetrics;
 
-  public LeadTimeHandler(Gauge leadTimeMetrics) {
+  @Inject
+  public LeadTimeHandler(@Named("leadTimeGauge") Gauge leadTimeMetrics) {
     this.leadTimeMetrics = leadTimeMetrics;
   }
 
