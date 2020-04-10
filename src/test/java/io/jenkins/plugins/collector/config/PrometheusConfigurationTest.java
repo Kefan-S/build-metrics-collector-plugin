@@ -27,7 +27,7 @@ public class PrometheusConfigurationTest {
   public void setUp() {
     PowerMockito.mockStatic(Jenkins.class);
     Jenkins jenkins = mock(Jenkins.class);
-    Mockito.when(jenkins.getRootDir()).thenReturn(new File("."));
+    Mockito.when(jenkins.getRootDir()).thenReturn(new File("./src/test/resources"));
     PowerMockito.when(Jenkins.getInstance()).thenReturn(jenkins);
   }
 
