@@ -6,7 +6,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
 public class Constant {
-
   public static final String METRICS_NAME_PREFIX = "builds";
   public static final String METRICS_NAMESPACE = "default";
   public static final String METRICS_SUBSYSTEM = "jenkins";
