@@ -19,6 +19,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.handler.LeadTimeHandlerTest.LEADTIME_HANDLER_LABELS;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -103,6 +104,18 @@ public class RecoverTimeHandlerTest {
     PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("calculateRecoverTime", previousBuild, currentBuild);
     verify(mockRecoverTimeMetrics, times(0)).labels(labels);
     verify(mockRecoveryTimeChild, times(0)).set(1L);
+  }
+
+  @Test
+  public void should_do_nothing_when_call_accept_given_a_unsuccessful_build() throws Exception {
+    RecoverTimeHandler recoverTimeHandler = PowerMockito.spy(new RecoverTimeHandler(mockRecoverTimeMetrics));
+    Run currentBuild = new MockBuildBuilder().result(Result.FAILURE).create();
+
+    recoverTimeHandler.accept(currentBuild);
+
+    PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("calculateRecoverTime", currentBuild.getPreviousBuild(), currentBuild);
+    verify(mockRecoverTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
+    verify(mockRecoveryTimeChild, never()).set(anyLong());
   }
 
   @Test
