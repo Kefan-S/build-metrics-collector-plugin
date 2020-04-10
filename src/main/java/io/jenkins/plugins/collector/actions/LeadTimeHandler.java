@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
+import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
 
@@ -38,7 +39,7 @@ public class LeadTimeHandler implements Consumer<Run> {
   private Long calculateLeadTime(Run matchedBuild, Run successBuild) {
     long leadTime = successBuild.getDuration();
     while (!isASuccessAndFinishedMatchedBuild(matchedBuild, successBuild)) {
-      if (!Result.ABORTED.equals(matchedBuild.getResult())) {
+      if (!isAbortBuild(matchedBuild)) {
         leadTime = Math.max(leadTime, getBuildEndTime(successBuild) - matchedBuild.getStartTimeInMillis());
       }
       matchedBuild = matchedBuild.getPreviousBuild();

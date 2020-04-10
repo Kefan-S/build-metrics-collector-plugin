@@ -19,7 +19,7 @@ public class BuildUtil {
     if (matchedBuild == null) {
       return true;
     }
-    if (Result.UNSTABLE.isWorseOrEqualTo(currentBuild.getResult()) && isCompleteOvertime(currentBuild, matchedBuild)) {
+    if (isSuccessfulBuild(currentBuild) && isCompleteOvertime(currentBuild, matchedBuild)) {
       return false;
     }
     return isFirstSuccessfulBuildAfterError(matchedBuild.getNextBuild(), currentBuild);

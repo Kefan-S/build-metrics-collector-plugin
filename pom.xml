@@ -10,7 +10,7 @@
   </parent>
   <groupId>io.jenkins.plugins</groupId>
   <artifactId>build-metrics-collector-plugin</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>hpi</packaging>
 
   <properties>
@@ -20,8 +20,8 @@
     <jenkins.metrics.version>4.0.2.5</jenkins.metrics.version>
   </properties>
 
-    <name>Build Metrics Collector Plugin</name>
-    <description>Expose Jenkins metrics in prometheus format</description>
+    <name>Opal</name>
+    <description>Expose Jenkins build metrics in prometheus format</description>
 
   <licenses>
     <license>
@@ -173,26 +173,6 @@
           <executions>
             <execution>
               <id>analyze-pmd</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>3.0.1</version>
-          <configuration>
-            <effort>Max</effort>
-            <threshold>Low</threshold>
-            <excludeFilterFile>check/findbugs-exclude.xml</excludeFilterFile>
-          </configuration>
-          <executions>
-            <execution>
-              <id>analyze-findbugs</id>
               <phase>verify</phase>
               <goals>
                 <goal>check</goal>

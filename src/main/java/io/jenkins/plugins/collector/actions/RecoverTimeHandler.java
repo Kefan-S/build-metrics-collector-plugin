@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
+import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
 
@@ -39,7 +40,7 @@ public class RecoverTimeHandler implements Consumer<Run> {
   Long calculateRecoverTime(Run matchedBuild, Run currentBuild) {
     long recoverTime = Long.MIN_VALUE;
     while (!isASuccessAndFinishedMatchedBuild(matchedBuild, currentBuild)) {
-      if (!Result.ABORTED.equals(matchedBuild.getResult())) {
+      if (!isAbortBuild(matchedBuild)) {
         recoverTime = Math.max(recoverTime, getBuildEndTime(currentBuild) - getBuildEndTime(matchedBuild));
       }
       matchedBuild = matchedBuild.getPreviousBuild();

@@ -42,6 +42,8 @@ public class LeadTimeHandlerTest {
     when(BuildUtil.getBuildEndTime(any())).thenCallRealMethod();
     when(BuildUtil.isFirstSuccessfulBuildAfterError(any(), any())).thenCallRealMethod();
     when(BuildUtil.getLabels(any())).thenReturn(LEADTIME_HANDLER_LABELS);
+    when(BuildUtil.isSuccessfulBuild(any())).thenCallRealMethod();
+    when(BuildUtil.isAbortBuild(any())).thenCallRealMethod();
   }
 
   @Test
