@@ -49,16 +49,6 @@ public class LeadTimeHandlerTest {
   }
 
   @Test
-  public void should_do_nothing_when_call_accept_given_a_unsuccessful_build() throws Exception {
-    LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
-    Run currentBuild = new MockBuildBuilder().result(Result.FAILURE).create();
-    leadTimeHandler.accept(currentBuild);
-    PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", currentBuild.getPreviousBuild(), currentBuild);
-    verify(leadTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
-    verify(leadTimeMetricsChild, never()).set(anyLong());
-  }
-
-  @Test
   public void should_do_nothing_if_current_build_is_not_first_successful_build_after_error() throws Exception {
     LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
     Run currentBuild = new MockBuildBuilder().create();
@@ -91,6 +81,16 @@ public class LeadTimeHandlerTest {
     PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("calculateLeadTime", previousBuild, currentBuild);
     verify(leadTimeMetrics, times(1)).labels(LEADTIME_HANDLER_LABELS);
     verify(leadTimeMetricsChild, times(1)).set(1L);
+  }
+
+  @Test
+  public void should_do_nothing_when_call_accept_given_a_unsuccessful_build() throws Exception {
+    LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    Run currentBuild = new MockBuildBuilder().result(Result.FAILURE).create();
+    leadTimeHandler.accept(currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", currentBuild.getPreviousBuild(), currentBuild);
+    verify(leadTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
+    verify(leadTimeMetricsChild, never()).set(anyLong());
   }
 
   @Test
