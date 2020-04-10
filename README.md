@@ -54,13 +54,13 @@ sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{j
 
 **Average Lead Time In One Day:**
 ```
-avg_over_time(default_jenkins_builds_merge_lead_time{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d])
+sum(sum_over_time(default_jenkins_builds_merge_lead_time[1d]))/sum(count_over_time(default_jenkins_builds_merge_lead_time[1d]))
 ```
 ![Lead Time](demo/lead_time.png)
 
 **Average Recovery Time In One Day:**
 ```
-avg_over_time(default_jenkins_builds_failed_build_recovery_time{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d])
+sum(sum_over_time(default_jenkins_builds_failed_build_recovery_time[1d]))/sum(count_over_time(default_jenkins_builds_failed_build_recovery_time[1d]))
 ```
 ![Recovery Time](demo/recovery_time.png)
 
@@ -74,4 +74,10 @@ count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenki
 ```
 (hour(default_jenkins_builds_last_build_start_timestamp{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result=~".*"}/1000)+8)
 ```
-![Triggered By](demo/start_time.png)
+![Start Time](demo/start_time.png)
+
+**Build Record:**
+```
+default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}/1000
+```
+![Build Record](demo/build_record.png)
