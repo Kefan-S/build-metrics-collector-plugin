@@ -33,24 +33,24 @@ public class BuildUtil {
     return true;
   }
 
-  public static boolean isCompleteOvertime(Run previousBuild, Run build) {
+  public static boolean isCompleteOvertime(@Nonnull Run previousBuild,@Nonnull  Run build) {
     return getBuildEndTime(build) - getBuildEndTime(previousBuild) < 0;
   }
 
-  public static long getBuildEndTime(Run build) {
+  public static long getBuildEndTime(@Nonnull Run build) {
     return build.isBuilding() ? Long.MAX_VALUE :
         (build.getStartTimeInMillis() + build.getDuration());
   }
 
-  public static boolean isAbortBuild(Run build) {
+  public static boolean isAbortBuild(@Nonnull Run build) {
     return !build.isBuilding() && Result.ABORTED.equals(build.getResult());
   }
 
-  public static boolean isSuccessfulBuild(Run build) {
+  public static boolean isSuccessfulBuild(@Nonnull Run build) {
     return !build.isBuilding() && Result.UNSTABLE.isWorseOrEqualTo(build.getResult());
   }
 
-  public static String[] getLabels(Run build) {
+  public static String[] getLabels(@Nonnull Run build) {
     String jobFullName = build.getParent().getFullName();
     String trigger = getTrigger(build);
     String result = Optional.ofNullable(build.getResult()).map(Result::toString)
@@ -58,7 +58,7 @@ public class BuildUtil {
     return new String[]{jobFullName, trigger, result};
   }
 
-  static String getTrigger(Run build) {
+  static String getTrigger(@Nonnull Run build) {
     Cause.UpstreamCause upstreamCause = (Cause.UpstreamCause) build.getCause(Cause.UpstreamCause.class);
     if (upstreamCause != null) {
       Job job = Optional.ofNullable(Jenkins.getInstanceOrNull())
