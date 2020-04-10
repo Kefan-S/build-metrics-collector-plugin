@@ -1,7 +1,7 @@
 package io.jenkins.plugins.collector.service;
 
+import com.google.inject.Inject;
 import io.jenkins.plugins.collector.data.JobCollector;
-import io.jenkins.plugins.collector.data.CustomizeMetrics;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.io.IOException;
@@ -16,10 +16,11 @@ public class DefaultPrometheusMetrics implements PrometheusMetrics {
   private final CollectorRegistry collectorRegistry;
   private final AtomicReference<String> cachedMetrics;
 
-  public DefaultPrometheusMetrics(CustomizeMetrics customizeMetrics) {
+  @Inject
+  public DefaultPrometheusMetrics(JobCollector jobCollector) {
     this.collectorRegistry = CollectorRegistry.defaultRegistry;
     this.cachedMetrics = new AtomicReference<>("");
-    collectorRegistry.register(new JobCollector(customizeMetrics));
+    collectorRegistry.register(jobCollector);
   }
 
   @Override

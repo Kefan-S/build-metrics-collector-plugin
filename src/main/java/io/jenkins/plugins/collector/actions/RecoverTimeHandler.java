@@ -1,31 +1,36 @@
-package io.jenkins.plugins.collector.actions.gauge;
+package io.jenkins.plugins.collector.actions;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import hudson.model.Result;
 import hudson.model.Run;
 import io.prometheus.client.Gauge;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 
 import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
+import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
+import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
 
-public class RecoverTimeHandler implements BiConsumer<String[], Run> {
+public class RecoverTimeHandler implements Consumer<Run> {
 
   private Gauge recoverTimeMetrics;
 
-  public RecoverTimeHandler(Gauge recoverTimeMetrics) {
+  @Inject
+  public RecoverTimeHandler(@Named("recoverTimeGauge") Gauge recoverTimeMetrics) {
     this.recoverTimeMetrics = recoverTimeMetrics;
   }
 
   @Override
-  public void accept(String[] labels, Run successBuild) {
+  public void accept(@Nonnull Run successBuild) {
     Optional.of(successBuild)
         .filter(build -> isFirstSuccessfulBuildAfterError(build.getNextBuild(), build))
         .map(firstSuccessBuild -> calculateRecoverTime(firstSuccessBuild.getPreviousBuild(), firstSuccessBuild))
         .filter(recoverTime -> recoverTime > 0)
-        .ifPresent(setRecoverTimeThenPush(labels));
+        .ifPresent(setRecoverTimeThenPush(getLabels(successBuild)));
   }
 
   private Consumer<Long> setRecoverTimeThenPush(String... labels) {
@@ -35,7 +40,7 @@ public class RecoverTimeHandler implements BiConsumer<String[], Run> {
   Long calculateRecoverTime(Run matchedBuild, Run currentBuild) {
     long recoverTime = Long.MIN_VALUE;
     while (!isASuccessAndFinishedMatchedBuild(matchedBuild, currentBuild)) {
-      if (!Result.ABORTED.equals(matchedBuild.getResult())) {
+      if (!isAbortBuild(matchedBuild)) {
         recoverTime = Math.max(recoverTime, getBuildEndTime(currentBuild) - getBuildEndTime(matchedBuild));
       }
       matchedBuild = matchedBuild.getPreviousBuild();

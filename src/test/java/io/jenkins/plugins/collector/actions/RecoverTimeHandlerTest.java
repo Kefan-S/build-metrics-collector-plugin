@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.actions.gauge;
+package io.jenkins.plugins.collector.actions;
 
 import hudson.model.Result;
 import hudson.model.Run;
@@ -7,7 +7,6 @@ import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Gauge.Child;
-import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +16,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static io.jenkins.plugins.collector.actions.LeadTimeHandlerTest.LEADTIME_HANDLER_LABELS;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -45,6 +45,9 @@ public class RecoverTimeHandlerTest {
     when(BuildUtil.isCompleteOvertime(any(), any())).thenCallRealMethod();
     when(BuildUtil.getBuildEndTime(any())).thenCallRealMethod();
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(any(), any())).thenCallRealMethod();
+    when(BuildUtil.getLabels(any())).thenReturn(LEADTIME_HANDLER_LABELS);
+    when(BuildUtil.isSuccessfulBuild(any())).thenCallRealMethod();
+    when(BuildUtil.isAbortBuild(any())).thenCallRealMethod();
   }
 
   @Test
@@ -58,7 +61,7 @@ public class RecoverTimeHandlerTest {
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(false);
     PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
 
-    recoverTimeHandler.accept(labels, currentBuild);
+    recoverTimeHandler.accept(currentBuild);
 
     PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("calculateRecoverTime", previousBuild, currentBuild);
     verify(mockRecoverTimeMetrics, never()).labels(labels);
@@ -77,7 +80,7 @@ public class RecoverTimeHandlerTest {
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(true);
     PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
 
-    recoverTimeHandler.accept(labels, currentBuild);
+    recoverTimeHandler.accept(currentBuild);
 
     PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("calculateRecoverTime", previousBuild, currentBuild);
     verify(mockRecoverTimeMetrics, times(1)).labels(labels);
@@ -95,7 +98,7 @@ public class RecoverTimeHandlerTest {
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(true);
     PowerMockito.doReturn(-1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
 
-    recoverTimeHandler.accept(labels, currentBuild);
+    recoverTimeHandler.accept(currentBuild);
 
     PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("calculateRecoverTime", previousBuild, currentBuild);
     verify(mockRecoverTimeMetrics, times(0)).labels(labels);
@@ -108,7 +111,7 @@ public class RecoverTimeHandlerTest {
     MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
     Mockito.when(mockRecoverTimeMetrics.labels(any())).thenReturn(mockRecoveryTimeChild);
 
-    recoverTimeHandler.accept(labels, lastBuild);
+    recoverTimeHandler.accept(lastBuild);
 
     Mockito.verify(mockRecoverTimeMetrics, Mockito.times(1)).labels(labels);
     Mockito.verify(mockRecoveryTimeChild, Mockito.times(1)).set(60);
@@ -121,7 +124,7 @@ public class RecoverTimeHandlerTest {
     MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
     Mockito.when(mockRecoverTimeMetrics.labels(any())).thenReturn(mockRecoveryTimeChild);
 
-    recoverTimeHandler.accept(labels, lastBuild);
+    recoverTimeHandler.accept(lastBuild);
 
     Long exceptedRecoveryTime = BuildUtil.getBuildEndTime(lastBuild) - BuildUtil.getBuildEndTime(previousPreviousBuild);
     Mockito.verify(mockRecoverTimeMetrics, Mockito.times(1)).labels(labels);
@@ -135,7 +138,7 @@ public class RecoverTimeHandlerTest {
     MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
     Mockito.when(mockRecoverTimeMetrics.labels(any())).thenReturn(mockRecoveryTimeChild);
 
-    recoverTimeHandler.accept(labels, lastBuild);
+    recoverTimeHandler.accept(lastBuild);
 
     Long exceptedRecoveryTime = BuildUtil.getBuildEndTime(lastBuild) - BuildUtil.getBuildEndTime(previousPreviousBuild);
     Mockito.verify(mockRecoverTimeMetrics, Mockito.times(1)).labels(labels);
@@ -148,7 +151,7 @@ public class RecoverTimeHandlerTest {
     MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
     Mockito.when(mockRecoverTimeMetrics.labels(any())).thenReturn(mockRecoveryTimeChild);
 
-    recoverTimeHandler.accept(labels, lastBuild);
+    recoverTimeHandler.accept(lastBuild);
 
     Mockito.verify(mockRecoverTimeMetrics, Mockito.times(0)).labels(labels);
     Assert.assertEquals(Long.valueOf(Long.MIN_VALUE), recoverTimeHandler.calculateRecoverTime(lastBuild.getPreviousBuild(), lastBuild));
@@ -160,7 +163,7 @@ public class RecoverTimeHandlerTest {
     MockBuild lastBuild = previousBuild.createNextBuild(10L, 50L, Result.SUCCESS);
     Mockito.when(mockRecoverTimeMetrics.labels(any())).thenReturn(mockRecoveryTimeChild);
 
-    recoverTimeHandler.accept(labels, lastBuild);
+    recoverTimeHandler.accept(lastBuild);
 
     Mockito.verify(mockRecoverTimeMetrics, Mockito.times(0)).labels(labels);
   }
@@ -170,7 +173,7 @@ public class RecoverTimeHandlerTest {
     MockBuild lastBuild = new MockBuildBuilder().startTimeInMillis(70).duration(100).result(Result.FAILURE).previousBuild(null).create();
     Mockito.when(mockRecoverTimeMetrics.labels(any())).thenReturn(mockRecoveryTimeChild);
 
-    recoverTimeHandler.accept(labels, lastBuild);
+    recoverTimeHandler.accept(lastBuild);
 
     Mockito.verify(mockRecoverTimeMetrics, Mockito.times(0)).labels(labels);
   }
@@ -180,24 +183,10 @@ public class RecoverTimeHandlerTest {
     MockBuild lastBuild = new MockBuildBuilder().startTimeInMillis(70).duration(100).result(Result.SUCCESS).previousBuild(null).create();
     Mockito.when(mockRecoverTimeMetrics.labels(any())).thenReturn(mockRecoveryTimeChild);
 
-    recoverTimeHandler.accept(labels, lastBuild);
+    recoverTimeHandler.accept(lastBuild);
 
     Mockito.verify(mockRecoverTimeMetrics, Mockito.times(0)).labels(labels);
     Assert.assertEquals(Long.valueOf(Long.MIN_VALUE), recoverTimeHandler.calculateRecoverTime(lastBuild.getPreviousBuild(), lastBuild));
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void should_throw_illegalArgumentException_given_a_build_with_wrong_labels() {
-    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(70).duration(20).result(Result.FAILURE).previousBuild(null).create();
-    MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
-
-    Gauge recoveryGauge = Gauge.build("recovery_time", "recovery_time").labelNames(labels).create();
-    String[] wrongLabels = Arrays.copyOf(labels, METRICS_LABEL_NAME_ARRAY.size() - 1);
-    Mockito.when(recoveryGauge.labels(wrongLabels)).thenCallRealMethod().thenReturn(mockRecoveryTimeChild);
-
-    new RecoverTimeHandler(recoveryGauge).accept(wrongLabels, lastBuild);
-
-    Mockito.verify(recoveryGauge, Mockito.times(1)).labels(labels);
-    Mockito.verify(mockRecoveryTimeChild, Mockito.times(0)).set(any());
-  }
 }
