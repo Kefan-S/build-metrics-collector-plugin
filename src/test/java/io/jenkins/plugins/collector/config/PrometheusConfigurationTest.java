@@ -24,7 +24,7 @@ import static org.mockito.Mockito.times;
 public class PrometheusConfigurationTest {
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     PowerMockito.mockStatic(Jenkins.class);
     Jenkins jenkins = mock(Jenkins.class);
     Mockito.when(jenkins.getRootDir()).thenReturn(new File("."));
