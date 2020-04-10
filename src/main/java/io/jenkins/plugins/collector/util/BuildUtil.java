@@ -25,7 +25,7 @@ public class BuildUtil {
       return true;
     }
 
-    if (isCompleteOvertime(currentBuild, matchedBuild)) {
+    if (isSuccessfulBuild(matchedBuild) && isCompleteOvertime(currentBuild, matchedBuild)) {
       return false;
     }
 

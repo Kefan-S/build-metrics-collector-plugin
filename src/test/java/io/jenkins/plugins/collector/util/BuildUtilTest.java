@@ -62,11 +62,11 @@ public class BuildUtilTest {
   }
 
   @Test
-  public void should_not_be_calculated_given_a_previous_success_build_completed_after_failed_build() {
+  public void should_calculated_given_a_previous_success_build_completed_after_failed_build() {
     MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(100).result(Result.SUCCESS).previousBuild(null).create();
     MockBuild lastBuild = previousBuild.createNextBuild(10L, 20L, Result.FAILURE);
 
-    assertFalse(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild, previousBuild));
+    assertTrue(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild, previousBuild));
   }
 
   @Test
