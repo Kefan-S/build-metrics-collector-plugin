@@ -1,0 +1,4 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<io.jenkins.plugins.collector.config.PrometheusConfiguration>
+  <collectingMetricsPeriodInSeconds>20</collectingMetricsPeriodInSeconds>
+</io.jenkins.plugins.collector.config.PrometheusConfiguration>
