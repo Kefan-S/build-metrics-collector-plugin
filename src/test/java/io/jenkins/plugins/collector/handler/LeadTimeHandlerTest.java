@@ -16,7 +16,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
+import static io.jenkins.plugins.collector.util.BuildUtil.isSuccessfulBuild;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -42,8 +44,18 @@ public class LeadTimeHandlerTest {
     when(BuildUtil.getBuildEndTime(any())).thenCallRealMethod();
     when(BuildUtil.isFirstSuccessfulBuildAfterError(any(), any())).thenCallRealMethod();
     when(BuildUtil.getLabels(any())).thenReturn(LEADTIME_HANDLER_LABELS);
-    when(BuildUtil.isSuccessfulBuild(any())).thenCallRealMethod();
+    when(isSuccessfulBuild(any())).thenCallRealMethod();
     when(BuildUtil.isAbortBuild(any())).thenCallRealMethod();
+  }
+
+  @Test
+  public void should_do_nothing_when_call_accept_given_a_unsuccessful_build() throws Exception {
+    LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    Run currentBuild = new MockBuildBuilder().result(Result.FAILURE).create();
+    leadTimeHandler.accept(currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", currentBuild.getPreviousBuild(), currentBuild);
+    verify(leadTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
+    verify(leadTimeMetricsChild, never()).set(anyLong());
   }
 
   @Test
