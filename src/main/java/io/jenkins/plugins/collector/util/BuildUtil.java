@@ -7,6 +7,7 @@ import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
 import io.jenkins.plugins.collector.exception.InstanceMissingException;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
 
 import static io.jenkins.plugins.collector.config.Constant.BUILD_NO_RESULT_STATUS;
@@ -15,13 +16,19 @@ public class BuildUtil {
 
   private static final UpstreamJobGetter UPSTREAM_JOB_GETTER = new UpstreamJobGetter();
 
-  public static boolean isFirstSuccessfulBuildAfterError(Run matchedBuild, Run currentBuild) {
+  public static boolean isFirstSuccessfulBuildAfterError(Run matchedBuild,@Nonnull Run currentBuild) {
+    if (!isSuccessfulBuild(currentBuild)) {
+      return false;
+    }
+
     if (matchedBuild == null) {
       return true;
     }
-    if (isSuccessfulBuild(currentBuild) && isCompleteOvertime(currentBuild, matchedBuild)) {
+
+    if (isCompleteOvertime(currentBuild, matchedBuild)) {
       return false;
     }
+
     return isFirstSuccessfulBuildAfterError(matchedBuild.getNextBuild(), currentBuild);
   }
 
