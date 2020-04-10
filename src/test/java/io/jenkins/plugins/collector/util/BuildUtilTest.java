@@ -78,6 +78,29 @@ public class BuildUtilTest {
   }
 
   @Test
+  public void should_not_be_calculated_given_a_last_success_build_before_a_running_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(Result.FAILURE).previousBuild(null).create();
+    MockBuild lastBuild = previousBuild.createNextBuild(10L, 100L, null);
+
+    assertFalse(BuildUtil.isFirstSuccessfulBuildAfterError(lastBuild, previousBuild));
+  }
+
+  @Test
+  public void should_not_be_calculated_given_a_latest_failure_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(Result.FAILURE).previousBuild(null).create();
+
+    assertFalse(BuildUtil.isFirstSuccessfulBuildAfterError(previousBuild.getNextBuild(), previousBuild));
+  }
+
+  @Test
+  public void should_not_be_calculated_given_a_latest_failure_build_before_a_no_overtime_successful_build() {
+    MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(20).result(Result.FAILURE).previousBuild(null).create();
+    previousBuild.createNextBuild(30L, 10L, Result.SUCCESS);
+
+    assertFalse(BuildUtil.isFirstSuccessfulBuildAfterError(previousBuild.getNextBuild(), previousBuild));
+  }
+
+  @Test
   public void is_complete_over_time_given_previous_build_is_running_after_next_build() {
     MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(0).duration(100).result(null).previousBuild(null).create();
     MockBuild lastBuild = previousBuild.createNextBuild(10L, 20L, Result.SUCCESS);
