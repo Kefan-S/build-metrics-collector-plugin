@@ -5,7 +5,7 @@ import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
-import io.jenkins.plugins.collector.exceptions.InstanceMissingException;
+import io.jenkins.plugins.collector.exception.InstanceMissingException;
 import java.util.Optional;
 import jenkins.model.Jenkins;
 

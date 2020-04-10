@@ -8,7 +8,7 @@ import hudson.model.Run;
 import hudson.triggers.SCMTrigger;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
-import io.jenkins.plugins.collector.exceptions.InstanceMissingException;
+import io.jenkins.plugins.collector.exception.InstanceMissingException;
 import jenkins.model.Jenkins;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.exceptions;
+package io.jenkins.plugins.collector.exception;
 
 public class InstanceMissingException extends RuntimeException {
 
