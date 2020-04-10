@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.actions;
+package io.jenkins.plugins.collector.handler;
 
 import hudson.model.Result;
 import hudson.model.Run;

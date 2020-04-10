@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.actions;
+package io.jenkins.plugins.collector.handler;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -15,37 +15,36 @@ import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
 
-public class RecoverTimeHandler implements Consumer<Run> {
+public class LeadTimeHandler implements Consumer<Run> {
 
-  private Gauge recoverTimeMetrics;
+  private Gauge leadTimeMetrics;
 
   @Inject
-  public RecoverTimeHandler(@Named("recoverTimeGauge") Gauge recoverTimeMetrics) {
-    this.recoverTimeMetrics = recoverTimeMetrics;
+  public LeadTimeHandler(@Named("leadTimeGauge") Gauge leadTimeMetrics) {
+    this.leadTimeMetrics = leadTimeMetrics;
   }
 
   @Override
   public void accept(@Nonnull Run successBuild) {
     Optional.of(successBuild)
         .filter(build -> isFirstSuccessfulBuildAfterError(build.getNextBuild(), build))
-        .map(firstSuccessBuild -> calculateRecoverTime(firstSuccessBuild.getPreviousBuild(), firstSuccessBuild))
-        .filter(recoverTime -> recoverTime > 0)
-        .ifPresent(setRecoverTimeThenPush(getLabels(successBuild)));
+        .map(firstSuccessBuild -> calculateLeadTime(firstSuccessBuild.getPreviousBuild(), firstSuccessBuild))
+        .ifPresent(setLeadTimeThenPush(getLabels(successBuild)));
   }
 
-  private Consumer<Long> setRecoverTimeThenPush(String... labels) {
-    return recoverTime -> recoverTimeMetrics.labels(labels).set(recoverTime);
+  private Consumer<Long> setLeadTimeThenPush(String... labels) {
+    return leadTime -> this.leadTimeMetrics.labels(labels).set(leadTime);
   }
 
-  Long calculateRecoverTime(Run matchedBuild, Run currentBuild) {
-    long recoverTime = Long.MIN_VALUE;
-    while (!isASuccessAndFinishedMatchedBuild(matchedBuild, currentBuild)) {
+  private Long calculateLeadTime(Run matchedBuild, Run successBuild) {
+    long leadTime = successBuild.getDuration();
+    while (!isASuccessAndFinishedMatchedBuild(matchedBuild, successBuild)) {
       if (!isAbortBuild(matchedBuild)) {
-        recoverTime = Math.max(recoverTime, getBuildEndTime(currentBuild) - getBuildEndTime(matchedBuild));
+        leadTime = Math.max(leadTime, getBuildEndTime(successBuild) - matchedBuild.getStartTimeInMillis());
       }
       matchedBuild = matchedBuild.getPreviousBuild();
     }
-    return recoverTime;
+    return leadTime;
   }
 
   private boolean isASuccessAndFinishedMatchedBuild(Run matchedBuild, Run currentBuild) {

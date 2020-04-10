@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.actions;
+package io.jenkins.plugins.collector.handler;
 
 import hudson.model.Result;
 import hudson.model.Run;
@@ -16,8 +16,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static io.jenkins.plugins.collector.actions.LeadTimeHandlerTest.LEADTIME_HANDLER_LABELS;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
+import static io.jenkins.plugins.collector.handler.LeadTimeHandlerTest.LEADTIME_HANDLER_LABELS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;

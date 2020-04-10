@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.actions;
+package io.jenkins.plugins.collector.handler;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
