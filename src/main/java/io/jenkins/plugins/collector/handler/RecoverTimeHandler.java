@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import hudson.model.Result;
 import hudson.model.Run;
+import io.jenkins.plugins.collector.util.BuildUtil;
 import io.prometheus.client.Gauge;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -13,7 +14,6 @@ import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
 import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
-import static io.jenkins.plugins.collector.util.BuildUtil.isFirstSuccessfulBuildAfterError;
 
 public class RecoverTimeHandler implements Consumer<Run> {
 
@@ -27,7 +27,7 @@ public class RecoverTimeHandler implements Consumer<Run> {
   @Override
   public void accept(@Nonnull Run successBuild) {
     Optional.of(successBuild)
-        .filter(build -> isFirstSuccessfulBuildAfterError(build.getNextBuild(), build))
+        .filter(BuildUtil::isFirstSuccessfulBuildAfterError)
         .map(firstSuccessBuild -> calculateRecoverTime(firstSuccessBuild.getPreviousBuild(), firstSuccessBuild))
         .filter(recoverTime -> recoverTime > 0)
         .ifPresent(setRecoverTimeThenPush(getLabels(successBuild)));

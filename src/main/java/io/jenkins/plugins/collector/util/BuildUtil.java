@@ -16,20 +16,21 @@ public class BuildUtil {
 
   private static final UpstreamJobGetter UPSTREAM_JOB_GETTER = new UpstreamJobGetter();
 
-  public static boolean isFirstSuccessfulBuildAfterError(Run matchedBuild,@Nonnull Run currentBuild) {
+  public static boolean isFirstSuccessfulBuildAfterError(@Nonnull Run currentBuild) {
     if (!isSuccessfulBuild(currentBuild)) {
       return false;
     }
 
-    if (matchedBuild == null) {
-      return true;
+    Run matchedBuild = currentBuild.getNextBuild();
+
+    while (matchedBuild != null) {
+      if (isSuccessfulBuild(matchedBuild) && isCompleteOvertime(currentBuild, matchedBuild)) {
+        return false;
+      }
+      matchedBuild = matchedBuild.getNextBuild();
     }
 
-    if (isSuccessfulBuild(matchedBuild) && isCompleteOvertime(currentBuild, matchedBuild)) {
-      return false;
-    }
-
-    return isFirstSuccessfulBuildAfterError(matchedBuild.getNextBuild(), currentBuild);
+    return true;
   }
 
   public static boolean isCompleteOvertime(Run previousBuild, Run build) {

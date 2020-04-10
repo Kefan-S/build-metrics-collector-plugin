@@ -42,7 +42,7 @@ public class LeadTimeHandlerTest {
     doReturn(leadTimeMetricsChild).when(leadTimeMetrics).labels(LEADTIME_HANDLER_LABELS);
     when(BuildUtil.isCompleteOvertime(any(), any())).thenCallRealMethod();
     when(BuildUtil.getBuildEndTime(any())).thenCallRealMethod();
-    when(BuildUtil.isFirstSuccessfulBuildAfterError(any(), any())).thenCallRealMethod();
+    when(BuildUtil.isFirstSuccessfulBuildAfterError(any())).thenCallRealMethod();
     when(BuildUtil.getLabels(any())).thenReturn(LEADTIME_HANDLER_LABELS);
     when(isSuccessfulBuild(any())).thenCallRealMethod();
     when(BuildUtil.isAbortBuild(any())).thenCallRealMethod();
@@ -53,9 +53,8 @@ public class LeadTimeHandlerTest {
     LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
     Run currentBuild = new MockBuildBuilder().create();
     Run previousBuild = currentBuild.getPreviousBuild();
-    Run nextBuild = currentBuild.getNextBuild();
 
-    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(false);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(false);
     PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
 
     leadTimeHandler.accept(currentBuild);
@@ -71,9 +70,8 @@ public class LeadTimeHandlerTest {
     LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
     Run currentBuild = new MockBuildBuilder().create();
     Run previousBuild = currentBuild.getPreviousBuild();
-    Run nextBuild = currentBuild.getNextBuild();
 
-    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(true);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
     PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
 
     leadTimeHandler.accept(currentBuild);

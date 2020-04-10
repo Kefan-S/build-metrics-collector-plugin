@@ -45,7 +45,7 @@ public class RecoverTimeHandlerTest {
     recoverTimeHandler = new RecoverTimeHandler(mockRecoverTimeMetrics);
     when(BuildUtil.isCompleteOvertime(any(), any())).thenCallRealMethod();
     when(BuildUtil.getBuildEndTime(any())).thenCallRealMethod();
-    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(any(), any())).thenCallRealMethod();
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(any())).thenCallRealMethod();
     when(BuildUtil.getLabels(any())).thenReturn(LEADTIME_HANDLER_LABELS);
     when(BuildUtil.isSuccessfulBuild(any())).thenCallRealMethod();
     when(BuildUtil.isAbortBuild(any())).thenCallRealMethod();
@@ -56,10 +56,9 @@ public class RecoverTimeHandlerTest {
     RecoverTimeHandler recoverTimeHandler = PowerMockito.spy(new RecoverTimeHandler(mockRecoverTimeMetrics));
     Run currentBuild = new MockBuildBuilder().create();
     Run previousBuild = currentBuild.getPreviousBuild();
-    Run nextBuild = currentBuild.getNextBuild();
 
     doReturn(mockRecoveryTimeChild).when(mockRecoverTimeMetrics).labels(labels);
-    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(false);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(false);
     PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
 
     recoverTimeHandler.accept(currentBuild);
@@ -75,10 +74,9 @@ public class RecoverTimeHandlerTest {
     RecoverTimeHandler recoverTimeHandler = PowerMockito.spy(new RecoverTimeHandler(mockRecoverTimeMetrics));
     Run currentBuild = new MockBuildBuilder().create();
     Run previousBuild = currentBuild.getPreviousBuild();
-    Run nextBuild = currentBuild.getNextBuild();
 
     doReturn(mockRecoveryTimeChild).when(mockRecoverTimeMetrics).labels(labels);
-    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(true);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
     PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
 
     recoverTimeHandler.accept(currentBuild);
@@ -93,10 +91,9 @@ public class RecoverTimeHandlerTest {
     RecoverTimeHandler recoverTimeHandler = PowerMockito.spy(new RecoverTimeHandler(mockRecoverTimeMetrics));
     Run currentBuild = new MockBuildBuilder().create();
     Run previousBuild = currentBuild.getPreviousBuild();
-    Run nextBuild = currentBuild.getNextBuild();
 
     doReturn(mockRecoveryTimeChild).when(mockRecoverTimeMetrics).labels(labels);
-    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(nextBuild, currentBuild)).thenReturn(true);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
     PowerMockito.doReturn(-1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
 
     recoverTimeHandler.accept(currentBuild);
