@@ -1,0 +1,32 @@
+<FindBugsFilter>
+
+  <!-- All bugs in test classes, except for JUnit-specific bugs -->
+  <Match>
+    <Class name="io.jenkins.plugins.collector.actions.gauge.LeadTimeHandler"/>
+    <Method name="calculateLeadTime"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
+  <Match>
+    <Class name="io.jenkins.plugins.collector.actions.gauge.RecoverTimeHandler"/>
+    <Method name="calculateRecoverTime"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
+  <Match>
+    <Class name="io.jenkins.plugins.collector.util.BuildUtil"/>
+    <Method name="isFirstSuccessfulBuildAfterError"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
+  <Match>
+    <Class name="io.jenkins.plugins.collector.util.BuildUtil"/>
+    <Method name="isSuccessfulBuild"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
+  <Match>
+    <Class name="io.jenkins.plugins.collector.rest.PrometheusAction"/>
+    <Bug code="UwF"/>
+  </Match>
+</FindBugsFilter>

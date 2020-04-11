@@ -9,8 +9,6 @@ import io.prometheus.client.exporter.common.TextFormat;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Extension
 public class PrometheusAction implements UnprotectedRootAction {
