@@ -6,6 +6,7 @@ import java.util.Collections;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,11 @@ public class PrometheusConfigurationTest {
     Jenkins jenkins = mock(Jenkins.class);
     Mockito.when(jenkins.getRootDir()).thenReturn(new File("./src/test/resources"));
     PowerMockito.when(Jenkins.getInstance()).thenReturn(jenkins);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    new File("src/test/resources/io.jenkins.plugins.collector.config.PrometheusConfiguration.xml").delete();
   }
 
   @Test
