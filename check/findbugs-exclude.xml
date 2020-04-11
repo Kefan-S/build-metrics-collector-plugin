@@ -2,13 +2,13 @@
 
   <!-- All bugs in test classes, except for JUnit-specific bugs -->
   <Match>
-    <Class name="io.jenkins.plugins.collector.actions.gauge.LeadTimeHandler"/>
+    <Class name="io.jenkins.plugins.collector.handler.LeadTimeHandler"/>
     <Method name="calculateLeadTime"/>
     <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
   </Match>
 
   <Match>
-    <Class name="io.jenkins.plugins.collector.actions.gauge.RecoverTimeHandler"/>
+    <Class name="io.jenkins.plugins.collector.handler.RecoverTimeHandler"/>
     <Method name="calculateRecoverTime"/>
     <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
   </Match>
@@ -22,6 +22,18 @@
   <Match>
     <Class name="io.jenkins.plugins.collector.util.BuildUtil"/>
     <Method name="isSuccessfulBuild"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
+  <Match>
+    <Class name="io.jenkins.plugins.collector.handler.LeadTimeHandler"/>
+    <Method name="isASuccessAndFinishedMatchedBuild"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
+  <Match>
+    <Class name="io.jenkins.plugins.collector.handler.RecoverTimeHandler"/>
+    <Method name="isASuccessAndFinishedMatchedBuild"/>
     <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
   </Match>
 

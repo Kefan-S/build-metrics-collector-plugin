@@ -1,6 +1,7 @@
-package io.jenkins.plugins.collector.util;
+package io.jenkins.plugins.collector.data;
 
 import io.prometheus.client.Collector;
+import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.SimpleCollector;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -19,7 +20,7 @@ public class CustomizeMetrics {
     collectors.add(collector);
   }
 
-  public List<Collector.MetricFamilySamples> getMetricsList() {
+  public List<MetricFamilySamples> getMetricsList() {
     return collectors
         .stream()
         .map(Collector::collect)
