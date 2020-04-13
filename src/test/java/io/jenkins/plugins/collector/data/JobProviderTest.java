@@ -7,40 +7,27 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 import jenkins.model.Jenkins;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Jenkins.class})
-public class JobsTest {
+@RunWith(MockitoJUnitRunner.class)
+public class JobProviderTest {
 
+  @Mock
   private Jenkins jenkins;
-  private Consumer consumer;
-
-  @Before
-  public void setup() {
-    mockStatic(Jenkins.class);
-    jenkins = mock(Jenkins.class);
-    consumer = mock(Consumer.class);
-
-    when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
-  }
+  @InjectMocks
+  private JobProvider jobProvider;
 
   @Test
-  public void should_filter_all_empty_items_when_forEach_given_jobs_are_empty() {
+  public void should_filter_all_empty_items_when_get_all_jobs_given_jobs_are_empty() {
 
     Item mockItemOne = mock(Item.class);
     Item mockItemTwo = mock(Item.class);
@@ -50,12 +37,12 @@ public class JobsTest {
     when(mockItemOne.getAllJobs()).thenReturn(Collections.emptyList());
     when(mockItemTwo.getAllJobs()).thenReturn(Collections.emptyList());
 
-    Jobs.forEachJob(consumer);
-    verify(consumer, never()).accept(any());
+    List<Job> result = jobProvider.getAllJobs();
+    assertEquals(0, result.size());
   }
 
   @Test
-  public void should_filter_all_empty_items_when_forEach_given_jobs_exist() {
+  public void should_filter_all_empty_items_when_get_all_jobs_given_jobs_exist() {
 
     Item mockItemOne = mock(Item.class);
     Item mockItemTwo = mock(Item.class);
@@ -68,18 +55,16 @@ public class JobsTest {
     when(mockItemOne.getAllJobs()).thenReturn(mockJobs);
     when(mockItemTwo.getAllJobs()).thenReturn(Collections.emptyList());
 
-    Jobs.forEachJob(consumer);
-    verify(consumer, times(1)).accept(any());
-    verify(consumer, times(1)).accept(mockJob);
+    List<Job> result = jobProvider.getAllJobs();
+    assertEquals(new ArrayList(Arrays.asList(mockJob)), result);
   }
 
   @Test
-  public void should_filter_all_empty_items_when_forEach_given_items_absent() {
+  public void should_filter_all_empty_items_when_get_all_jobs_given_items_absent() {
 
     when(jenkins.getAllItems()).thenReturn(Collections.emptyList());
 
-    Jobs.forEachJob(consumer);
-    verify(consumer, never()).accept(any());
+    List<Job> result = jobProvider.getAllJobs();
+    assertEquals(0, result.size());
   }
-
 }
