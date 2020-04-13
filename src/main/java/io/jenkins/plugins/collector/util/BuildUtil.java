@@ -10,7 +10,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
 
-import static io.jenkins.plugins.collector.config.Constant.BUILD_NO_RESULT_STATUS;
+import static io.jenkins.plugins.collector.config.Constant.BUILD_NO_RESULT_STATUS_VALUE;
 
 public class BuildUtil {
 
@@ -53,9 +53,9 @@ public class BuildUtil {
   public static String[] getLabels(@Nonnull Run build) {
     String jobFullName = build.getParent().getFullName();
     String trigger = getTrigger(build);
-    String result = Optional.ofNullable(build.getResult()).map(Result::toString)
-        .orElse(BUILD_NO_RESULT_STATUS);
-    return new String[]{jobFullName, trigger, result};
+    String resultValue = Optional.ofNullable(build.getResult()).map(result -> String.valueOf(result.ordinal))
+        .orElse(BUILD_NO_RESULT_STATUS_VALUE);
+    return new String[]{jobFullName, trigger, resultValue};
   }
 
   static String getTrigger(@Nonnull Run build) {

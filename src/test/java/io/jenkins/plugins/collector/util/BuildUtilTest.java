@@ -146,7 +146,7 @@ public class BuildUtilTest {
 
     String[] labels = BuildUtil.getLabels(fakeRun);
 
-    assertArrayEquals(new String[]{"name", "SCM", "SUCCESS"}, labels);
+    assertArrayEquals(new String[]{"name", "SCM", "0"}, labels);
   }
 
   @Test
@@ -154,11 +154,12 @@ public class BuildUtilTest {
     Run fakeRun = Mockito.mock(Run.class, Mockito.RETURNS_DEEP_STUBS);
     when(fakeRun.getParent().getFullName()).thenReturn("name");
     when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
+    when(fakeRun.getResult()).thenReturn(null);
     when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(new SCMTrigger.SCMTriggerCause("something"));
 
     String[] labels = BuildUtil.getLabels(fakeRun);
 
-    assertArrayEquals(new String[]{"name", "SCM", "RUNNING"}, labels);
+    assertArrayEquals(new String[]{"name", "SCM", "-1"}, labels);
   }
 
   @Test

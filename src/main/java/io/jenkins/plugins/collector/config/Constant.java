@@ -10,5 +10,5 @@ public class Constant {
   public static final String METRICS_NAMESPACE = "default";
   public static final String METRICS_SUBSYSTEM = "jenkins";
   public static final List<String> METRICS_LABEL_NAME_ARRAY = unmodifiableList(asList("jenkinsJob", "triggeredBy", "result"));
-  public static final String BUILD_NO_RESULT_STATUS = "RUNNING";
+  public static final String BUILD_NO_RESULT_STATUS_VALUE = "-1";
 }
