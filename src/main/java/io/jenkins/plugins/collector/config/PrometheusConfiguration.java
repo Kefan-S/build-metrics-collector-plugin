@@ -17,7 +17,6 @@ public class PrometheusConfiguration extends GlobalConfiguration {
   private Long collectingMetricsPeriodInSeconds = null;
 
   public PrometheusConfiguration() {
-
     load();
     setCollectingMetricsPeriodInSeconds(collectingMetricsPeriodInSeconds);
   }
