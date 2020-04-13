@@ -1,7 +1,6 @@
 package io.jenkins.plugins.collector.service;
 
 import com.google.inject.Inject;
-import io.jenkins.plugins.collector.data.JobCollector;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.io.IOException;

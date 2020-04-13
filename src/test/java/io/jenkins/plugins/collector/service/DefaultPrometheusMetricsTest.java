@@ -1,6 +1,5 @@
 package io.jenkins.plugins.collector.service;
 
-import io.jenkins.plugins.collector.data.JobCollector;
 import io.prometheus.client.Collector;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Gauge;
