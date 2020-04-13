@@ -19,6 +19,13 @@ Only care the current status.
 
 **Notice:** this value should be equal to the scrape_interval of the prometheus to ensure the correctness of the metrics data.
 
+## System Context
+![System context](demo/system_context.png)
+
+
+## Implement Context
+![Implement context](demo/implement_context.png)
+
 ## Collected data
 **Values**
 * *default_jenkins_builds_last_build_duration_in_millisecond*: Last Build duration times in milliseconds
@@ -35,25 +42,25 @@ Only care the current status.
 
 **Deployment Frequency In One Day:**
 ```
-sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d]))
+sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result!="ABORTED"}[1d]))
 ```
 ![Deployment Frequency](demo/deployment_frequency.png)
 
 **Average Failure Rate In One Day:**
 ```
-sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result="FAILURE"}[1d]))/sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d]))
+sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result="FAILURE"}[1d]))/sum(count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result!="ABORTED"}[1d]))
 ```
 ![Failure Rate](demo/failure_rate.png)
 
 **Average Lead Time In One Day:**
 ```
-avg_over_time(default_jenkins_builds_merge_lead_time{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d])
+sum(sum_over_time(default_jenkins_builds_merge_lead_time[1d]))/sum(count_over_time(default_jenkins_builds_merge_lead_time[1d]))
 ```
 ![Lead Time](demo/lead_time.png)
 
 **Average Recovery Time In One Day:**
 ```
-avg_over_time(default_jenkins_builds_failed_build_recovery_time{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}[1d])
+sum(sum_over_time(default_jenkins_builds_failed_build_recovery_time[1d]))/sum(count_over_time(default_jenkins_builds_failed_build_recovery_time[1d]))
 ```
 ![Recovery Time](demo/recovery_time.png)
 
@@ -65,6 +72,12 @@ count_over_time(default_jenkins_builds_last_build_duration_in_milliseconds{jenki
 
 **Start Time:**
 ```
-hour(default_jenkins_builds_last_build_start_timestamp{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result=~".*"})
+(hour(default_jenkins_builds_last_build_start_timestamp{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline",result=~".*"}/1000)+8)
 ```
-![Triggered By](demo/start_time.png)
+![Start Time](demo/start_time.png)
+
+**Build Record:**
+```
+default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob="metrics-dev/metrics-dev-sample-pipeline"}/1000
+```
+![Build Record](demo/build_record.png)
