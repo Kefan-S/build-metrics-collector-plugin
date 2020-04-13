@@ -32,7 +32,7 @@ public class Context extends AbstractModule {
     bindGauge("leadTimeGauge", "_merge_lead_time", "Code Merge Lead Time in milliseconds");
     bindGauge("recoverTimeGauge", "_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds");
     bindGauge("startTimeGauge", "_last_build_start_timestamp", "One build start timestamp");
-    bindGauge("durationGauge", "_merge_lead_time", "Code Merge Lead Time in milliseconds");
+    bindGauge("durationGauge", "_last_build_duration_in_milliseconds", "One build duration in milliseconds");
   }
 
   private void bindGauge(String name, String nameSuffix, String description) {
