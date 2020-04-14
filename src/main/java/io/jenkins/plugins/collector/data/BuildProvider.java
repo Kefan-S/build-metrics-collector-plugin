@@ -41,11 +41,13 @@ public class BuildProvider {
 
   private List<Run> getAllNeedToHandleBuilds() {
     return jobFullNameToUnhandledBuildsMap.values().stream()
-        .map(
-            runs ->
-                runs.stream().filter(run -> !run.isBuilding()).findFirst().orElse(null))
+        .map(this::getFirstCompletedBuild)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
+  }
+
+  private Run getFirstCompletedBuild(List<Run> runs) {
+    return runs.stream().filter(run -> !run.isBuilding()).findFirst().orElse(null);
   }
 
   private void updateUnhandledBuilds() {
