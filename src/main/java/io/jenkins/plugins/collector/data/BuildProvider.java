@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import hudson.model.Job;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import io.jenkins.plugins.collector.exception.NoSuchBuildException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +31,14 @@ public class BuildProvider {
     return getAllNeedToHandleBuilds();
   }
 
+  public void remove(Run run) {
+    String jobFullName = run.getParent().getFullName();
+    if(!jobFullNameToUnhandledBuildsMap.containsKey(jobFullName)) {
+      throw new NoSuchBuildException(String.format("No Such Build: %s", run.getFullDisplayName()));
+    }
+    jobFullNameToUnhandledBuildsMap.get(jobFullName).remove(run);
+  }
+
   private List<Run> getAllNeedToHandleBuilds() {
     return jobFullNameToUnhandledBuildsMap.values().stream()
         .map(
@@ -50,14 +59,6 @@ public class BuildProvider {
     long period = TimeUnit.SECONDS.toMillis(prometheusConfiguration.getCollectingMetricsPeriodInSeconds());
     unHandledRuns.addAll(job.getBuilds().byTimestamp(end - period, end));
     jobFullNameToUnhandledBuildsMap.put(jobFullName, unHandledRuns);
-  }
-
-  public void remove(Run run) {
-    String jobFullName = run.getParent().getFullName();
-    if(!jobFullNameToUnhandledBuildsMap.containsKey(jobFullName)) {
-      throw new RuntimeException();
-    }
-    jobFullNameToUnhandledBuildsMap.get(jobFullName).remove(run);
   }
 
 }

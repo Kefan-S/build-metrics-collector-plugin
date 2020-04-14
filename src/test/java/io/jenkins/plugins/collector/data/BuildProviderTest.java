@@ -4,6 +4,7 @@ import hudson.model.Job;
 import hudson.model.Run;
 import hudson.util.RunList;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import io.jenkins.plugins.collector.exception.NoSuchBuildException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,12 +13,14 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -77,5 +80,31 @@ public class BuildProviderTest {
 
     List<Run> result = buildProvider.getNeedToHandleBuilds();
     assertEquals(new ArrayList(Arrays.asList(mockExistingBuild)), result);
+  }
+
+  @Test
+  public void should_throw_exception_with_message_when_remove_given_build_absent() {
+    Run run = mock(Run.class, Answers.RETURNS_DEEP_STUBS);
+
+    when(run.getParent().getFullName()).thenReturn("name");
+    when(run.getFullDisplayName()).thenReturn("name#1");
+
+    NoSuchBuildException assertThrow = assertThrows(NoSuchBuildException.class, () -> buildProvider.remove(run));
+
+    assertEquals("No Such Build: name#1", assertThrow.getMessage());
+  }
+
+  @Test
+  public void should_remove_build_when_remove_given_build_exist() {
+    Run existRun = mock(Run.class, Answers.RETURNS_DEEP_STUBS);
+    Map<String, List<Run>> fakeBuildsMap = new HashMap();
+    fakeBuildsMap.put("full-name", new ArrayList(Arrays.asList(existRun)));
+    Whitebox.setInternalState(buildProvider, "jobFullNameToUnhandledBuildsMap", fakeBuildsMap);
+
+    when(existRun.getParent().getFullName()).thenReturn("full-name");
+
+    buildProvider.remove(existRun);
+
+    assertEquals(0, fakeBuildsMap.get("full-name").size());
   }
 }
