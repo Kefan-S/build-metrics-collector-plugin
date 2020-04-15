@@ -4,40 +4,61 @@ package io.jenkins.plugins.collector.service;
 import com.google.inject.Inject;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.data.BuildProvider;
-import io.jenkins.plugins.collector.data.CustomizeMetrics;
 import io.prometheus.client.Collector;
+import io.prometheus.client.SimpleCollector;
+import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toList;
 
 public class JobCollector extends Collector {
 
-  private final Consumer<Run> buildHandler;
+  private final List<Function<Run, List<SimpleCollector>>> buildHandler;
 
-  private CustomizeMetrics customizeMetrics;
   private BuildProvider buildProvider;
 
   @Inject
-  public JobCollector(CustomizeMetrics customizeMetrics,
-                      Consumer<Run> buildHandler,
+  public JobCollector(List<Function<Run, List<SimpleCollector>>> buildHandler,
                       BuildProvider buildProvider) {
-    this.customizeMetrics = customizeMetrics;
     this.buildHandler = buildHandler;
     this.buildProvider = buildProvider;
   }
 
   @Override
   public List<MetricFamilySamples> collect() {
-    customizeMetrics.initMetrics();
-    collectJob();
-    return customizeMetrics.getMetricsList();
+    return collectJobMetric();
   }
 
-  private void collectJob() {
-    buildProvider.getNeedToHandleBuilds().forEach(
-        run -> {
-          buildHandler.accept(run);
-          buildProvider.remove(run);
-        }
-    );
+  private List<MetricFamilySamples> collectJobMetric() {
+    final List<SimpleCollector> collectors = getCollectors();
+
+    collectors.forEach(SimpleCollector::clear);
+
+    return getJobMetric(collectors);
+  }
+
+  private List<SimpleCollector> getCollectors() {
+    return buildProvider.getNeedToHandleBuilds()
+          .stream()
+          .map(this::getMetricsForBuild)
+          .flatMap(Collection::stream)
+          .collect(toList());
+  }
+
+  private List<SimpleCollector> getMetricsForBuild(Run build) {
+    List<SimpleCollector> metrics = buildHandler.stream()
+        .map(handler -> handler.apply(build))
+        .flatMap(Collection::stream)
+        .collect(toList());
+    buildProvider.remove(build);
+    return metrics;
+  }
+
+  private List<MetricFamilySamples> getJobMetric(List<SimpleCollector> collectors) {
+    return collectors.stream()
+        .map(Collector::collect)
+        .flatMap(Collection::stream)
+        .collect(toList());
   }
 }

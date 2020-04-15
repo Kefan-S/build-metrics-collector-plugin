@@ -6,6 +6,8 @@ import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Gauge.Child;
+import io.prometheus.client.SimpleCollector;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +21,7 @@ import static io.jenkins.plugins.collector.config.Constant.METRICS_NAMESPACE;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAME_PREFIX;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 import static io.jenkins.plugins.collector.handler.LeadTimeHandlerTest.LEADTIME_HANDLER_LABELS;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -73,7 +76,9 @@ public class BuildInfoHandlerTest {
 
   @Test
   public void should_push_two_samples_to_collection_while_parameter_was_passed_correctly() {
-    new BuildInfoHandler(durationGauge, startTimeGauge).accept(mockBuild);
+    final List<SimpleCollector> actual = new BuildInfoHandler(durationGauge, startTimeGauge).apply(mockBuild);
+
+    assertEquals(2,actual.size());
     Mockito.verify(durationGauge, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
     Mockito.verify(startTimeGauge, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
     Mockito.verify(durationGaugeChild, Mockito.times(1)).set(50L);

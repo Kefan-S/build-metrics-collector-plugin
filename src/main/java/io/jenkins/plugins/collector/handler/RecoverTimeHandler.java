@@ -6,16 +6,20 @@ import hudson.model.Result;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import io.prometheus.client.Gauge;
+import io.prometheus.client.SimpleCollector;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 
 import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
 import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
+import static java.util.Collections.singletonList;
 
-public class RecoverTimeHandler implements Consumer<Run> {
+public class RecoverTimeHandler implements Function<Run, List<SimpleCollector>> {
 
   private Gauge recoverTimeMetrics;
 
@@ -25,12 +29,13 @@ public class RecoverTimeHandler implements Consumer<Run> {
   }
 
   @Override
-  public void accept(@Nonnull Run successBuild) {
+  public List<SimpleCollector> apply(@Nonnull Run successBuild) {
     Optional.of(successBuild)
         .filter(BuildUtil::isFirstSuccessfulBuildAfterError)
         .map(firstSuccessBuild -> calculateRecoverTime(firstSuccessBuild.getPreviousBuild(), firstSuccessBuild))
         .filter(recoverTime -> recoverTime > 0)
         .ifPresent(setRecoverTimeThenPush(getLabels(successBuild)));
+    return singletonList(recoverTimeMetrics);
   }
 
   private Consumer<Long> setRecoverTimeThenPush(String... labels) {

@@ -6,15 +6,17 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import hudson.Extension;
 import hudson.model.Run;
-import io.jenkins.plugins.collector.data.CustomizeMetrics;
 import io.jenkins.plugins.collector.handler.BuildInfoHandler;
 import io.jenkins.plugins.collector.handler.LeadTimeHandler;
 import io.jenkins.plugins.collector.handler.RecoverTimeHandler;
 import io.jenkins.plugins.collector.service.DefaultPrometheusMetrics;
 import io.jenkins.plugins.collector.service.PrometheusMetrics;
 import io.prometheus.client.Gauge;
-import java.util.function.Consumer;
+import io.prometheus.client.SimpleCollector;
+import java.util.List;
+import java.util.function.Function;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAMESPACE;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAME_PREFIX;
@@ -23,12 +25,9 @@ import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 @Extension
 public class Context extends AbstractModule {
 
-  CustomizeMetrics customizeMetrics = new CustomizeMetrics();
-
   @Override
   public void configure() {
     bind(PrometheusMetrics.class).to(DefaultPrometheusMetrics.class).in(Singleton.class);
-    bind(CustomizeMetrics.class).toInstance(customizeMetrics);
     bindGauge("leadTimeGauge", "_merge_lead_time", "Code Merge Lead Time in milliseconds");
     bindGauge("recoverTimeGauge", "_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds");
     bindGauge("startTimeGauge", "_last_build_start_timestamp", "One build start timestamp");
@@ -44,14 +43,13 @@ public class Context extends AbstractModule {
         .create();
     bind(Gauge.class).annotatedWith(Names.named(name))
         .toInstance(gauge);
-    customizeMetrics.addCollector(gauge);
   }
 
   @Provides
   @Singleton
-  Consumer<Run> buildHandler(LeadTimeHandler leadTimeHandler,
-                             BuildInfoHandler buildInfoHandler,
-                             RecoverTimeHandler recoverTimeHandler){
-    return recoverTimeHandler.andThen(leadTimeHandler).andThen(buildInfoHandler);
+  List<Function<Run, List<SimpleCollector>>> buildHandler(LeadTimeHandler leadTimeHandler,
+                                                          BuildInfoHandler buildInfoHandler,
+                                                          RecoverTimeHandler recoverTimeHandler) {
+    return newArrayList(leadTimeHandler, buildInfoHandler, recoverTimeHandler);
   }
 }
