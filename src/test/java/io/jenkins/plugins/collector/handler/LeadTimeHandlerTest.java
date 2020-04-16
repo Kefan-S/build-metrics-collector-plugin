@@ -5,9 +5,9 @@ import hudson.model.Run;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.util.BuildUtil;
+import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Gauge.Child;
-import io.prometheus.client.SimpleCollector;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,12 +17,14 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.util.BuildUtil.isSuccessfulBuild;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -60,7 +62,7 @@ public class LeadTimeHandlerTest {
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(false);
     PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
 
-    final List<SimpleCollector> actual = leadTimeHandler.apply(currentBuild);
+    final List<MetricFamilySamples> actual = leadTimeHandler.apply(currentBuild);
 
     assertEquals(0, actual.size());
     PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", previousBuild, currentBuild);
@@ -80,14 +82,40 @@ public class LeadTimeHandlerTest {
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
     PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
 
-    final List<SimpleCollector> actual = leadTimeHandler.apply(currentBuild);
+    final MetricFamilySamples mockMetricFamilySamples = mock(MetricFamilySamples.class);
+    when(leadTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples));
 
-    assertEquals(1, actual.size());
+    final List<MetricFamilySamples> actual = leadTimeHandler.apply(currentBuild);
+
+    assertEquals(newArrayList(mockMetricFamilySamples), actual);
     PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("calculateLeadTime", previousBuild, currentBuild);
     PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("setLeadTimeThenPush", currentBuild, 1L);
     verify(leadTimeMetrics, times(1)).clear();
     verify(leadTimeMetrics, times(1)).labels(LEADTIME_HANDLER_LABELS);
     verify(leadTimeMetricsChild, times(1)).set(1L);
+  }
+
+  @Test
+  public void should_return_different_metric_data_when_handle_different_build_given_different_build() throws Exception {
+    LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
+    Run currentBuild1 = new MockBuildBuilder().create();
+    Run currentBuild2 = new MockBuildBuilder().create();
+    Run previousBuild1 = currentBuild1.getPreviousBuild();
+    Run previousBuild2 = currentBuild2.getPreviousBuild();
+
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild1)).thenReturn(true);
+    PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild1, currentBuild1);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild2)).thenReturn(true);
+    PowerMockito.doReturn(2L).when(leadTimeHandler, "calculateLeadTime", previousBuild2, currentBuild2);
+    final MetricFamilySamples mockMetricFamilySamples1 = mock(MetricFamilySamples.class);
+    final MetricFamilySamples mockMetricFamilySamples2 = mock(MetricFamilySamples.class);
+    when(leadTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples1)).thenReturn(newArrayList(mockMetricFamilySamples2));
+
+    final List<MetricFamilySamples> actual1 = leadTimeHandler.apply(currentBuild1);
+    final List<MetricFamilySamples> actual2 = leadTimeHandler.apply(currentBuild2);
+
+    assertEquals(newArrayList(mockMetricFamilySamples1), actual1);
+    assertEquals(newArrayList(mockMetricFamilySamples2), actual2);
   }
 
   @Test

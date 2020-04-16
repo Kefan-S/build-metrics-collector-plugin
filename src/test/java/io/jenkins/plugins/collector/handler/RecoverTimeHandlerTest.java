@@ -5,9 +5,9 @@ import hudson.model.Run;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.util.BuildUtil;
+import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Gauge.Child;
-import io.prometheus.client.SimpleCollector;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,12 +18,14 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.handler.LeadTimeHandlerTest.LEADTIME_HANDLER_LABELS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,7 +66,7 @@ public class RecoverTimeHandlerTest {
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(false);
     PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
 
-    final List<SimpleCollector> actual = recoverTimeHandler.apply(currentBuild);
+    final List<MetricFamilySamples> actual = recoverTimeHandler.apply(currentBuild);
 
     assertEquals(0, actual.size());
     PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("calculateRecoverTime", previousBuild, currentBuild);
@@ -84,15 +86,41 @@ public class RecoverTimeHandlerTest {
     doReturn(mockRecoveryTimeChild).when(mockRecoverTimeMetrics).labels(labels);
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
     PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
+    final MetricFamilySamples mockMetricFamilySamples = mock(MetricFamilySamples.class);
+    when(mockRecoverTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples));
 
-    final List<SimpleCollector> actual = recoverTimeHandler.apply(currentBuild);
+    final List<MetricFamilySamples> actual = recoverTimeHandler.apply(currentBuild);
 
-    assertEquals(1, actual.size());
+    assertEquals(newArrayList(mockMetricFamilySamples), actual);
     PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("calculateRecoverTime", previousBuild, currentBuild);
     PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("setRecoverTimeThenPush", currentBuild, 1L);
     verify(mockRecoverTimeMetrics, times(1)).clear();
     verify(mockRecoverTimeMetrics, times(1)).labels(labels);
     verify(mockRecoveryTimeChild, times(1)).set(1L);
+  }
+
+  @Test
+  public void should_return_different_metric_data_when_handle_different_build_given_different_build() throws Exception {
+    RecoverTimeHandler recoverTimeHandler = PowerMockito.spy(new RecoverTimeHandler(mockRecoverTimeMetrics));
+    Run currentBuild1 = new MockBuildBuilder().create();
+    Run currentBuild2 = new MockBuildBuilder().create();
+    Run previousBuild1 = currentBuild1.getPreviousBuild();
+    Run previousBuild2 = currentBuild2.getPreviousBuild();
+
+    doReturn(mockRecoveryTimeChild).when(mockRecoverTimeMetrics).labels(labels);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild1)).thenReturn(true);
+    PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild1, currentBuild1);
+    PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild2)).thenReturn(true);
+    PowerMockito.doReturn(2L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild2, currentBuild2);
+    final MetricFamilySamples mockMetricFamilySamples1 = mock(MetricFamilySamples.class);
+    final MetricFamilySamples mockMetricFamilySamples2 = mock(MetricFamilySamples.class);
+    when(mockRecoverTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples1)).thenReturn(newArrayList(mockMetricFamilySamples2));
+
+    final List<MetricFamilySamples> actual1 = recoverTimeHandler.apply(currentBuild1);
+    final List<MetricFamilySamples> actual2 = recoverTimeHandler.apply(currentBuild2);
+
+    assertEquals(newArrayList(mockMetricFamilySamples1), actual1);
+    assertEquals(newArrayList(mockMetricFamilySamples2), actual2);
   }
 
   @Test

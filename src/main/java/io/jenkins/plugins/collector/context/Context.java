@@ -11,8 +11,8 @@ import io.jenkins.plugins.collector.handler.LeadTimeHandler;
 import io.jenkins.plugins.collector.handler.RecoverTimeHandler;
 import io.jenkins.plugins.collector.service.DefaultPrometheusMetrics;
 import io.jenkins.plugins.collector.service.PrometheusMetrics;
+import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Gauge;
-import io.prometheus.client.SimpleCollector;
 import java.util.List;
 import java.util.function.Function;
 
@@ -47,9 +47,9 @@ public class Context extends AbstractModule {
 
   @Provides
   @Singleton
-  List<Function<Run, List<SimpleCollector>>> buildHandler(LeadTimeHandler leadTimeHandler,
-                                                          BuildInfoHandler buildInfoHandler,
-                                                          RecoverTimeHandler recoverTimeHandler) {
+  List<Function<Run, List<MetricFamilySamples>>> buildHandler(LeadTimeHandler leadTimeHandler,
+                                                              BuildInfoHandler buildInfoHandler,
+                                                              RecoverTimeHandler recoverTimeHandler) {
     return newArrayList(leadTimeHandler, buildInfoHandler, recoverTimeHandler);
   }
 }

@@ -3,16 +3,16 @@ package io.jenkins.plugins.collector.handler;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import hudson.model.Run;
+import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Gauge;
-import io.prometheus.client.SimpleCollector;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
 
-public class BuildInfoHandler implements Function<Run, List<SimpleCollector>> {
+public class BuildInfoHandler implements Function<Run, List<MetricFamilySamples>> {
 
   private Gauge buildDurationMetrics;
   private Gauge buildStartTimeMetrics;
@@ -25,12 +25,15 @@ public class BuildInfoHandler implements Function<Run, List<SimpleCollector>> {
   }
 
   @Override
-  public List<SimpleCollector> apply(@Nonnull Run build) {
+  public List<MetricFamilySamples> apply(@Nonnull Run build) {
     buildDurationMetrics.clear();
     buildStartTimeMetrics.clear();
     buildDurationMetrics.labels(getLabels(build)).set(build.getDuration());
     buildStartTimeMetrics.labels(getLabels(build)).set(build.getStartTimeInMillis());
-    return newArrayList(buildDurationMetrics, buildStartTimeMetrics);
+    List<MetricFamilySamples> list = new ArrayList<>();
+    list.addAll(buildDurationMetrics.collect());
+    list.addAll(buildStartTimeMetrics.collect());
+    return list;
   }
 
 }

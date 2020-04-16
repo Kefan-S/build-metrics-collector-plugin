@@ -4,9 +4,9 @@ import hudson.model.Result;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.util.BuildUtil;
+import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Gauge.Child;
-import io.prometheus.client.SimpleCollector;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +16,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAMESPACE;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAME_PREFIX;
@@ -23,6 +24,7 @@ import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 import static io.jenkins.plugins.collector.handler.LeadTimeHandlerTest.LEADTIME_HANDLER_LABELS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -76,9 +78,14 @@ public class BuildInfoHandlerTest {
 
   @Test
   public void should_push_two_samples_to_collection_while_parameter_was_passed_correctly() {
-    final List<SimpleCollector> actual = new BuildInfoHandler(durationGauge, startTimeGauge).apply(mockBuild);
+    final MetricFamilySamples mockMetricFamilySamples1 = mock(MetricFamilySamples.class);
+    when(durationGauge.collect()).thenReturn(newArrayList(mockMetricFamilySamples1));
+    final MetricFamilySamples mockMetricFamilySamples2 = mock(MetricFamilySamples.class);
+    when(startTimeGauge.collect()).thenReturn(newArrayList(mockMetricFamilySamples2));
 
-    assertEquals(2, actual.size());
+    final List<MetricFamilySamples> actual = new BuildInfoHandler(durationGauge, startTimeGauge).apply(mockBuild);
+
+    assertEquals(newArrayList(mockMetricFamilySamples1, mockMetricFamilySamples2), actual);
     Mockito.verify(durationGauge, Mockito.times(1)).clear();
     Mockito.verify(startTimeGauge, Mockito.times(1)).clear();
     Mockito.verify(durationGauge, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
