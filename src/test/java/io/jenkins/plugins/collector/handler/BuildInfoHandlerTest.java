@@ -78,7 +78,9 @@ public class BuildInfoHandlerTest {
   public void should_push_two_samples_to_collection_while_parameter_was_passed_correctly() {
     final List<SimpleCollector> actual = new BuildInfoHandler(durationGauge, startTimeGauge).apply(mockBuild);
 
-    assertEquals(2,actual.size());
+    assertEquals(2, actual.size());
+    Mockito.verify(durationGauge, Mockito.times(1)).clear();
+    Mockito.verify(startTimeGauge, Mockito.times(1)).clear();
     Mockito.verify(durationGauge, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
     Mockito.verify(startTimeGauge, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
     Mockito.verify(durationGaugeChild, Mockito.times(1)).set(50L);

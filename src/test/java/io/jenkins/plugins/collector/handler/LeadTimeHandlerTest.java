@@ -64,6 +64,8 @@ public class LeadTimeHandlerTest {
 
     assertEquals(0, actual.size());
     PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", previousBuild, currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("setLeadTimeThenPush", currentBuild, 1L);
+    verify(leadTimeMetrics, never()).clear();
     verify(leadTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
     verify(leadTimeMetricsChild, never()).set(1L);
 
@@ -78,9 +80,12 @@ public class LeadTimeHandlerTest {
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
     PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
 
-    leadTimeHandler.apply(currentBuild);
+    final List<SimpleCollector> actual = leadTimeHandler.apply(currentBuild);
 
+    assertEquals(1, actual.size());
     PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("calculateLeadTime", previousBuild, currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("setLeadTimeThenPush", currentBuild, 1L);
+    verify(leadTimeMetrics, times(1)).clear();
     verify(leadTimeMetrics, times(1)).labels(LEADTIME_HANDLER_LABELS);
     verify(leadTimeMetricsChild, times(1)).set(1L);
   }

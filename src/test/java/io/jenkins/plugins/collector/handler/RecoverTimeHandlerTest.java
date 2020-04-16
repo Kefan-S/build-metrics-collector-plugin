@@ -68,6 +68,8 @@ public class RecoverTimeHandlerTest {
 
     assertEquals(0, actual.size());
     PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("calculateRecoverTime", previousBuild, currentBuild);
+    PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("setRecoverTimeThenPush", currentBuild, 1L);
+    verify(mockRecoverTimeMetrics, never()).clear();
     verify(mockRecoverTimeMetrics, never()).labels(labels);
     verify(mockRecoveryTimeChild, never()).set(1L);
 
@@ -83,9 +85,12 @@ public class RecoverTimeHandlerTest {
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
     PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
 
-    recoverTimeHandler.apply(currentBuild);
+    final List<SimpleCollector> actual = recoverTimeHandler.apply(currentBuild);
 
+    assertEquals(1, actual.size());
     PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("calculateRecoverTime", previousBuild, currentBuild);
+    PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("setRecoverTimeThenPush", currentBuild, 1L);
+    verify(mockRecoverTimeMetrics, times(1)).clear();
     verify(mockRecoverTimeMetrics, times(1)).labels(labels);
     verify(mockRecoveryTimeChild, times(1)).set(1L);
   }
