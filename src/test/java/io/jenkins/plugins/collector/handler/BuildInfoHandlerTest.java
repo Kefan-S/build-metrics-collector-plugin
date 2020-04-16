@@ -31,22 +31,22 @@ import static org.mockito.Mockito.when;
 @PrepareForTest({BuildUtil.class})
 public class BuildInfoHandlerTest {
 
-  Gauge durationGauge;
-  Gauge startTimeGauge;
-  private Child durationGaugeChild;
-  private Child startTimeGaugeChild;
+  Gauge buildDurationMetrics;
+  Gauge buildStartTimeMetrics;
+  private Child buildDurationMetricsChild;
+  private Child buildStartTimeMetricsChild;
   private MockBuild mockBuild;
 
   @Before
   public void setUp() {
-    durationGauge = Mockito.spy(Gauge.build()
+    buildDurationMetrics = Mockito.spy(Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_duration_in_milliseconds")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
         .labelNames((String[]) METRICS_LABEL_NAME_ARRAY.toArray())
         .help("One build duration in milliseconds")
         .create());
 
-    startTimeGauge = Mockito.spy(Gauge.build()
+    buildStartTimeMetrics = Mockito.spy(Gauge.build()
         .name(METRICS_NAME_PREFIX + "_last_build_start_timestamp")
         .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
         .labelNames((String[]) METRICS_LABEL_NAME_ARRAY.toArray())
@@ -59,18 +59,18 @@ public class BuildInfoHandlerTest {
         .result(Result.SUCCESS)
         .create();
 
-    durationGaugeChild = Mockito.mock(Child.class);
-    startTimeGaugeChild = Mockito.mock(Child.class);
+    buildDurationMetricsChild = Mockito.mock(Child.class);
+    buildStartTimeMetricsChild = Mockito.mock(Child.class);
 
     Mockito.doAnswer(invocationOnMock -> {
       invocationOnMock.callRealMethod();
-      return durationGaugeChild;
-    }).when(durationGauge).labels(any());
+      return buildDurationMetricsChild;
+    }).when(buildDurationMetrics).labels(any());
 
     Mockito.doAnswer(invocationOnMock -> {
       invocationOnMock.callRealMethod();
-      return startTimeGaugeChild;
-    }).when(startTimeGauge).labels(any());
+      return buildStartTimeMetricsChild;
+    }).when(buildStartTimeMetrics).labels(any());
 
     PowerMockito.mockStatic(BuildUtil.class);
     when(BuildUtil.getLabels(any())).thenReturn(LEADTIME_HANDLER_LABELS);
@@ -79,18 +79,18 @@ public class BuildInfoHandlerTest {
   @Test
   public void should_push_two_samples_to_collection_while_parameter_was_passed_correctly() {
     final MetricFamilySamples mockMetricFamilySamples1 = mock(MetricFamilySamples.class);
-    when(durationGauge.collect()).thenReturn(newArrayList(mockMetricFamilySamples1));
+    when(buildDurationMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples1));
     final MetricFamilySamples mockMetricFamilySamples2 = mock(MetricFamilySamples.class);
-    when(startTimeGauge.collect()).thenReturn(newArrayList(mockMetricFamilySamples2));
+    when(buildStartTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples2));
 
-    final List<MetricFamilySamples> actual = new BuildInfoHandler(durationGauge, startTimeGauge).apply(mockBuild);
+    final List<MetricFamilySamples> actual = new BuildInfoHandler(buildDurationMetrics, buildStartTimeMetrics).apply(mockBuild);
 
     assertEquals(newArrayList(mockMetricFamilySamples1, mockMetricFamilySamples2), actual);
-    Mockito.verify(durationGauge, Mockito.times(1)).clear();
-    Mockito.verify(startTimeGauge, Mockito.times(1)).clear();
-    Mockito.verify(durationGauge, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
-    Mockito.verify(startTimeGauge, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
-    Mockito.verify(durationGaugeChild, Mockito.times(1)).set(50L);
-    Mockito.verify(startTimeGaugeChild, Mockito.times(1)).set(100L);
+    Mockito.verify(buildDurationMetrics, Mockito.times(1)).clear();
+    Mockito.verify(buildStartTimeMetrics, Mockito.times(1)).clear();
+    Mockito.verify(buildDurationMetrics, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
+    Mockito.verify(buildStartTimeMetrics, Mockito.times(1)).labels((String[]) METRICS_LABEL_NAME_ARRAY.toArray());
+    Mockito.verify(buildDurationMetricsChild, Mockito.times(1)).set(50L);
+    Mockito.verify(buildStartTimeMetricsChild, Mockito.times(1)).set(100L);
   }
 }
