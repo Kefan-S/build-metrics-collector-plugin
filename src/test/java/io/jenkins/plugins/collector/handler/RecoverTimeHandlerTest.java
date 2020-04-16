@@ -66,7 +66,7 @@ public class RecoverTimeHandlerTest {
 
     final List<SimpleCollector> actual = recoverTimeHandler.apply(currentBuild);
 
-    assertEquals(1, actual.size());
+    assertEquals(0, actual.size());
     PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("calculateRecoverTime", previousBuild, currentBuild);
     verify(mockRecoverTimeMetrics, never()).labels(labels);
     verify(mockRecoveryTimeChild, never()).set(1L);

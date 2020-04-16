@@ -26,6 +26,8 @@ public class BuildInfoHandler implements Function<Run, List<SimpleCollector>> {
 
   @Override
   public List<SimpleCollector> apply(@Nonnull Run build) {
+    buildDurationMetrics.clear();
+    buildStartTimeMetrics.clear();
     buildDurationMetrics.labels(getLabels(build)).set(build.getDuration());
     buildStartTimeMetrics.labels(getLabels(build)).set(build.getStartTimeInMillis());
     return newArrayList(buildDurationMetrics, buildStartTimeMetrics);

@@ -62,7 +62,7 @@ public class LeadTimeHandlerTest {
 
     final List<SimpleCollector> actual = leadTimeHandler.apply(currentBuild);
 
-    assertEquals(1, actual.size());
+    assertEquals(0, actual.size());
     PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", previousBuild, currentBuild);
     verify(leadTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
     verify(leadTimeMetricsChild, never()).set(1L);

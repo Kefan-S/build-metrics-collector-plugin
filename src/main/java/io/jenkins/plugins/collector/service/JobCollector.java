@@ -31,11 +31,7 @@ public class JobCollector extends Collector {
   }
 
   private List<MetricFamilySamples> collectJobMetric() {
-    final List<SimpleCollector> collectors = getCollectors();
-
-    collectors.forEach(SimpleCollector::clear);
-
-    return getJobMetric(collectors);
+    return getJobMetric(getCollectors());
   }
 
   private List<SimpleCollector> getCollectors() {
