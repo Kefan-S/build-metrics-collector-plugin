@@ -72,7 +72,7 @@ public class PrometheusConfigurationTest {
   }
 
   @Test(expected = JSONException.class)
-  public void should_throws_JSONException_when_call_configure_given_json_which_does_not_contains_collectingMetricsPeriodInSeconds_field() throws FormException {
+  public void should_throws_JsonException_when_call_configure_given_json_which_does_not_contains_collectingMetricsPeriodInSeconds_field() throws FormException {
     Mockito.when(prometheusConfiguration.configure(any(), any())).thenCallRealMethod();
     StaplerRequest staplerRequest = mock(StaplerRequest.class);
     JSONObject json = JSONObject.fromObject(Collections.emptyMap());

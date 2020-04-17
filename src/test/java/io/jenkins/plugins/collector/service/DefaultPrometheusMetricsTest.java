@@ -39,9 +39,9 @@ public class DefaultPrometheusMetricsTest {
 
     defaultPrometheusMetrics.collectMetrics();
 
-    String metrics = "# HELP default_jenkins_builds_merge_lead_time Code Merge Lead Time in milliseconds\n" +
-                     "# TYPE default_jenkins_builds_merge_lead_time gauge\n" +
-                     "default_jenkins_builds_merge_lead_time{labelName=\"label\",} 1.0\n";
+    String metrics = "# HELP default_jenkins_builds_merge_lead_time Code Merge Lead Time in milliseconds\n"
+        + "# TYPE default_jenkins_builds_merge_lead_time gauge\n"
+        + "default_jenkins_builds_merge_lead_time{labelName=\"label\",} 1.0\n";
     Assert.assertEquals(metrics, defaultPrometheusMetrics.getMetrics());
 
   }

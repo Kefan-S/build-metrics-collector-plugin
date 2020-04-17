@@ -33,7 +33,7 @@ public class BuildProvider {
 
   public void remove(Run run) {
     String jobFullName = run.getParent().getFullName();
-    if(!jobFullNameToUnhandledBuildsMap.containsKey(jobFullName)) {
+    if (!jobFullNameToUnhandledBuildsMap.containsKey(jobFullName)) {
       throw new NoSuchBuildException(String.format("No Such Build: %s", run.getFullDisplayName()));
     }
     jobFullNameToUnhandledBuildsMap.get(jobFullName).remove(run);
