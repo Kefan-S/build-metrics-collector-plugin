@@ -12,3 +12,4 @@ script:
   - mvn spotbugs:check
   - mvn test
   - mvn install
+dist: trusty
