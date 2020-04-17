@@ -60,16 +60,15 @@ public class RecoverTimeHandlerTest {
   public void should_do_nothing_if_current_build_is_not_first_successful_build_after_error() throws Exception {
     RecoverTimeHandler recoverTimeHandler = PowerMockito.spy(new RecoverTimeHandler(mockRecoverTimeMetrics));
     Run currentBuild = new MockBuildBuilder().create();
-    Run previousBuild = currentBuild.getPreviousBuild();
 
     doReturn(mockRecoveryTimeChild).when(mockRecoverTimeMetrics).labels(labels);
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(false);
-    PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
+    PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime",currentBuild);
 
     final List<MetricFamilySamples> actual = recoverTimeHandler.apply(currentBuild);
 
     assertEquals(0, actual.size());
-    PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("calculateRecoverTime", previousBuild, currentBuild);
+    PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("calculateRecoverTime",currentBuild);
     PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("setRecoverTimeThenPush", currentBuild, 1L);
     verify(mockRecoverTimeMetrics, never()).clear();
     verify(mockRecoverTimeMetrics, never()).labels(labels);
@@ -85,14 +84,14 @@ public class RecoverTimeHandlerTest {
 
     doReturn(mockRecoveryTimeChild).when(mockRecoverTimeMetrics).labels(labels);
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
-    PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
+    PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", currentBuild);
     final MetricFamilySamples mockMetricFamilySamples = mock(MetricFamilySamples.class);
     when(mockRecoverTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples));
 
     final List<MetricFamilySamples> actual = recoverTimeHandler.apply(currentBuild);
 
     assertEquals(newArrayList(mockMetricFamilySamples), actual);
-    PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("calculateRecoverTime", previousBuild, currentBuild);
+    PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("calculateRecoverTime", currentBuild);
     PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("setRecoverTimeThenPush", currentBuild, 1L);
     verify(mockRecoverTimeMetrics, times(1)).clear();
     verify(mockRecoverTimeMetrics, times(1)).labels(labels);
@@ -104,14 +103,12 @@ public class RecoverTimeHandlerTest {
     RecoverTimeHandler recoverTimeHandler = PowerMockito.spy(new RecoverTimeHandler(mockRecoverTimeMetrics));
     Run currentBuild1 = new MockBuildBuilder().create();
     Run currentBuild2 = new MockBuildBuilder().create();
-    Run previousBuild1 = currentBuild1.getPreviousBuild();
-    Run previousBuild2 = currentBuild2.getPreviousBuild();
 
     doReturn(mockRecoveryTimeChild).when(mockRecoverTimeMetrics).labels(labels);
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild1)).thenReturn(true);
-    PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild1, currentBuild1);
+    PowerMockito.doReturn(1L).when(recoverTimeHandler, "calculateRecoverTime", currentBuild1);
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild2)).thenReturn(true);
-    PowerMockito.doReturn(2L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild2, currentBuild2);
+    PowerMockito.doReturn(2L).when(recoverTimeHandler, "calculateRecoverTime", currentBuild2);
     final MetricFamilySamples mockMetricFamilySamples1 = mock(MetricFamilySamples.class);
     final MetricFamilySamples mockMetricFamilySamples2 = mock(MetricFamilySamples.class);
     when(mockRecoverTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples1)).thenReturn(newArrayList(mockMetricFamilySamples2));
@@ -127,15 +124,14 @@ public class RecoverTimeHandlerTest {
   public void should_not_set_value_to_metrics_if_calculated_lead_time_is_negative() throws Exception {
     RecoverTimeHandler recoverTimeHandler = PowerMockito.spy(new RecoverTimeHandler(mockRecoverTimeMetrics));
     Run currentBuild = new MockBuildBuilder().create();
-    Run previousBuild = currentBuild.getPreviousBuild();
 
     doReturn(mockRecoveryTimeChild).when(mockRecoverTimeMetrics).labels(labels);
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
-    PowerMockito.doReturn(-1L).when(recoverTimeHandler, "calculateRecoverTime", previousBuild, currentBuild);
+    PowerMockito.doReturn(-1L).when(recoverTimeHandler, "calculateRecoverTime", currentBuild);
 
     recoverTimeHandler.apply(currentBuild);
 
-    PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("calculateRecoverTime", previousBuild, currentBuild);
+    PowerMockito.verifyPrivate(recoverTimeHandler, times(1)).invoke("calculateRecoverTime", currentBuild);
     verify(mockRecoverTimeMetrics, times(0)).labels(labels);
     verify(mockRecoveryTimeChild, times(0)).set(1L);
   }
@@ -147,7 +143,7 @@ public class RecoverTimeHandlerTest {
 
     recoverTimeHandler.apply(currentBuild);
 
-    PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("calculateRecoverTime", currentBuild.getPreviousBuild(), currentBuild);
+    PowerMockito.verifyPrivate(recoverTimeHandler, never()).invoke("calculateRecoverTime", currentBuild);
     verify(mockRecoverTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
     verify(mockRecoveryTimeChild, never()).set(anyLong());
   }
@@ -201,7 +197,7 @@ public class RecoverTimeHandlerTest {
     recoverTimeHandler.apply(lastBuild);
 
     Mockito.verify(mockRecoverTimeMetrics, Mockito.times(0)).labels(labels);
-    Assert.assertEquals(Long.valueOf(Long.MIN_VALUE), recoverTimeHandler.calculateRecoverTime(lastBuild.getPreviousBuild(), lastBuild));
+    Assert.assertEquals(Long.valueOf(Long.MIN_VALUE), recoverTimeHandler.calculateRecoverTime(lastBuild));
   }
 
   @Test
@@ -233,7 +229,7 @@ public class RecoverTimeHandlerTest {
     recoverTimeHandler.apply(lastBuild);
 
     Mockito.verify(mockRecoverTimeMetrics, Mockito.times(0)).labels(labels);
-    Assert.assertEquals(Long.valueOf(Long.MIN_VALUE), recoverTimeHandler.calculateRecoverTime(lastBuild.getPreviousBuild(), lastBuild));
+    Assert.assertEquals(Long.valueOf(Long.MIN_VALUE), recoverTimeHandler.calculateRecoverTime(lastBuild));
   }
 
 }

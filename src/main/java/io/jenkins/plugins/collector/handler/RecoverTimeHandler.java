@@ -32,7 +32,7 @@ public class RecoverTimeHandler extends AbstractHandler implements Function<Run,
   public List<MetricFamilySamples> apply(@Nonnull Run successBuild) {
     return Optional.of(successBuild)
         .filter(BuildUtil::isFirstSuccessfulBuildAfterError)
-        .map(firstSuccessBuild -> calculateRecoverTime(firstSuccessBuild.getPreviousBuild(), firstSuccessBuild))
+        .map(this::calculateRecoverTime)
         .filter(recoverTime -> recoverTime > 0)
         .map(recoverTime -> setRecoverTimeThenPush(successBuild, recoverTime))
         .orElse(emptyList());
@@ -43,13 +43,14 @@ public class RecoverTimeHandler extends AbstractHandler implements Function<Run,
     return newArrayList(recoverTimeMetrics.collect());
   }
 
-  Long calculateRecoverTime(Run matchedBuild, Run currentBuild) {
+  Long calculateRecoverTime(Run currentBuild) {
     long recoverTime = Long.MIN_VALUE;
-    while (!isASuccessAndFinishedMatchedBuild(matchedBuild, currentBuild)) {
-      if (!isAbortBuild(matchedBuild)) {
-        recoverTime = Math.max(recoverTime, getBuildEndTime(currentBuild) - getBuildEndTime(matchedBuild));
+    Run previousBuild = currentBuild.getPreviousBuild();
+    while (!isASuccessAndFinishedMatchedBuild(previousBuild, currentBuild)) {
+      if (!isAbortBuild(previousBuild)) {
+        recoverTime = Math.max(recoverTime, getBuildEndTime(currentBuild) - getBuildEndTime(previousBuild));
       }
-      matchedBuild = matchedBuild.getPreviousBuild();
+      previousBuild = previousBuild.getPreviousBuild();
     }
     return recoverTime;
   }

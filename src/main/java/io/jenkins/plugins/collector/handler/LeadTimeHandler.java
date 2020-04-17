@@ -32,7 +32,7 @@ public class LeadTimeHandler extends AbstractHandler implements Function<Run, Li
   public List<MetricFamilySamples> apply(@Nonnull Run successBuild) {
     return Optional.of(successBuild)
         .filter(BuildUtil::isFirstSuccessfulBuildAfterError)
-        .map(firstSuccessBuild -> calculateLeadTime(firstSuccessBuild.getPreviousBuild(), firstSuccessBuild))
+        .map(this::calculateLeadTime)
         .map(leadTime -> setLeadTimeThenPush(successBuild, leadTime))
         .orElse(emptyList());
   }
@@ -42,13 +42,14 @@ public class LeadTimeHandler extends AbstractHandler implements Function<Run, Li
     return newArrayList(leadTimeMetrics.collect());
   }
 
-  private Long calculateLeadTime(Run matchedBuild, Run successBuild) {
+  private Long calculateLeadTime(Run successBuild) {
     long leadTime = successBuild.getDuration();
-    while (!isASuccessAndFinishedMatchedBuild(matchedBuild, successBuild)) {
-      if (!isAbortBuild(matchedBuild)) {
-        leadTime = Math.max(leadTime, getBuildEndTime(successBuild) - matchedBuild.getStartTimeInMillis());
+    Run previousBuild = successBuild.getPreviousBuild();
+    while (!isASuccessAndFinishedMatchedBuild(previousBuild, successBuild)) {
+      if (!isAbortBuild(previousBuild)) {
+        leadTime = Math.max(leadTime, getBuildEndTime(successBuild) - previousBuild.getStartTimeInMillis());
       }
-      matchedBuild = matchedBuild.getPreviousBuild();
+      previousBuild = previousBuild.getPreviousBuild();
     }
     return leadTime;
   }

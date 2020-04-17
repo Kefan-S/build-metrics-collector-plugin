@@ -57,15 +57,14 @@ public class LeadTimeHandlerTest {
   public void should_do_nothing_if_current_build_is_not_first_successful_build_after_error() throws Exception {
     LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
     Run currentBuild = new MockBuildBuilder().create();
-    Run previousBuild = currentBuild.getPreviousBuild();
 
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(false);
-    PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
+    PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", currentBuild);
 
     final List<MetricFamilySamples> actual = leadTimeHandler.apply(currentBuild);
 
     assertEquals(0, actual.size());
-    PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", previousBuild, currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", currentBuild);
     PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("setLeadTimeThenPush", currentBuild, 1L);
     verify(leadTimeMetrics, never()).clear();
     verify(leadTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
@@ -80,7 +79,7 @@ public class LeadTimeHandlerTest {
     Run previousBuild = currentBuild.getPreviousBuild();
 
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
-    PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild, currentBuild);
+    PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", currentBuild);
 
     final MetricFamilySamples mockMetricFamilySamples = mock(MetricFamilySamples.class);
     when(leadTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples));
@@ -88,7 +87,7 @@ public class LeadTimeHandlerTest {
     final List<MetricFamilySamples> actual = leadTimeHandler.apply(currentBuild);
 
     assertEquals(newArrayList(mockMetricFamilySamples), actual);
-    PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("calculateLeadTime", previousBuild, currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("calculateLeadTime", currentBuild);
     PowerMockito.verifyPrivate(leadTimeHandler, times(1)).invoke("setLeadTimeThenPush", currentBuild, 1L);
     verify(leadTimeMetrics, times(1)).clear();
     verify(leadTimeMetrics, times(1)).labels(LEADTIME_HANDLER_LABELS);
@@ -100,13 +99,11 @@ public class LeadTimeHandlerTest {
     LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
     Run currentBuild1 = new MockBuildBuilder().create();
     Run currentBuild2 = new MockBuildBuilder().create();
-    Run previousBuild1 = currentBuild1.getPreviousBuild();
-    Run previousBuild2 = currentBuild2.getPreviousBuild();
 
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild1)).thenReturn(true);
-    PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", previousBuild1, currentBuild1);
+    PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", currentBuild1);
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild2)).thenReturn(true);
-    PowerMockito.doReturn(2L).when(leadTimeHandler, "calculateLeadTime", previousBuild2, currentBuild2);
+    PowerMockito.doReturn(2L).when(leadTimeHandler, "calculateLeadTime", currentBuild2);
     final MetricFamilySamples mockMetricFamilySamples1 = mock(MetricFamilySamples.class);
     final MetricFamilySamples mockMetricFamilySamples2 = mock(MetricFamilySamples.class);
     when(leadTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples1)).thenReturn(newArrayList(mockMetricFamilySamples2));
@@ -123,7 +120,7 @@ public class LeadTimeHandlerTest {
     LeadTimeHandler leadTimeHandler = PowerMockito.spy(new LeadTimeHandler(leadTimeMetrics));
     Run currentBuild = new MockBuildBuilder().result(Result.FAILURE).create();
     leadTimeHandler.apply(currentBuild);
-    PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", currentBuild.getPreviousBuild(), currentBuild);
+    PowerMockito.verifyPrivate(leadTimeHandler, never()).invoke("calculateLeadTime", currentBuild);
     verify(leadTimeMetrics, never()).labels(LEADTIME_HANDLER_LABELS);
     verify(leadTimeMetricsChild, never()).set(anyLong());
   }
