@@ -19,7 +19,7 @@ import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static java.util.Collections.emptyList;
 
-public class RecoverTimeHandler implements Function<Run, List<MetricFamilySamples>> {
+public class RecoverTimeHandler extends AbstractHandler implements Function<Run, List<MetricFamilySamples>> {
 
   private Gauge recoverTimeMetrics;
 
@@ -39,8 +39,7 @@ public class RecoverTimeHandler implements Function<Run, List<MetricFamilySample
   }
 
   private List<MetricFamilySamples> setRecoverTimeThenPush(@Nonnull Run successBuild, Long recoverTime) {
-    recoverTimeMetrics.clear();
-    recoverTimeMetrics.labels(getLabels(successBuild)).set(recoverTime);
+    processMetrics(newArrayList(recoverTimeMetrics), successBuild, recoverTime);
     return newArrayList(recoverTimeMetrics.collect());
   }
 
@@ -58,5 +57,10 @@ public class RecoverTimeHandler implements Function<Run, List<MetricFamilySample
   private boolean isASuccessAndFinishedMatchedBuild(Run matchedBuild, Run currentBuild) {
     return matchedBuild == null
         || (!isCompleteOvertime(matchedBuild, currentBuild) && Result.UNSTABLE.isWorseOrEqualTo(matchedBuild.getResult()));
+  }
+
+  @Override
+  void setMetricValue(Run build, Long metricValue) {
+    recoverTimeMetrics.labels(getLabels(build)).set(metricValue);
   }
 }

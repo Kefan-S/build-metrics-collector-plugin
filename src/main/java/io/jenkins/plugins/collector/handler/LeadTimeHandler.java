@@ -19,7 +19,7 @@ import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 import static java.util.Collections.emptyList;
 
-public class LeadTimeHandler implements Function<Run, List<MetricFamilySamples>> {
+public class LeadTimeHandler extends AbstractHandler implements Function<Run, List<MetricFamilySamples>> {
 
   private Gauge leadTimeMetrics;
 
@@ -38,8 +38,7 @@ public class LeadTimeHandler implements Function<Run, List<MetricFamilySamples>>
   }
 
   private List<MetricFamilySamples> setLeadTimeThenPush(@Nonnull Run successBuild, Long leadTime) {
-    leadTimeMetrics.clear();
-    this.leadTimeMetrics.labels(getLabels(successBuild)).set(leadTime);
+    processMetrics(newArrayList(leadTimeMetrics), successBuild, leadTime);
     return newArrayList(leadTimeMetrics.collect());
   }
 
@@ -57,5 +56,10 @@ public class LeadTimeHandler implements Function<Run, List<MetricFamilySamples>>
   private boolean isASuccessAndFinishedMatchedBuild(Run matchedBuild, Run currentBuild) {
     return matchedBuild == null
         || (!isCompleteOvertime(matchedBuild, currentBuild) && Result.UNSTABLE.isWorseOrEqualTo(matchedBuild.getResult()));
+  }
+
+  @Override
+  void setMetricValue(Run build, Long metricValue) {
+    this.leadTimeMetrics.labels(getLabels(build)).set(metricValue);
   }
 }
