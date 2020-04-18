@@ -11,7 +11,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
 import static java.util.stream.Collectors.toList;
 
@@ -29,8 +28,9 @@ public class BuildInfoHandler extends AbstractHandler implements Function<Run, L
 
   @Override
   public List<MetricFamilySamples> apply(@Nonnull Run successBuild) {
-    processMetrics(newArrayList(buildDurationMetrics, buildStartTimeMetrics), successBuild, null);
-    return Stream.of(buildDurationMetrics.collect(), buildStartTimeMetrics.collect())
+    processMetrics(successBuild, null, buildDurationMetrics, buildStartTimeMetrics);
+    return Stream.of(buildDurationMetrics, buildStartTimeMetrics)
+        .map(Gauge::collect)
         .flatMap(Collection::stream)
         .collect(toList());
   }

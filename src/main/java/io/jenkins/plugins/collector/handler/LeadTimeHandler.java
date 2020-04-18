@@ -38,7 +38,7 @@ public class LeadTimeHandler extends AbstractHandler implements Function<Run, Li
   }
 
   private List<MetricFamilySamples> setLeadTimeThenPush(@Nonnull Run successBuild, Long leadTime) {
-    processMetrics(newArrayList(leadTimeMetrics), successBuild, leadTime);
+    processMetrics(successBuild, leadTime,leadTimeMetrics);
     return newArrayList(leadTimeMetrics.collect());
   }
 

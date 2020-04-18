@@ -39,7 +39,7 @@ public class RecoverTimeHandler extends AbstractHandler implements Function<Run,
   }
 
   private List<MetricFamilySamples> setRecoverTimeThenPush(@Nonnull Run successBuild, Long recoverTime) {
-    processMetrics(newArrayList(recoverTimeMetrics), successBuild, recoverTime);
+    processMetrics(successBuild, recoverTime, recoverTimeMetrics);
     return newArrayList(recoverTimeMetrics.collect());
   }
 
