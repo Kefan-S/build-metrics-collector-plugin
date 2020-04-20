@@ -13,7 +13,7 @@ import org.kohsuke.stapler.StaplerRequest;
 @Extension(dynamicLoadable = YesNoMaybe.NO)
 public class PrometheusConfiguration extends GlobalConfiguration {
 
-  static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(120);
+  static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(15);
 
   private Long collectingMetricsPeriodInSeconds = null;
   private String jobName;
