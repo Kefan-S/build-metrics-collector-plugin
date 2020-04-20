@@ -51,7 +51,7 @@ public class BuildProvider {
   }
 
   private void updateUnhandledBuilds() {
-    jobProvider.getAllJobs().forEach(this::updateUnhandledBuildsByJob);
+    jobProvider.getAllJobs().stream().filter(job -> job.getFullName().equals(prometheusConfiguration.getJobName())).forEach(this::updateUnhandledBuildsByJob);
   }
 
   private void updateUnhandledBuildsByJob(Job job) {
