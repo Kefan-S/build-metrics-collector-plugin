@@ -7,6 +7,7 @@ import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import io.jenkins.plugins.collector.exception.NoSuchBuildException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,10 @@ public class BuildProvider {
   }
 
   private void updateUnhandledBuilds() {
-    jobProvider.getAllJobs().stream().filter(job -> job.getFullName().equals(prometheusConfiguration.getJobName())).forEach(this::updateUnhandledBuildsByJob);
+    final String[] jobNames = prometheusConfiguration.getJobName().split(",");
+    jobProvider.getAllJobs().stream()
+        .filter(job -> Arrays.stream(jobNames).anyMatch(jobName -> job.getFullName().equals(jobName)))
+        .forEach(this::updateUnhandledBuildsByJob);
   }
 
   private void updateUnhandledBuildsByJob(Job job) {

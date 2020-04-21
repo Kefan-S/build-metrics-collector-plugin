@@ -1,8 +1,12 @@
 package io.jenkins.plugins.collector.config;
 
 import hudson.Extension;
+import hudson.init.Initializer;
+import hudson.model.AbstractItem;
 import hudson.model.Descriptor;
+import io.jenkins.plugins.collector.data.JobProvider;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
@@ -10,10 +14,12 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
+import static hudson.init.InitMilestone.JOB_LOADED;
+
 @Extension(dynamicLoadable = YesNoMaybe.NO)
 public class PrometheusConfiguration extends GlobalConfiguration {
 
-  static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(15);
+  static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(120);
 
   private Long collectingMetricsPeriodInSeconds = null;
   private String jobName;
@@ -22,6 +28,14 @@ public class PrometheusConfiguration extends GlobalConfiguration {
     load();
     setCollectingMetricsPeriodInSeconds(collectingMetricsPeriodInSeconds);
     setJobName(jobName);
+  }
+
+  @Initializer(after = JOB_LOADED)
+  public void init() {
+    String jobNames = new JobProvider(Jenkins.getInstance()).getAllJobs().stream()
+        .map(AbstractItem::getFullName)
+        .collect(Collectors.joining(","));
+    setJobName(jobNames);
   }
 
   @Override
@@ -56,11 +70,7 @@ public class PrometheusConfiguration extends GlobalConfiguration {
   }
 
   public void setJobName(String jobName) {
-    if (StringUtils.isEmpty(jobName)) {
-      this.jobName = "build-metrics-collector-plugin";
-    } else {
-      this.jobName = jobName;
-    }
+    this.jobName = jobName;
     save();
   }
 
