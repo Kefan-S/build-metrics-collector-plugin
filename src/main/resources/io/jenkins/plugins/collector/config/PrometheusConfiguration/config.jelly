@@ -7,5 +7,12 @@
     <f:entry title="${%Job name}" field="jobName">
       <f:textbox/>
     </f:entry>
+    <j:set var="jobNames" value="${descriptor.getJobName()}" />
+    <f:entry title="Job Names" description="Choose job name to monitor the metrics">
+       <j:forEach var="jobName" items="${jobNames}">
+           <f:checkbox default="true" name="${jobName}" id="${jobName}"/>
+           <label>${jobName}</label>
+       </j:forEach>
+    </f:entry>
   </f:section>
 </j:jelly>
