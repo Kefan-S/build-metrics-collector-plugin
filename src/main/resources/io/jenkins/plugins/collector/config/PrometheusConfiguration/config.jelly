@@ -4,15 +4,32 @@
     <f:entry title="${%Collecting metrics period in seconds}" field="collectingMetricsPeriodInSeconds">
       <f:number clazz="required positive-number"/>
     </f:entry>
+
     <f:entry title="${%Job name}" field="jobName">
       <f:textbox/>
     </f:entry>
-    <j:set var="jobNames" value="${descriptor.getJobName()}" />
-    <f:entry title="Job Names" description="Choose job name to monitor the metrics">
-       <j:forEach var="jobName" items="${jobNames}">
-           <f:checkbox default="true" name="${jobName}" id="${jobName}"/>
-           <label>${jobName}</label>
+
+    <j:set var="jobNameMap" value="${descriptor.getJobNameMap()}" />
+    <f:entry title="Job Names" description="Choose job name to monitor the metrics" field="jobNameMap">
+       <j:forEach var="jobName" items="${jobNameMap}">
+           <f:checkbox checked="${jobName.value}" value="${jobName.key}" name="jobNameMap" id="${jobName.key}" onclick="test(this);"/>
+           <label>${jobName.key}</label>
        </j:forEach>
     </f:entry>
+
+    <j:set var="collectedJob" value="${descriptor.getCollectedJob()}" />
+    <f:entry title="${%Collected Job}" field="collectedJob">
+      <f:textbox name="collectedJob" id="textBox" />
+    </f:entry>
+    <script>
+      function test(event){
+        var key=event.value;
+        var value=event.checked;
+        var keyValue=key+"="+value+",";
+        var textBox = document.getElementById('textBox');
+        textBox.value+=keyValue;
+      };
+    </script>
+
   </f:section>
 </j:jelly>
