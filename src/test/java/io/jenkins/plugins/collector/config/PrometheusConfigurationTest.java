@@ -2,20 +2,32 @@ package io.jenkins.plugins.collector.config;
 
 import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
+import io.jenkins.plugins.collector.service.AsyncWorkerManager;
+import io.jenkins.plugins.collector.service.PeriodProvider;
 import java.util.Collections;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.kohsuke.stapler.StaplerRequest;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(value = {AsyncWorkerManager.class, PeriodProvider.class})
 public class PrometheusConfigurationTest {
 
   private PrometheusConfiguration prometheusConfiguration;
@@ -47,20 +59,55 @@ public class PrometheusConfigurationTest {
   }
 
   @Test
-  public void should_return_true_when_call_configure_given_positive_collecting_seconds() throws FormException {
+  public void should_return_true_and_update_async_work_and_period_when_call_configure_given_positive_collecting_seconds_and_value_has_been_changed() throws FormException {
     Mockito.when(prometheusConfiguration.configure(any(), any())).thenCallRealMethod();
+    Whitebox.setInternalState(prometheusConfiguration, "collectingMetricsPeriodInSeconds", 100L);
     JSONObject json = JSONObject.fromObject(Collections.singletonMap("collectingMetricsPeriodInSeconds", 20L));
     StaplerRequest staplerRequest = Mockito.mock(StaplerRequest.class);
     Mockito.doNothing().when(staplerRequest).bindJSON(any(Object.class), any(JSONObject.class));
 
+    PowerMockito.mockStatic(AsyncWorkerManager.class);
+    AsyncWorkerManager mockAsyncWorkerManager = mock(AsyncWorkerManager.class);
+    when(AsyncWorkerManager.get()).thenReturn(mockAsyncWorkerManager);
+
+    PowerMockito.mockStatic(PeriodProvider.class);
+    PeriodProvider mockPeriodProvider = mock(PeriodProvider.class);
+    when(PeriodProvider.get()).thenReturn(mockPeriodProvider);
+
     boolean actual = prometheusConfiguration.configure(staplerRequest, json);
 
     assertTrue(actual);
+    verify(mockAsyncWorkerManager).updateAsyncWorker();
+    verify(mockPeriodProvider).updatePeriods();
+  }
+
+  @Test
+  public void should_return_true_and_never_update_async_work_and_period_when_call_configure_given_positive_collecting_seconds_and_value_has_not_been_changed() throws FormException {
+    Mockito.when(prometheusConfiguration.configure(any(), any())).thenCallRealMethod();
+    Whitebox.setInternalState(prometheusConfiguration, "collectingMetricsPeriodInSeconds", 20L);
+    JSONObject json = JSONObject.fromObject(Collections.singletonMap("collectingMetricsPeriodInSeconds", 20L));
+    StaplerRequest staplerRequest = Mockito.mock(StaplerRequest.class);
+    Mockito.doNothing().when(staplerRequest).bindJSON(any(Object.class), any(JSONObject.class));
+
+    PowerMockito.mockStatic(AsyncWorkerManager.class);
+    AsyncWorkerManager mockAsyncWorkerManager = mock(AsyncWorkerManager.class);
+    when(AsyncWorkerManager.get()).thenReturn(mockAsyncWorkerManager);
+
+    PowerMockito.mockStatic(PeriodProvider.class);
+    PeriodProvider mockPeriodProvider = mock(PeriodProvider.class);
+    when(PeriodProvider.get()).thenReturn(mockPeriodProvider);
+
+    boolean actual = prometheusConfiguration.configure(staplerRequest, json);
+
+    assertTrue(actual);
+    verify(mockAsyncWorkerManager, never()).updateAsyncWorker();
+    verify(mockPeriodProvider, never()).updatePeriods();
   }
 
   @Test(expected = FormException.class)
   public void should_throws_FormException_when_call_configure_given_negative_collecting_seconds() throws Descriptor.FormException {
     Mockito.when(prometheusConfiguration.configure(any(), any())).thenCallRealMethod();
+    Whitebox.setInternalState(prometheusConfiguration, "collectingMetricsPeriodInSeconds", 20L);
     StaplerRequest staplerRequest = mock(StaplerRequest.class);
     JSONObject json = JSONObject.fromObject(Collections.singletonMap("collectingMetricsPeriodInSeconds", -20L));
 
@@ -74,6 +121,7 @@ public class PrometheusConfigurationTest {
   @Test(expected = JSONException.class)
   public void should_throws_JsonException_when_call_configure_given_json_which_does_not_contains_collectingMetricsPeriodInSeconds_field() throws FormException {
     Mockito.when(prometheusConfiguration.configure(any(), any())).thenCallRealMethod();
+    Whitebox.setInternalState(prometheusConfiguration, "collectingMetricsPeriodInSeconds", 20L);
     StaplerRequest staplerRequest = mock(StaplerRequest.class);
     JSONObject json = JSONObject.fromObject(Collections.emptyMap());
 
