@@ -5,40 +5,9 @@
       <f:number clazz="required positive-number"/>
     </f:entry>
 
-    <j:set var="jobNameMap" value="${descriptor.getJobNameMap()}" />
-    <f:entry title="Job Names" description="Choose job name to monitor the metrics" field="jobNameMap">
-       <j:forEach var="jobName" items="${jobNameMap}">
-           <f:checkbox checked="${jobName.value}" value="${jobName.key}" name="jobNameMap" id="${jobName.key}" onclick="handleClick(this);"/>
-           <label>${jobName.key}</label>
-       </j:forEach>
+    <f:entry title="${%Job name that you want to collect metrics}" field="jobName">
+      <f:textbox/>
     </f:entry>
-
-    <f:entry field="collectedJob">
-      <f:textbox name="collectedJob" id="textBox" hidden="true"/>
-    </f:entry>
-    <script>
-      var map = new Map();
-      function handleClick(event){
-        var key=event.value;
-        var value=event.checked;
-        var textBox = document.getElementById('textBox');
-        map.set(key,value);
-        textBox.value=_mapToJson(map);
-      };
-
-     function _strMapToObj(strMap){
-        let obj= Object.create(null);
-        for (let [k,v] of strMap) {
-          obj[k] = v;
-        }
-        return obj;
-     }
-
-     function _mapToJson(map) {
-       return JSON.stringify(_strMapToObj(map));
-     }
-
-    </script>
 
   </f:section>
 </j:jelly>
