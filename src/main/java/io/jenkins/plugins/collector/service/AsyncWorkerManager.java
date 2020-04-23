@@ -5,6 +5,7 @@ import hudson.Extension;
 import hudson.init.Initializer;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import jenkins.model.Jenkins;
 import org.slf4j.Logger;
@@ -17,8 +18,8 @@ public class AsyncWorkerManager {
 
   private static final Logger logger = LoggerFactory.getLogger(AsyncWorkerManager.class);
 
-  private Timer timer;
-  private AsyncWork timerTask;
+  Timer timer;
+  TimerTask timerTask;
   private PrometheusMetrics prometheusMetrics;
 
   public AsyncWorkerManager() {
