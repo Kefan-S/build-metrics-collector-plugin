@@ -2,6 +2,7 @@ package io.jenkins.plugins.collector.service;
 
 import hudson.Extension;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import java.util.Objects;
 import jenkins.model.Jenkins;
 
 @Extension
@@ -11,8 +12,13 @@ public class PeriodProvider {
   private long currentPeriodInSeconds;
 
   public PeriodProvider() {
-    this.previousPeriodInSeconds = PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds();
-    this.currentPeriodInSeconds = PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds();
+    long periodInSeconds = PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds();
+    new PeriodProvider(periodInSeconds, periodInSeconds);
+  }
+
+  public PeriodProvider(long previousPeriodInSeconds, long currentPeriodInSeconds) {
+    this.previousPeriodInSeconds = previousPeriodInSeconds;
+    this.currentPeriodInSeconds = currentPeriodInSeconds;
   }
 
   public static PeriodProvider get() {
@@ -32,5 +38,14 @@ public class PeriodProvider {
   public void updatePeriods() {
     this.previousPeriodInSeconds = this.currentPeriodInSeconds;
     this.currentPeriodInSeconds = PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (Objects.isNull(obj) || obj.getClass() != PeriodProvider.class) {
+      return false;
+    }
+    PeriodProvider o = (PeriodProvider) obj;
+    return this.currentPeriodInSeconds == o.currentPeriodInSeconds && this.previousPeriodInSeconds == o.previousPeriodInSeconds;
   }
 }
