@@ -7,13 +7,14 @@ import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import io.jenkins.plugins.collector.exception.NoSuchBuildException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class BuildProvider {
 
@@ -44,7 +45,7 @@ public class BuildProvider {
     return jobFullNameToUnhandledBuildsMap.values().stream()
         .map(this::getFirstCompletedBuild)
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   private Run getFirstCompletedBuild(List<Run> runs) {
@@ -52,9 +53,13 @@ public class BuildProvider {
   }
 
   private void updateUnhandledBuilds() {
-    final String[] jobNames = prometheusConfiguration.getJobName().split(",");
+    List<String> jobNames = prometheusConfiguration.getJobNameMap().entrySet().stream()
+        .filter(map -> map.getValue().equals(true))
+        .map(Entry::getKey)
+        .collect(toList());
+
     jobProvider.getAllJobs().stream()
-        .filter(job -> Arrays.stream(jobNames).anyMatch(jobName -> job.getFullName().equals(jobName)))
+        .filter(job -> jobNames.stream().anyMatch(jobName -> job.getFullName().equals(jobName)))
         .forEach(this::updateUnhandledBuildsByJob);
   }
 

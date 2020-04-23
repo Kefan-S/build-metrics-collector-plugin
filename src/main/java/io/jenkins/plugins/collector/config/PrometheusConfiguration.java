@@ -1,21 +1,20 @@
 package io.jenkins.plugins.collector.config;
 
+import com.google.gson.Gson;
 import hudson.Extension;
 import hudson.init.Initializer;
 import hudson.model.AbstractItem;
 import hudson.model.Descriptor;
 import io.jenkins.plugins.collector.data.JobProvider;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
 import static hudson.init.InitMilestone.JOB_LOADED;
@@ -26,38 +25,31 @@ public class PrometheusConfiguration extends GlobalConfiguration {
   static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(120);
 
   private Long collectingMetricsPeriodInSeconds = null;
-  private String jobName;
   private Map<String, Boolean> jobNameMap;
   private String collectedJob;
 
   public PrometheusConfiguration() {
     load();
     setCollectingMetricsPeriodInSeconds(collectingMetricsPeriodInSeconds);
-    setJobName(jobName);
     setJobNameMap(jobNameMap);
     setCollectedJob(collectedJob);
-
   }
 
   @Initializer(after = JOB_LOADED)
   public void init() {
-    final List<String> jobNames = new JobProvider(Jenkins.getInstance()).getAllJobs().stream()
-        .map(AbstractItem::getFullName).collect(Collectors.toList());
-
-    setJobName(String.join(",", jobNames));
-
-    final Map<String, Boolean> collect = jobNames.stream().collect(Collectors.toMap(jobName -> jobName, jobName -> false));
+    final Map<String, Boolean> collect = new JobProvider(Jenkins.getInstance()).getAllJobs().stream()
+        .map(AbstractItem::getFullName)
+        .collect(Collectors.toMap(jobName -> jobName, jobName -> true));
     setJobNameMap(collect);
   }
 
   @Override
   public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
     collectingMetricsPeriodInSeconds = validateProcessingMetricsPeriodInSeconds(json);
-    jobName = validateProcessingJobName(json);
     jobNameMap = validateProcessingJobNameMap(json);
     collectedJob = validateCollectedJob(json);
     save();
-    return super.configure(req, json);
+    return true;
   }
 
   public static PrometheusConfiguration get() {
@@ -68,10 +60,6 @@ public class PrometheusConfiguration extends GlobalConfiguration {
 
   public long getCollectingMetricsPeriodInSeconds() {
     return collectingMetricsPeriodInSeconds;
-  }
-
-  public String getJobName() {
-    return jobName;
   }
 
   public Map<String, Boolean> getJobNameMap() {
@@ -88,11 +76,6 @@ public class PrometheusConfiguration extends GlobalConfiguration {
     } else {
       this.collectingMetricsPeriodInSeconds = collectingMetricsPeriodInSeconds;
     }
-    save();
-  }
-
-  public void setJobName(String jobName) {
-    this.jobName = jobName;
     save();
   }
 
@@ -114,19 +97,12 @@ public class PrometheusConfiguration extends GlobalConfiguration {
     throw new FormException("CollectingMetricsPeriodInSeconds must be a positive integer", "collectingMetricsPeriodInSeconds");
   }
 
-  private String validateProcessingJobName(JSONObject json) throws FormException {
-    String value = json.getString("jobName");
-    if (StringUtils.isNotEmpty(value)) {
-      return value;
-    }
-    throw new FormException("jobName must not be empty", "jobName");
-  }
-
   private Map<String, Boolean> validateProcessingJobNameMap(JSONObject json) {
-    final JSONArray jobNameList = json.getJSONArray("jobNameMap");
-    Map<String, Boolean> data = new LinkedHashMap<>();
-    jobNameList.stream().forEach(jobName -> data.put(jobName.toString(), false));
-    return data;
+    final HashMap<String, Boolean> operatedJob = new Gson().fromJson(json.getString("collectedJob"), HashMap.class);
+    for (Entry<String, Boolean> stringBooleanEntry : operatedJob.entrySet()) {
+      this.jobNameMap.put(stringBooleanEntry.getKey(), stringBooleanEntry.getValue());
+    }
+    return this.jobNameMap;
   }
 
   private String validateCollectedJob(JSONObject json) {
