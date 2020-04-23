@@ -6,12 +6,12 @@ import hudson.model.AbstractItem;
 import hudson.model.Descriptor;
 import io.jenkins.plugins.collector.data.JobProvider;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.StaplerRequest;
 
 import static hudson.init.InitMilestone.JOB_LOADED;
@@ -19,7 +19,8 @@ import static hudson.init.InitMilestone.JOB_LOADED;
 @Extension(dynamicLoadable = YesNoMaybe.NO)
 public class PrometheusConfiguration extends GlobalConfiguration {
 
-  static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(15);
+  private static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(15);
+  private static final String REGEX_JOB_NAMES = "([^,]+(,[^,]+)*)*";
 
   private Long collectingMetricsPeriodInSeconds = null;
   private String jobName;
@@ -83,10 +84,10 @@ public class PrometheusConfiguration extends GlobalConfiguration {
   }
 
   private String validateProcessingJobName(JSONObject json) throws FormException {
-    String value = json.getString("jobName");
-    if (StringUtils.isNotEmpty(value)) {
-      return value;
+    String jobName = json.getString("jobName");
+    if (Pattern.matches(REGEX_JOB_NAMES, jobName)) {
+      return jobName;
     }
-    throw new FormException("jobName must not be empty", "jobName");
+    throw new FormException("the format of jobName you input must Conform to the correct format，like aa,bb,cc", "jobName");
   }
 }
