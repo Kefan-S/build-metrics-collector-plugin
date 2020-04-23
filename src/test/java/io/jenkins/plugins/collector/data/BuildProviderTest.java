@@ -3,14 +3,16 @@ package io.jenkins.plugins.collector.data;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.util.RunList;
-import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import io.jenkins.plugins.collector.exception.NoSuchBuildException;
+import io.jenkins.plugins.collector.service.PeriodProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -32,7 +34,7 @@ public class BuildProviderTest {
   @Mock
   private JobProvider jobProvider;
   @Mock
-  private PrometheusConfiguration prometheusConfiguration;
+  private PeriodProvider periodProvider;
   @InjectMocks
   private BuildProvider buildProvider;
 
@@ -69,9 +71,10 @@ public class BuildProviderTest {
 
   @Test
   public void should_return_correct_builds_when_get_all_need_to_handle_builds_given_jobs_have_builds_and_not_empty_unHandle_map() {
-    Map<String, List<Run>> fakeBuildsMap = new HashMap();
+    Map<String, Set<Run>> fakeBuildsMap = new HashMap();
     Run mockExistingBuild = mock(Run.class);
-    fakeBuildsMap.put("full-name", new ArrayList(Arrays.asList(mockExistingBuild)));
+    fakeBuildsMap.put("full-name", new HashSet(Arrays.asList(mockExistingBuild)) {
+    });
     Whitebox.setInternalState(buildProvider, "jobFullNameToUnhandledBuildsMap", fakeBuildsMap);
     Job mockJob = mock(Job.class, RETURNS_DEEP_STUBS);
     when(jobProvider.getAllJobs()).thenReturn(new ArrayList<>(Arrays.asList(mockJob)));
@@ -97,8 +100,8 @@ public class BuildProviderTest {
   @Test
   public void should_remove_build_when_remove_given_build_exist() {
     Run existRun = mock(Run.class, Answers.RETURNS_DEEP_STUBS);
-    Map<String, List<Run>> fakeBuildsMap = new HashMap();
-    fakeBuildsMap.put("full-name", new ArrayList(Arrays.asList(existRun)));
+    Map<String, Set<Run>> fakeBuildsMap = new HashMap();
+    fakeBuildsMap.put("full-name", new HashSet(Arrays.asList(existRun)));
     Whitebox.setInternalState(buildProvider, "jobFullNameToUnhandledBuildsMap", fakeBuildsMap);
 
     when(existRun.getParent().getFullName()).thenReturn("full-name");
