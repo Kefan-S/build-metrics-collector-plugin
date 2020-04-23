@@ -3,6 +3,8 @@ package io.jenkins.plugins.collector.config;
 import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.junit.Before;
@@ -49,7 +51,10 @@ public class PrometheusConfigurationTest {
   @Test
   public void should_return_true_when_call_configure_given_positive_collecting_seconds() throws FormException {
     Mockito.when(prometheusConfiguration.configure(any(), any())).thenCallRealMethod();
-    JSONObject json = JSONObject.fromObject(Collections.singletonMap("collectingMetricsPeriodInSeconds", 20L));
+    Map<String, Object> map = new HashMap<>();
+    map.put("collectingMetricsPeriodInSeconds", 20L);
+    map.put("jobName", "jobName1,jobName2");
+    JSONObject json = JSONObject.fromObject(map);
     StaplerRequest staplerRequest = Mockito.mock(StaplerRequest.class);
     Mockito.doNothing().when(staplerRequest).bindJSON(any(Object.class), any(JSONObject.class));
 
