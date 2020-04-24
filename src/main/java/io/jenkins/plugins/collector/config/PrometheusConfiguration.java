@@ -4,6 +4,7 @@ import hudson.Extension;
 import hudson.model.Descriptor;
 import io.jenkins.plugins.collector.service.AsyncWorkerManager;
 import io.jenkins.plugins.collector.service.PeriodProvider;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
@@ -32,8 +33,8 @@ public class PrometheusConfiguration extends GlobalConfiguration {
     save();
     boolean result = super.configure(req, json);
     if (collectingMetricsPeriodInSeconds != previousCollectingMetricsPeriodInSeconds) {
-      AsyncWorkerManager.get().updateAsyncWorker();
-      PeriodProvider.get().updatePeriods();
+      Optional.ofNullable(AsyncWorkerManager.get()).ifPresent(manager -> manager.updateAsyncWorker());
+      Optional.ofNullable(PeriodProvider.get()).ifPresent(provider -> provider.updatePeriods());
     }
     return result;
   }

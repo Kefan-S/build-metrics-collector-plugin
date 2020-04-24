@@ -62,7 +62,7 @@ public class PrometheusConfigurationTest {
   public void should_return_true_and_update_async_work_and_period_when_call_configure_given_positive_collecting_seconds_and_value_has_been_changed() throws FormException {
     Mockito.when(prometheusConfiguration.configure(any(), any())).thenCallRealMethod();
     Whitebox.setInternalState(prometheusConfiguration, "collectingMetricsPeriodInSeconds", 100L);
-    JSONObject json = JSONObject.fromObject(Collections.singletonMap("collectingMetricsPeriodInSeconds", 20L));
+    final JSONObject json = JSONObject.fromObject(Collections.singletonMap("collectingMetricsPeriodInSeconds", 20L));
     StaplerRequest staplerRequest = Mockito.mock(StaplerRequest.class);
     Mockito.doNothing().when(staplerRequest).bindJSON(any(Object.class), any(JSONObject.class));
 
@@ -82,10 +82,11 @@ public class PrometheusConfigurationTest {
   }
 
   @Test
-  public void should_return_true_and_never_update_async_work_and_period_when_call_configure_given_positive_collecting_seconds_and_value_has_not_been_changed() throws FormException {
+  public void should_return_true_and_never_update_when_call_configure_given_positive_collecting_seconds_and_value_has_not_been_changed()
+      throws FormException {
     Mockito.when(prometheusConfiguration.configure(any(), any())).thenCallRealMethod();
     Whitebox.setInternalState(prometheusConfiguration, "collectingMetricsPeriodInSeconds", 20L);
-    JSONObject json = JSONObject.fromObject(Collections.singletonMap("collectingMetricsPeriodInSeconds", 20L));
+    final JSONObject json = JSONObject.fromObject(Collections.singletonMap("collectingMetricsPeriodInSeconds", 20L));
     StaplerRequest staplerRequest = Mockito.mock(StaplerRequest.class);
     Mockito.doNothing().when(staplerRequest).bindJSON(any(Object.class), any(JSONObject.class));
 

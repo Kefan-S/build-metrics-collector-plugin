@@ -3,6 +3,7 @@ package io.jenkins.plugins.collector.service;
 import hudson.Extension;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import java.util.Objects;
+import java.util.Optional;
 import jenkins.model.Jenkins;
 
 @Extension
@@ -12,8 +13,7 @@ public class PeriodProvider {
   private long currentPeriodInSeconds;
 
   public PeriodProvider() {
-    long periodInSeconds = PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds();
-    new PeriodProvider(periodInSeconds, periodInSeconds);
+    this(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds(), PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
   }
 
   public PeriodProvider(long previousPeriodInSeconds, long currentPeriodInSeconds) {
@@ -22,7 +22,9 @@ public class PeriodProvider {
   }
 
   public static PeriodProvider get() {
-    return Jenkins.getInstanceOrNull().getExtensionList(PeriodProvider.class).get(0);
+    return Optional.ofNullable(Jenkins.getInstanceOrNull())
+        .map(j -> j.getExtensionList(PeriodProvider.class).get(0))
+        .orElse(null);
   }
 
   public long getPeriodInSeconds() {
@@ -41,11 +43,21 @@ public class PeriodProvider {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (Objects.isNull(obj) || obj.getClass() != PeriodProvider.class) {
-      return false;
+  public boolean equals(Object anotherObject) {
+    if (this == anotherObject) {
+      return true;
     }
-    PeriodProvider o = (PeriodProvider) obj;
-    return this.currentPeriodInSeconds == o.currentPeriodInSeconds && this.previousPeriodInSeconds == o.previousPeriodInSeconds;
+
+    if (anotherObject instanceof PeriodProvider) {
+      PeriodProvider anotherPeriodProvider = (PeriodProvider) anotherObject;
+      return this.currentPeriodInSeconds == anotherPeriodProvider.currentPeriodInSeconds && this.previousPeriodInSeconds == anotherPeriodProvider.previousPeriodInSeconds;
+    }
+
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(previousPeriodInSeconds, currentPeriodInSeconds);
   }
 }

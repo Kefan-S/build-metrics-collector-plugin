@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import hudson.Extension;
 import hudson.init.Initializer;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +32,7 @@ public class AsyncWorkerManager {
     this.prometheusMetrics = prometheusMetrics;
   }
 
-  @Initializer(after= JOB_LOADED)
+  @Initializer(after = JOB_LOADED)
   public void init() {
     timer = new Timer("prometheus collector");
     timerTask = new AsyncWork(prometheusMetrics);
@@ -39,7 +40,9 @@ public class AsyncWorkerManager {
   }
 
   public static AsyncWorkerManager get() {
-    return Jenkins.getInstanceOrNull().getExtensionList(AsyncWorkerManager.class).get(0);
+    return Optional.ofNullable(Jenkins.getInstanceOrNull())
+        .map(j -> j.getExtensionList(AsyncWorkerManager.class).get(0))
+        .orElse(null);
   }
 
   public void updateAsyncWorker() {

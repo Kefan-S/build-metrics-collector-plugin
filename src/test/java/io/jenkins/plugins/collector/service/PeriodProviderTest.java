@@ -7,7 +7,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -37,7 +37,7 @@ public class PeriodProviderTest {
     PowerMockito.mockStatic(PrometheusConfiguration.class);
     PrometheusConfiguration mockPrometheusConfiguration = mock(PrometheusConfiguration.class);
     when(PrometheusConfiguration.get()).thenReturn(mockPrometheusConfiguration);
-    when(mockPrometheusConfiguration.getCollectingMetricsPeriodInSeconds()).thenReturn(1000l);
+    when(mockPrometheusConfiguration.getCollectingMetricsPeriodInSeconds()).thenReturn(1000L);
 
     periodProvider.updatePeriods();
 
