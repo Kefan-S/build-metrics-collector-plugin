@@ -2,8 +2,11 @@ package io.jenkins.plugins.collector.config;
 
 import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
+import hudson.model.Item;
+import hudson.model.Job;
 import java.util.Collection;
 import java.util.Collections;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.junit.Before;
@@ -14,9 +17,14 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kohsuke.stapler.StaplerRequest;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonMap;
 import static net.sf.json.JSONObject.fromObject;
 import static org.junit.Assert.assertEquals;
@@ -24,8 +32,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
+import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(Parameterized.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(Parameterized.class)
+@PrepareForTest(Jenkins.class)
 public class PrometheusConfigurationTest {
 
   private PrometheusConfiguration prometheusConfiguration;
@@ -71,6 +82,47 @@ public class PrometheusConfigurationTest {
     prometheusConfiguration.setJobName("jobName");
 
     assertEquals("jobName", prometheusConfiguration.getJobName());
+  }
+
+  @Test
+  public void should_set_job_name_with_comma_when_invoke_init_given_job_name() throws Exception {
+    Mockito.doCallRealMethod().when(prometheusConfiguration).setJobName(any());
+    Mockito.when(prometheusConfiguration.getJobName()).thenCallRealMethod();
+    Mockito.doCallRealMethod().when(prometheusConfiguration).init();
+    PowerMockito.mockStatic(Jenkins.class);
+    Jenkins jenkins = mock(Jenkins.class);
+
+    Item mockItemOne = mock(Item.class);
+    Job mockJob1 = mock(Job.class);
+    Mockito.when(mockJob1.getFullName()).thenReturn("jobName1");
+    when(mockItemOne.getAllJobs()).thenReturn((Collection) newArrayList(mockJob1));
+
+    Item mockItemTwo = mock(Item.class);
+    Job mockJob2 = mock(Job.class);
+    Mockito.when(mockJob2.getFullName()).thenReturn("jobName2");
+    when(mockItemTwo.getAllJobs()).thenReturn((Collection) newArrayList(mockJob2));
+
+    PowerMockito.when(Jenkins.getInstance()).thenReturn(jenkins);
+    when(jenkins.getAllItems()).thenReturn(newArrayList(mockItemOne, mockItemTwo));
+
+    prometheusConfiguration.init();
+
+    assertEquals("jobName1,jobName2", prometheusConfiguration.getJobName());
+  }
+
+  @Test
+  public void should_set_empty_job_name_when_invoke_init_given_empty_job() throws Exception {
+    Mockito.doCallRealMethod().when(prometheusConfiguration).setJobName(any());
+    Mockito.when(prometheusConfiguration.getJobName()).thenCallRealMethod();
+    Mockito.doCallRealMethod().when(prometheusConfiguration).init();
+    PowerMockito.mockStatic(Jenkins.class);
+    Jenkins jenkins = mock(Jenkins.class);
+    PowerMockito.when(Jenkins.getInstance()).thenReturn(jenkins);
+    when(jenkins.getAllItems()).thenReturn(emptyList());
+
+    prometheusConfiguration.init();
+
+    assertEquals("", prometheusConfiguration.getJobName());
   }
 
   @Test
