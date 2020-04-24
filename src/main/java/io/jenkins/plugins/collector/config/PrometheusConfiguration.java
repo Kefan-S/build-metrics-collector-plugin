@@ -5,6 +5,9 @@ import hudson.init.Initializer;
 import hudson.model.AbstractItem;
 import hudson.model.Descriptor;
 import io.jenkins.plugins.collector.data.JobProvider;
+import io.jenkins.plugins.collector.service.AsyncWorkerManager;
+import io.jenkins.plugins.collector.service.PeriodProvider;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,10 +44,16 @@ public class PrometheusConfiguration extends GlobalConfiguration {
 
   @Override
   public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+    long previousCollectingMetricsPeriodInSeconds = collectingMetricsPeriodInSeconds.longValue();
     collectingMetricsPeriodInSeconds = validateProcessingMetricsPeriodInSeconds(json);
     jobName = validateProcessingJobName(json);
     save();
-    return super.configure(req, json);
+    boolean result = super.configure(req, json);
+    if (collectingMetricsPeriodInSeconds != previousCollectingMetricsPeriodInSeconds) {
+      Optional.ofNullable(AsyncWorkerManager.get()).ifPresent(AsyncWorkerManager::updateAsyncWorker);
+      Optional.ofNullable(PeriodProvider.get()).ifPresent(PeriodProvider::updatePeriods);
+    }
+    return result;
   }
 
   public static PrometheusConfiguration get() {
