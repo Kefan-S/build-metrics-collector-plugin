@@ -1,24 +1,17 @@
 package io.jenkins.plugins.collector.config;
 
 import hudson.Extension;
-import hudson.init.Initializer;
-import hudson.model.AbstractItem;
 import hudson.model.Descriptor;
-import io.jenkins.plugins.collector.data.JobProvider;
 import io.jenkins.plugins.collector.service.AsyncWorkerManager;
 import io.jenkins.plugins.collector.service.PeriodProvider;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import jenkins.YesNoMaybe;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
-
-import static hudson.init.InitMilestone.JOB_LOADED;
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Extension(dynamicLoadable = YesNoMaybe.NO)
 public class PrometheusConfiguration extends GlobalConfiguration {
@@ -27,22 +20,12 @@ public class PrometheusConfiguration extends GlobalConfiguration {
   private static final String REGEX_JOB_NAMES = "([^,]+(,[^,]+)*)*";
 
   private Long collectingMetricsPeriodInSeconds = null;
-  private String jobName;
+  private String jobName = "";
 
   public PrometheusConfiguration() {
     load();
     setCollectingMetricsPeriodInSeconds(collectingMetricsPeriodInSeconds);
     setJobName(jobName);
-  }
-
-  @Initializer(after = JOB_LOADED)
-  public void init() {
-    if (isEmpty(this.jobName)) {
-      String jobNames = new JobProvider(Jenkins.getInstance()).getAllJobs().stream()
-          .map(AbstractItem::getFullName)
-          .collect(Collectors.joining(","));
-      setJobName(jobNames);
-    }
   }
 
   @Override
