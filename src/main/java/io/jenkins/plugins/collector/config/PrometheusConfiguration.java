@@ -18,11 +18,12 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 
 import static hudson.init.InitMilestone.JOB_LOADED;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Extension(dynamicLoadable = YesNoMaybe.NO)
 public class PrometheusConfiguration extends GlobalConfiguration {
 
-  private static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(15);
+  private static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(120);
   private static final String REGEX_JOB_NAMES = "([^,]+(,[^,]+)*)*";
 
   private Long collectingMetricsPeriodInSeconds = null;
@@ -36,10 +37,12 @@ public class PrometheusConfiguration extends GlobalConfiguration {
 
   @Initializer(after = JOB_LOADED)
   public void init() {
-    String jobNames = new JobProvider(Jenkins.getInstance()).getAllJobs().stream()
-        .map(AbstractItem::getFullName)
-        .collect(Collectors.joining(","));
-    setJobName(jobNames);
+    if (isEmpty(this.jobName)) {
+      String jobNames = new JobProvider(Jenkins.getInstance()).getAllJobs().stream()
+          .map(AbstractItem::getFullName)
+          .collect(Collectors.joining(","));
+      setJobName(jobNames);
+    }
   }
 
   @Override
