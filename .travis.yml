@@ -11,5 +11,5 @@ script:
   - mvn pmd:check
   - mvn spotbugs:check
   - mvn test
-  - mvn install
+  - mvn clean install
 dist: trusty
