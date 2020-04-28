@@ -5,6 +5,7 @@ import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Gauge;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,28 +19,14 @@ public class PrometheusAdapter implements MetricsAdapter<List<MetricFamilySample
 
   @Override
   public List<MetricFamilySamples> adapt(BuildInfo buildInfo) {
-    Gauge startTimeGauge = bindGauge("_last_build_start_timestamp", "One build start timestamp");
-    Gauge durationGauge = bindGauge("_last_build_duration_in_milliseconds", "One build duration in milliseconds");
-
+    LinkedList<Gauge> gauges = new LinkedList<>();
     String[] metricsLabels = getMetricsLabels(buildInfo);
 
-    startTimeGauge.labels(metricsLabels).set(buildInfo.getStartTime());
-    durationGauge.labels(metricsLabels).set(buildInfo.getDuration());
+    bindGauge("_last_build_start_timestamp", "One build start timestamp", gauges, buildInfo.getStartTime(), metricsLabels);
+    bindGauge("_last_build_duration_in_milliseconds", "One build duration in milliseconds", gauges, buildInfo.getDuration(), metricsLabels);
+    bindGauge("_merge_lead_time", "Code Merge Lead Time in milliseconds", gauges, buildInfo.getLeadTime(), metricsLabels);
+    bindGauge("_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds", gauges, buildInfo.getRecoverTime(), metricsLabels);
 
-    ArrayList<Gauge> gauges = new ArrayList<>();
-    gauges.add(startTimeGauge);
-    gauges.add(durationGauge);
-    if (Objects.nonNull(buildInfo.getLeadTime())) {
-      Gauge leadTimeGauge = bindGauge("_merge_lead_time", "Code Merge Lead Time in milliseconds");
-      leadTimeGauge.labels(metricsLabels).set(buildInfo.getLeadTime());
-      gauges.add(leadTimeGauge);
-    }
-
-    if (Objects.nonNull(buildInfo.getRecoverTime())) {
-      Gauge recoverTimeGauge =  bindGauge("_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds");
-      recoverTimeGauge.labels(metricsLabels).set(buildInfo.getRecoverTime());
-      gauges.add(recoverTimeGauge);
-    }
     return gauges.stream()
         .map(Gauge::collect)
         .flatMap(Collection::stream)
@@ -53,12 +40,16 @@ public class PrometheusAdapter implements MetricsAdapter<List<MetricFamilySample
     return new String[]{jobFullName, trigger, resultValue};
   }
 
-  private Gauge bindGauge(String nameSuffix, String description) {
-    return Gauge.build()
-        .name(METRICS_NAME_PREFIX + nameSuffix)
-        .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
-        .labelNames(METRICS_LABEL_NAME_ARRAY.toArray(new String[0]))
-        .help(description)
-        .create();
+  private void bindGauge(String nameSuffix, String description, List<Gauge> gauges, Long value, String[] labels) {
+    if (Objects.nonNull(value)) {
+      Gauge gauge = Gauge.build()
+          .name(METRICS_NAME_PREFIX + nameSuffix)
+          .subsystem(METRICS_SUBSYSTEM).namespace(METRICS_NAMESPACE)
+          .labelNames(METRICS_LABEL_NAME_ARRAY.toArray(new String[0]))
+          .help(description)
+          .create();
+      gauge.labels(labels).set(value);
+      gauges.add(gauge);
+    }
   }
 }
