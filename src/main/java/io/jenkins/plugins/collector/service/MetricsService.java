@@ -3,8 +3,8 @@ package io.jenkins.plugins.collector.service;
 import com.google.inject.Inject;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.data.BuildProvider;
-import io.jenkins.plugins.collector.handler.LeadTimeNewHandler;
-import io.jenkins.plugins.collector.handler.RecoverTimeNewHandler;
+import io.jenkins.plugins.collector.handler.LeadTimeHandler;
+import io.jenkins.plugins.collector.handler.RecoverTimeHandler;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import java.util.List;
@@ -13,16 +13,16 @@ import java.util.stream.Collectors;
 
 public class MetricsService {
 
-    LeadTimeNewHandler leadTimeNewHandler;
-    RecoverTimeNewHandler recoverTimeNewHandler;
+    LeadTimeHandler leadTimeHandler;
+    RecoverTimeHandler recoverTimeHandler;
     BuildProvider buildProvider;
 
     @Inject
-    public MetricsService(LeadTimeNewHandler leadTimeNewHandler,
-                          RecoverTimeNewHandler recoverTimeNewHandler,
+    public MetricsService(LeadTimeHandler leadTimeHandler,
+                          RecoverTimeHandler recoverTimeHandler,
                           BuildProvider buildProvider) {
-        this.leadTimeNewHandler = leadTimeNewHandler;
-        this.recoverTimeNewHandler = recoverTimeNewHandler;
+        this.leadTimeHandler = leadTimeHandler;
+        this.recoverTimeHandler = recoverTimeHandler;
         this.buildProvider = buildProvider;
     }
     public BuildInfo getMetrics(Run run) {
@@ -41,11 +41,11 @@ public class MetricsService {
     }
 
     public Long calculateLeadTime(Run build) {
-        return leadTimeNewHandler.apply(build);
+        return leadTimeHandler.apply(build);
     }
 
     public Long calculateRecoverTime(Run build) {
-        return  recoverTimeNewHandler.apply(build);
+        return  recoverTimeHandler.apply(build);
     }
 
 }
