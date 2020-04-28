@@ -12,7 +12,7 @@ import jenkins.model.Jenkins;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static hudson.init.InitMilestone.JOB_LOADED;
+import static hudson.init.InitMilestone.EXTENSIONS_AUGMENTED;
 
 @Extension
 public class AsyncWorkerManager {
@@ -32,7 +32,7 @@ public class AsyncWorkerManager {
     this.prometheusMetrics = prometheusMetrics;
   }
 
-  @Initializer(after = JOB_LOADED)
+  @Initializer(after = EXTENSIONS_AUGMENTED)
   public void init() {
     timer = new Timer("prometheus collector");
     timerTask = new AsyncWork(prometheusMetrics);
