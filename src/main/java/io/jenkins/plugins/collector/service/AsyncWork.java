@@ -1,10 +1,8 @@
 package io.jenkins.plugins.collector.service;
 
-import com.google.inject.Inject;
-import io.jenkins.plugins.collector.model.Metrics;
+import io.jenkins.plugins.collector.model.BuildInfo;
 import java.util.List;
 import java.util.TimerTask;
-import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +22,8 @@ public class AsyncWork extends TimerTask {
   @Override
   public void run() {
     logger.info("Collecting prometheus metrics");
-    List<Metrics> metricsList = metricsService.getAllMetrics();
-    prometheusMetrics.accept(metricsList);
+    List<BuildInfo> buildInfoList = metricsService.getAllMetrics();
+    prometheusMetrics.accept(buildInfoList);
     logger.info("Prometheus metrics collected successfully");
   }
 }

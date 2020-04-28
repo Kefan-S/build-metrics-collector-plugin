@@ -1,6 +1,6 @@
 package io.jenkins.plugins.collector.service;
 
-import io.jenkins.plugins.collector.model.Metrics;
+import io.jenkins.plugins.collector.model.BuildInfo;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -10,7 +10,7 @@ public class DefaultPrometheusMetricsTest {
 
   @Test
   public void should_get_metrics_which_be_job_collector_collected() {
-    Metrics metrics = Metrics.builder()
+    BuildInfo buildInfo = BuildInfo.builder()
         .leadTime(1L)
         .duration(2L)
         .startTime(3L)
@@ -18,11 +18,11 @@ public class DefaultPrometheusMetricsTest {
         .result("0")
         .jenkinsJob("fakePipline")
         .build();
-    List<Metrics> metricsList = new ArrayList<>();
-    metricsList.add(metrics);
+    List<BuildInfo> buildInfoList = new ArrayList<>();
+    buildInfoList.add(buildInfo);
 
     DefaultPrometheusMetrics defaultPrometheusMetrics = new DefaultPrometheusMetrics();
-    defaultPrometheusMetrics.accept(metricsList);
+    defaultPrometheusMetrics.accept(buildInfoList);
 
     String expectedMetrics = "# HELP default_jenkins_builds_last_build_start_timestamp One build start timestamp\n" +
         "# TYPE default_jenkins_builds_last_build_start_timestamp gauge\n" +

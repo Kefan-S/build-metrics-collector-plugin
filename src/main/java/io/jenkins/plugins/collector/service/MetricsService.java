@@ -5,7 +5,7 @@ import hudson.model.Run;
 import io.jenkins.plugins.collector.data.BuildProvider;
 import io.jenkins.plugins.collector.handler.LeadTimeNewHandler;
 import io.jenkins.plugins.collector.handler.RecoverTimeNewHandler;
-import io.jenkins.plugins.collector.model.Metrics;
+import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import java.util.List;
 import java.util.Optional;
@@ -25,18 +25,18 @@ public class MetricsService {
         this.recoverTimeNewHandler = recoverTimeNewHandler;
         this.buildProvider = buildProvider;
     }
-    public Metrics getMetrics(Run run) {
-        return Optional.ofNullable(run).map(build -> Metrics.builder().duration(build.getDuration())
+    public BuildInfo getMetrics(Run run) {
+        return Optional.ofNullable(run).map(build -> BuildInfo.builder().duration(build.getDuration())
             .leadTime(calculateLeadTime(build))
             .recoverTime(calculateRecoverTime(build))
             .startTime(build.getStartTimeInMillis())
             .jenkinsJob(BuildUtil.getJobName(build))
             .result(BuildUtil.getResultValue(build))
             .triggeredBy(BuildUtil.getTrigger(build))
-            .build()).orElse(Metrics.builder().build());
+            .build()).orElse(BuildInfo.builder().build());
     }
 
-    public List<Metrics> getAllMetrics() {
+    public List<BuildInfo> getAllMetrics() {
         return buildProvider.getNeedToHandleBuilds().stream().map(this::getMetrics).collect(Collectors.toList());
     }
 

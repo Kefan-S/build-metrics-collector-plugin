@@ -2,9 +2,8 @@ package io.jenkins.plugins.collector.service;
 
 import com.google.inject.Inject;
 import io.jenkins.plugins.collector.adapter.PrometheusAdapter;
-import io.jenkins.plugins.collector.model.Metrics;
+import io.jenkins.plugins.collector.model.BuildInfo;
 import io.prometheus.client.Collector.MetricFamilySamples;
-import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -12,7 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +31,7 @@ public class DefaultPrometheusMetrics implements PrometheusMetrics {
   }
 
   @Override
-  public void accept(List<Metrics> metrics) {
+  public void accept(List<BuildInfo> metrics) {
 
     PrometheusAdapter prometheusAdapter = new PrometheusAdapter();
     List<MetricFamilySamples> metricFamilySamples = metrics

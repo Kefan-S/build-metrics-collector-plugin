@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class Metrics {
+public class BuildInfo {
     private Long startTime;
     private Long duration;
     private Long leadTime;
