@@ -57,12 +57,12 @@ public class PrometheusConfigurationTest {
     final String collectingMetricsPeriodInSeconds = "collectingMetricsPeriodInSeconds";
     final String jobName = "jobName";
     return newArrayList(
-        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, "jobName1,jobName2,")),
-        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, "jobName1,")),
-        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, ",jobName1,")),
-        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, ",jobName1")),
-        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, ",jobName1,jobName2")),
-        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, ",jobName1,jobName2,"))
+        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, "jobName1:jobName2:")),
+        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, "jobName1:")),
+        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, ":jobName1:")),
+        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, ":jobName1")),
+        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, ":jobName1:jobName2")),
+        fromObject(of(collectingMetricsPeriodInSeconds, 20L, jobName, ":jobName1:jobName2:"))
     );
   }
 
@@ -100,7 +100,7 @@ public class PrometheusConfigurationTest {
   public void should_return_true_and_update_async_work_and_period_when_call_configure_given_positive_collecting_seconds_and_value_has_been_changed() throws FormException {
     Mockito.when(prometheusConfiguration.configure(any(), any())).thenCallRealMethod();
     Whitebox.setInternalState(prometheusConfiguration, "collectingMetricsPeriodInSeconds", 100L);
-    final JSONObject json = fromObject(of("collectingMetricsPeriodInSeconds", 20L, "jobName", "jobName1,jobName2"));
+    final JSONObject json = fromObject(of("collectingMetricsPeriodInSeconds", 20L, "jobName", "jobName1:jobName2"));
     StaplerRequest staplerRequest = Mockito.mock(StaplerRequest.class);
     Mockito.doNothing().when(staplerRequest).bindJSON(any(Object.class), any(JSONObject.class));
 

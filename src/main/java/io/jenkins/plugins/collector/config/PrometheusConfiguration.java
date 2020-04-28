@@ -17,7 +17,7 @@ import org.kohsuke.stapler.StaplerRequest;
 public class PrometheusConfiguration extends GlobalConfiguration {
 
   private static final long DEFAULT_COLLECTING_METRICS_PERIOD_IN_SECONDS = TimeUnit.SECONDS.toSeconds(15);
-  private static final String REGEX_JOB_NAMES = "([^,]+(,[^,]+)*)*";
+  private static final String REGEX_JOB_NAMES = "([^:]+(:[^:]+)*)*";
 
   private Long collectingMetricsPeriodInSeconds = null;
   private String jobName = "";
@@ -83,6 +83,6 @@ public class PrometheusConfiguration extends GlobalConfiguration {
     if (Pattern.matches(REGEX_JOB_NAMES, jobName)) {
       return jobName;
     }
-    throw new FormException("the format of jobName you input must Conform to the correct format，like aa,bb,cc", "jobName");
+    throw new FormException("the format of jobName you input must Conform to the correct format，like aa:bb:cc", "jobName");
   }
 }
