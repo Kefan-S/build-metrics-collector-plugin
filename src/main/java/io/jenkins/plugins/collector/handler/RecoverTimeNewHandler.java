@@ -1,21 +1,15 @@
 package io.jenkins.plugins.collector.handler;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import hudson.model.Result;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.util.BuildUtil;
-import io.prometheus.client.Collector.MetricFamilySamples;
-import io.prometheus.client.Gauge;
-
-import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import javax.annotation.Nonnull;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static io.jenkins.plugins.collector.util.BuildUtil.*;
-import static java.util.Collections.emptyList;
+import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
+import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
+import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 
 public class RecoverTimeNewHandler implements Function<Run, Long> {
 

@@ -1,23 +1,15 @@
 package io.jenkins.plugins.collector.handler;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import hudson.model.Result;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.util.BuildUtil;
-import io.prometheus.client.Collector.MetricFamilySamples;
-import io.prometheus.client.Gauge;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
-import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
 import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
-import static java.util.Collections.emptyList;
 
 public class LeadTimeNewHandler implements Function<Run, Long> {
 
