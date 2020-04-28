@@ -5,9 +5,6 @@ import hudson.model.Run;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.util.BuildUtil;
-import io.prometheus.client.Collector.MetricFamilySamples;
-import io.prometheus.client.Gauge;
-import io.prometheus.client.Gauge.Child;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,14 +13,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.util.BuildUtil.isSuccessfulBuild;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -34,15 +28,10 @@ public class LeadTimeNewHandlerTest {
 
 
   public static final String[] LEADTIME_HANDLER_LABELS = METRICS_LABEL_NAME_ARRAY.toArray(new String[0]);
-  private Gauge leadTimeMetrics;
-  private Child leadTimeMetricsChild;
 
   @Before
   public void setUp() {
     PowerMockito.mockStatic(BuildUtil.class);
-    leadTimeMetrics = Mockito.mock(Gauge.class);
-    leadTimeMetricsChild = Mockito.mock(Child.class);
-    doReturn(leadTimeMetricsChild).when(leadTimeMetrics).labels(LEADTIME_HANDLER_LABELS);
     when(BuildUtil.isCompleteOvertime(any(), any())).thenCallRealMethod();
     when(BuildUtil.getBuildEndTime(any())).thenCallRealMethod();
     when(BuildUtil.isFirstSuccessfulBuildAfterError(any())).thenCallRealMethod();
@@ -72,9 +61,6 @@ public class LeadTimeNewHandlerTest {
 
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
     PowerMockito.doReturn(1L).when(leadTimeHandler, "calculateLeadTime", currentBuild);
-
-    final MetricFamilySamples mockMetricFamilySamples = mock(MetricFamilySamples.class);
-    when(leadTimeMetrics.collect()).thenReturn(newArrayList(mockMetricFamilySamples));
 
     final Long actual = leadTimeHandler.apply(currentBuild);
 
