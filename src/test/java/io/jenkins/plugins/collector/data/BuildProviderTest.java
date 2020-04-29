@@ -7,6 +7,7 @@ import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import io.jenkins.plugins.collector.exception.NoSuchBuildException;
 import io.jenkins.plugins.collector.service.PeriodProvider;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -90,10 +91,29 @@ public class BuildProviderTest {
     Run mockRun2 = mock(Run.class);
     when(mockJob1.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun1))));
     when(mockJob2.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun2))));
-    when(prometheusConfiguration.getJobName()).thenReturn("jobName1,jobName2");
+    when(prometheusConfiguration.getJobName()).thenReturn("jobName1:jobName2");
 
     List<Run> result = buildProvider.getNeedToHandleBuilds();
 
+    assertEquals(new ArrayList(asList(mockRun1, mockRun2)), result);
+  }
+
+  @Test
+  public void should_return_same_builds_when_get_all_need_to_handle_builds_given_the_full_name_of_jobs_with_different_case_from_prometheus_configuration() {
+    Job mockJob1 = mock(Job.class, RETURNS_DEEP_STUBS);
+    when(mockJob1.getFullName()).thenReturn("jObName1");
+    Job mockJob2 = mock(Job.class, RETURNS_DEEP_STUBS);
+    when(mockJob2.getFullName()).thenReturn("JobName2");
+    when(jobProvider.getAllJobs()).thenReturn(newArrayList(mockJob1, mockJob2));
+    Run mockRun1 = mock(Run.class);
+    Run mockRun2 = mock(Run.class);
+    when(mockJob1.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun1))));
+    when(mockJob2.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun2))));
+    when(prometheusConfiguration.getJobName()).thenReturn("jobNaMe1:jobNAme2");
+
+    List<Run> result = buildProvider.getNeedToHandleBuilds();
+
+    Collections.reverse(result);
     assertEquals(new ArrayList(asList(mockRun1, mockRun2)), result);
   }
 
