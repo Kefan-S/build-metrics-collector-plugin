@@ -22,20 +22,26 @@ public class AsyncWorkerManager {
   Timer timer;
   TimerTask timerTask;
   private PrometheusMetrics prometheusMetrics;
+  private BuildInfoService buildInfoService;
 
   public AsyncWorkerManager() {
 
   }
 
   @Inject
-  public void setJobCollector(PrometheusMetrics prometheusMetrics) {
+  public void setPrometheusMetrics(PrometheusMetrics prometheusMetrics) {
     this.prometheusMetrics = prometheusMetrics;
+  }
+
+  @Inject
+  public void setBuildInfoService(BuildInfoService buildInfoService) {
+    this.buildInfoService = buildInfoService;
   }
 
   @Initializer(after = EXTENSIONS_AUGMENTED)
   public void init() {
     timer = new Timer("prometheus collector");
-    timerTask = new AsyncWork(prometheusMetrics);
+    timerTask = new AsyncWork(prometheusMetrics, buildInfoService);
     timer.schedule(timerTask, 0, TimeUnit.SECONDS.toMillis(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds()));
   }
 
@@ -48,7 +54,7 @@ public class AsyncWorkerManager {
   public void updateAsyncWorker() {
     logger.info("start to update period");
     timerTask.cancel();
-    timerTask = new AsyncWork(prometheusMetrics);
+    timerTask = new AsyncWork(prometheusMetrics, buildInfoService);
     long period = TimeUnit.SECONDS.toMillis(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
     timer.schedule(timerTask, period, period);
     logger.info("update period successful!");

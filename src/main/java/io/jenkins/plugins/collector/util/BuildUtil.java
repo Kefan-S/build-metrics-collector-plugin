@@ -51,14 +51,23 @@ public class BuildUtil {
   }
 
   public static String[] getLabels(@Nonnull Run build) {
-    String jobFullName = build.getParent().getFullName();
+    String jobFullName = getJobName(build);
     String trigger = getTrigger(build);
-    String resultValue = Optional.ofNullable(build.getResult()).map(result -> String.valueOf(result.ordinal))
-        .orElse(BUILD_NO_RESULT_STATUS_VALUE);
+    String resultValue = getResultValue(build);
     return new String[]{jobFullName, trigger, resultValue};
   }
 
-  static String getTrigger(@Nonnull Run build) {
+  public static String getJobName(@Nonnull Run build) {
+    return build.getParent().getFullName();
+  }
+
+  public static String getResultValue(@Nonnull Run build) {
+    return Optional.ofNullable(build.getResult()).map(result -> String.valueOf(result.ordinal))
+        .orElse(BUILD_NO_RESULT_STATUS_VALUE);
+  }
+
+
+  public static String getTrigger(@Nonnull Run build) {
     Cause.UpstreamCause upstreamCause = (Cause.UpstreamCause) build.getCause(Cause.UpstreamCause.class);
     if (upstreamCause != null) {
       Job job = Optional.ofNullable(Jenkins.getInstanceOrNull())
