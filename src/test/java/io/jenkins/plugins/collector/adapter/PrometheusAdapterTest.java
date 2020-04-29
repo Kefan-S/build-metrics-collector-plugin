@@ -39,14 +39,15 @@ public class PrometheusAdapterTest {
     Sample leadTimeSample = metricFamilySamples.get(2).samples.get(0);
     Sample recoverTimeSample = metricFamilySamples.get(3).samples.get(0);
     Sample sample = metricFamilySamples.get(0).samples.get(0);
-    assertEquals("name", sample.labelValues.get(0));
-    assertEquals("user", sample.labelValues.get(1));
-    assertEquals("0", sample.labelValues.get(2));
 
     assertEquals((double) START_TIME, startTimeSample.value, 0.001);
     assertEquals((double) DURATION, durationSample.value, 0.001);
     assertEquals((double) LEAD_TIME, leadTimeSample.value, 0.001);
     assertEquals((double) RECOVER_TIME, recoverTimeSample.value, 0.001);
+    assertEquals("name", sample.labelValues.get(0));
+    assertEquals("user", sample.labelValues.get(1));
+    assertEquals("0", sample.labelValues.get(2));
+
   }
 
   @Test
