@@ -58,10 +58,9 @@ public class BuildProvider {
 
   private void updateUnhandledBuilds() {
     final List<String> jobNameList = Arrays.stream(prometheusConfiguration.getJobName().split(":"))
-        .map(String::toLowerCase)
         .collect(toList());
     jobProvider.getAllJobs().stream()
-        .filter(job -> jobNameList.stream().anyMatch(jobName -> job.getFullName().toLowerCase().equals(jobName)))
+        .filter(job -> jobNameList.stream().anyMatch(jobName -> job.getFullName().equalsIgnoreCase(jobName)))
         .forEach(this::updateUnhandledBuildsByJob);
   }
 
