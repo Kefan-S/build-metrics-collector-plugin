@@ -1,14 +1,18 @@
 package io.jenkins.plugins.collector.context;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import hudson.Extension;
 import io.jenkins.plugins.collector.handler.LeadTimeHandler;
 import io.jenkins.plugins.collector.handler.RecoverTimeHandler;
+import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.service.DefaultPrometheusMetrics;
 import io.jenkins.plugins.collector.service.PrometheusMetrics;
 import io.prometheus.client.Gauge;
+import java.util.List;
+import java.util.function.Consumer;
 
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAMESPACE;
@@ -27,6 +31,12 @@ public class Context extends AbstractModule {
     bindGauge("recoverTimeGauge", "_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds");
     bindGauge("startTimeGauge", "_last_build_start_timestamp", "One build start timestamp");
     bindGauge("durationGauge", "_last_build_duration_in_milliseconds", "One build duration in milliseconds");
+  }
+
+  @Singleton
+  @Provides
+  private Consumer<List<BuildInfo>> buildInfoConsumer() {
+    return new DefaultPrometheusMetrics();
   }
 
   private void bindGauge(String name, String nameSuffix, String description) {
