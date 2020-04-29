@@ -22,7 +22,7 @@ public class AsyncWork extends TimerTask {
   @Override
   public void run() {
     logger.info("Collecting prometheus metrics");
-    List<BuildInfo> buildInfoList = metricsService.getAllMetrics();
+    List<BuildInfo> buildInfoList = metricsService.getAllBuildInfo();
     prometheusMetrics.accept(buildInfoList);
     logger.info("Prometheus metrics collected successfully");
   }

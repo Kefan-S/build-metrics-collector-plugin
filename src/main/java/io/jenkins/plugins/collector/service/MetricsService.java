@@ -25,7 +25,7 @@ public class MetricsService {
         this.recoverTimeHandler = recoverTimeHandler;
         this.buildProvider = buildProvider;
     }
-    public BuildInfo getMetrics(Run run) {
+    public BuildInfo getBuildInfo(Run run) {
         return Optional.ofNullable(run).map(build -> BuildInfo.builder().duration(build.getDuration())
             .leadTime(calculateLeadTime(build))
             .recoverTime(calculateRecoverTime(build))
@@ -36,8 +36,8 @@ public class MetricsService {
             .build()).orElse(BuildInfo.builder().build());
     }
 
-    public List<BuildInfo> getAllMetrics() {
-        return buildProvider.getNeedToHandleBuilds().stream().map(this::getMetrics).collect(Collectors.toList());
+    public List<BuildInfo> getAllBuildInfo() {
+        return buildProvider.getNeedToHandleBuilds().stream().map(this::getBuildInfo).collect(Collectors.toList());
     }
 
     public Long calculateLeadTime(Run build) {
