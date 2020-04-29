@@ -161,6 +161,7 @@ public class BuildUtilTest {
 
     assertArrayEquals(new String[]{"name", "SCM", "-1"}, labels);
   }
+
   @Test
   public void should_get_jobName_when_get_jobName_given_an_successful_build() {
     Run fakeRun = Mockito.mock(Run.class, Answers.RETURNS_DEEP_STUBS);
@@ -170,6 +171,7 @@ public class BuildUtilTest {
 
     assertEquals("name", jobName);
   }
+
   @Test
   public void should_get_jobName_when_get_jobName_given_an_running_build() {
     Run fakeRun = Mockito.mock(Run.class, Mockito.RETURNS_DEEP_STUBS);
@@ -199,6 +201,7 @@ public class BuildUtilTest {
 
     assertEquals("-1", resultValue);
   }
+
   @Test
   public void should_return_user_id_when_get_trigger_given_user_triggered_build() {
     Run fakeRun = Mockito.mock(Run.class);

@@ -67,7 +67,7 @@ public class BuildInfoServiceTest {
   }
 
   @Test
-  public void should_return_all_buildInfo_when_get_all_buildInfo_given_builds_need_to_handle(){
+  public void should_return_all_buildInfo_when_get_all_buildInfo_given_builds_need_to_handle() {
     List<Run> buildsNeedToHandle = new LinkedList<Run>();
     buildsNeedToHandle.add(fakeRun);
     when(buildProvider.getNeedToHandleBuilds()).thenReturn(buildsNeedToHandle);
