@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 public class RecoverTimeCalculateTest {
 
   private RecoverTimeCalculate recoverTimeCalculate;
-  public static final String[] LEADTIME_HANDLER_LABELS = METRICS_LABEL_NAME_ARRAY.toArray(new String[0]);
+  public static final String[] LEAD_TIME_HANDLER_LABELS = METRICS_LABEL_NAME_ARRAY.toArray(new String[0]);
 
   @Before
   public void setUp() {
@@ -35,7 +35,7 @@ public class RecoverTimeCalculateTest {
     when(BuildUtil.isCompleteOvertime(any(), any())).thenCallRealMethod();
     when(BuildUtil.getBuildEndTime(any())).thenCallRealMethod();
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(any())).thenCallRealMethod();
-    when(BuildUtil.getLabels(any())).thenReturn(LEADTIME_HANDLER_LABELS);
+    when(BuildUtil.getLabels(any())).thenReturn(LEAD_TIME_HANDLER_LABELS);
     when(BuildUtil.isSuccessfulBuild(any())).thenCallRealMethod();
     when(BuildUtil.isAbortBuild(any())).thenCallRealMethod();
   }
