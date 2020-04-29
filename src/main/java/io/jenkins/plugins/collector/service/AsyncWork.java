@@ -11,18 +11,18 @@ public class AsyncWork extends TimerTask {
   private static final Logger logger = LoggerFactory.getLogger(AsyncWork.class);
 
   private PrometheusMetrics prometheusMetrics;
-  private MetricsService metricsService;
+  private BuildInfoService buildInfoService;
 
-  public AsyncWork(PrometheusMetrics prometheusMetrics, MetricsService metricsService) {
+  public AsyncWork(PrometheusMetrics prometheusMetrics, BuildInfoService buildInfoService) {
 
     this.prometheusMetrics = prometheusMetrics;
-    this.metricsService = metricsService;
+    this.buildInfoService = buildInfoService;
   }
 
   @Override
   public void run() {
     logger.info("Collecting prometheus metrics");
-    List<BuildInfo> buildInfoList = metricsService.getAllBuildInfo();
+    List<BuildInfo> buildInfoList = buildInfoService.getAllBuildInfo();
     prometheusMetrics.accept(buildInfoList);
     logger.info("Prometheus metrics collected successfully");
   }

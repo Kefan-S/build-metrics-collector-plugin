@@ -11,16 +11,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class MetricsService {
+public class BuildInfoService {
 
     LeadTimeHandler leadTimeHandler;
     RecoverTimeHandler recoverTimeHandler;
     BuildProvider buildProvider;
 
     @Inject
-    public MetricsService(LeadTimeHandler leadTimeHandler,
-                          RecoverTimeHandler recoverTimeHandler,
-                          BuildProvider buildProvider) {
+    public BuildInfoService(LeadTimeHandler leadTimeHandler,
+                            RecoverTimeHandler recoverTimeHandler,
+                            BuildProvider buildProvider) {
         this.leadTimeHandler = leadTimeHandler;
         this.recoverTimeHandler = recoverTimeHandler;
         this.buildProvider = buildProvider;

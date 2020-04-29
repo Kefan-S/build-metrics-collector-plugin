@@ -2,8 +2,8 @@ package io.jenkins.plugins.collector.service;
 
 import hudson.model.Run;
 import io.jenkins.plugins.collector.data.BuildProvider;
-import io.jenkins.plugins.collector.handler.LeadTimeNewHandler;
-import io.jenkins.plugins.collector.handler.RecoverTimeNewHandler;
+import io.jenkins.plugins.collector.handler.LeadTimeHandler;
+import io.jenkins.plugins.collector.handler.RecoverTimeHandler;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import java.util.LinkedList;
@@ -23,16 +23,16 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ BuildUtil.class, LeadTimeNewHandler.class, RecoverTimeNewHandler.class})
-public class MetricsServiceTest {
+@PrepareForTest({ BuildUtil.class, LeadTimeHandler.class, RecoverTimeHandler.class})
+public class BuildInfoServiceTest {
   @Mock
-  LeadTimeNewHandler leadTimeNewHandler;
+  LeadTimeHandler leadTimeHandler;
   @Mock
-  RecoverTimeNewHandler recoverTimeNewHandler;
+  RecoverTimeHandler recoverTimeHandler;
   @Mock
   BuildProvider buildProvider;
   @InjectMocks
-  private MetricsService metricsService;
+  private BuildInfoService buildInfoService;
 
   Long duration = 1L;
   Long leadTime = 2L;
@@ -44,8 +44,9 @@ public class MetricsServiceTest {
   public void setup() {
     fakeRun = Mockito.mock(Run.class, Answers.RETURNS_DEEP_STUBS);
     when(fakeRun.getDuration()).thenReturn(duration);
-    when(fakeRun.getStartTimeInMillis()).thenReturn(startTime);when(leadTimeNewHandler.apply(fakeRun)).thenReturn(leadTime);
-    when(recoverTimeNewHandler.apply(fakeRun)).thenReturn(recoverTime);
+    when(fakeRun.getStartTimeInMillis()).thenReturn(startTime);
+    when(leadTimeHandler.apply(fakeRun)).thenReturn(leadTime);
+    when(recoverTimeHandler.apply(fakeRun)).thenReturn(recoverTime);
     mockStatic(BuildUtil.class);
     when(BuildUtil.getJobName(fakeRun)).thenReturn("buildName");
     when(BuildUtil.getResultValue(fakeRun)).thenReturn("0");
@@ -55,7 +56,7 @@ public class MetricsServiceTest {
   @Test
   public void should_get_buildInfo_when_getBuildInfo_given_a_success_run() {
 
-    BuildInfo buildInfo = metricsService.getBuildInfo(fakeRun);
+    BuildInfo buildInfo = buildInfoService.getBuildInfo(fakeRun);
 
     assertEquals(duration, buildInfo.getDuration());
     assertEquals(recoverTime, buildInfo.getRecoverTime());
@@ -73,7 +74,7 @@ public class MetricsServiceTest {
     buildsNeedToHandle.add(fakeRun);
     when(buildProvider.getNeedToHandleBuilds()).thenReturn(buildsNeedToHandle);
 
-    List<BuildInfo> allBuildInfo = metricsService.getAllBuildInfo();
+    List<BuildInfo> allBuildInfo = buildInfoService.getAllBuildInfo();
 
     assertEquals(duration, allBuildInfo.get(0).getDuration());
     assertEquals(recoverTime, allBuildInfo.get(0).getRecoverTime());
