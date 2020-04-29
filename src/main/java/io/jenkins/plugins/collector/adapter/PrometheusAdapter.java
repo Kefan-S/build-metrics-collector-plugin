@@ -3,7 +3,6 @@ package io.jenkins.plugins.collector.adapter;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Gauge;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class PrometheusAdapter implements MetricsAdapter<List<MetricFamilySample
     return new String[]{jobFullName, trigger, resultValue};
   }
 
-  private void bindGauge(String nameSuffix, String description, List<Gauge> gauges, Long value, String[] labels) {
+  private void bindGauge(String nameSuffix, String description, List<Gauge> gauges, Long value, String... labels) {
     if (Objects.nonNull(value)) {
       Gauge gauge = Gauge.build()
           .name(METRICS_NAME_PREFIX + nameSuffix)

@@ -3,8 +3,6 @@ package io.jenkins.plugins.collector.service;
 import com.google.inject.Inject;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.data.BuildProvider;
-import io.jenkins.plugins.collector.handler.LeadTimeHandler;
-import io.jenkins.plugins.collector.handler.RecoverTimeHandler;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import java.util.List;
@@ -13,16 +11,16 @@ import java.util.stream.Collectors;
 
 public class BuildInfoService {
 
-    LeadTimeHandler leadTimeHandler;
-    RecoverTimeHandler recoverTimeHandler;
+    LeadTimeCalculate leadTimeCalculate;
+    RecoverTimeCalculate recoverTimeCalculate;
     BuildProvider buildProvider;
 
     @Inject
-    public BuildInfoService(LeadTimeHandler leadTimeHandler,
-                            RecoverTimeHandler recoverTimeHandler,
+    public BuildInfoService(LeadTimeCalculate leadTimeCalculate,
+                            RecoverTimeCalculate recoverTimeCalculate,
                             BuildProvider buildProvider) {
-        this.leadTimeHandler = leadTimeHandler;
-        this.recoverTimeHandler = recoverTimeHandler;
+        this.leadTimeCalculate = leadTimeCalculate;
+        this.recoverTimeCalculate = recoverTimeCalculate;
         this.buildProvider = buildProvider;
     }
     public BuildInfo getBuildInfo(Run run) {
@@ -41,11 +39,11 @@ public class BuildInfoService {
     }
 
     public Long calculateLeadTime(Run build) {
-        return leadTimeHandler.apply(build);
+        return leadTimeCalculate.apply(build);
     }
 
     public Long calculateRecoverTime(Run build) {
-        return  recoverTimeHandler.apply(build);
+        return  recoverTimeCalculate.apply(build);
     }
 
 }

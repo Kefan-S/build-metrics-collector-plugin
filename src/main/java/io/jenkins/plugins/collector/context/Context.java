@@ -5,11 +5,11 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import hudson.Extension;
-import io.jenkins.plugins.collector.handler.LeadTimeHandler;
-import io.jenkins.plugins.collector.handler.RecoverTimeHandler;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.service.DefaultPrometheusMetrics;
+import io.jenkins.plugins.collector.service.LeadTimeCalculate;
 import io.jenkins.plugins.collector.service.PrometheusMetrics;
+import io.jenkins.plugins.collector.service.RecoverTimeCalculate;
 import io.prometheus.client.Gauge;
 import java.util.List;
 import java.util.function.Consumer;
@@ -25,8 +25,8 @@ public class Context extends AbstractModule {
   @Override
   public void configure() {
     bind(PrometheusMetrics.class).to(DefaultPrometheusMetrics.class).in(Singleton.class);
-    bind(RecoverTimeHandler.class).toInstance(new RecoverTimeHandler());
-    bind(LeadTimeHandler.class).toInstance(new LeadTimeHandler());
+    bind(RecoverTimeCalculate.class).toInstance(new RecoverTimeCalculate());
+    bind(LeadTimeCalculate.class).toInstance(new LeadTimeCalculate());
     bindGauge("leadTimeGauge", "_merge_lead_time", "Code Merge Lead Time in milliseconds");
     bindGauge("recoverTimeGauge", "_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds");
     bindGauge("startTimeGauge", "_last_build_start_timestamp", "One build start timestamp");

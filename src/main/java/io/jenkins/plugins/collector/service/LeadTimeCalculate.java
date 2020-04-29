@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.handler;
+package io.jenkins.plugins.collector.service;
 
 import hudson.model.Result;
 import hudson.model.Run;
@@ -11,7 +11,7 @@ import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 
-public class LeadTimeHandler implements Function<Run, Long> {
+public class LeadTimeCalculate implements Function<Run, Long> {
 
 
     @Override

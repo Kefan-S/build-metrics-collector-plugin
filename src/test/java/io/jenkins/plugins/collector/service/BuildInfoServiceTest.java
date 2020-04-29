@@ -2,8 +2,6 @@ package io.jenkins.plugins.collector.service;
 
 import hudson.model.Run;
 import io.jenkins.plugins.collector.data.BuildProvider;
-import io.jenkins.plugins.collector.handler.LeadTimeHandler;
-import io.jenkins.plugins.collector.handler.RecoverTimeHandler;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import java.util.LinkedList;
@@ -23,12 +21,12 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ BuildUtil.class, LeadTimeHandler.class, RecoverTimeHandler.class})
+@PrepareForTest({ BuildUtil.class, LeadTimeCalculate.class, RecoverTimeCalculate.class})
 public class BuildInfoServiceTest {
   @Mock
-  LeadTimeHandler leadTimeHandler;
+  LeadTimeCalculate leadTimeCalculate;
   @Mock
-  RecoverTimeHandler recoverTimeHandler;
+  RecoverTimeCalculate recoverTimeCalculate;
   @Mock
   BuildProvider buildProvider;
   @InjectMocks
@@ -45,8 +43,8 @@ public class BuildInfoServiceTest {
     fakeRun = Mockito.mock(Run.class, Answers.RETURNS_DEEP_STUBS);
     when(fakeRun.getDuration()).thenReturn(duration);
     when(fakeRun.getStartTimeInMillis()).thenReturn(startTime);
-    when(leadTimeHandler.apply(fakeRun)).thenReturn(leadTime);
-    when(recoverTimeHandler.apply(fakeRun)).thenReturn(recoverTime);
+    when(leadTimeCalculate.apply(fakeRun)).thenReturn(leadTime);
+    when(recoverTimeCalculate.apply(fakeRun)).thenReturn(recoverTime);
     mockStatic(BuildUtil.class);
     when(BuildUtil.getJobName(fakeRun)).thenReturn("buildName");
     when(BuildUtil.getResultValue(fakeRun)).thenReturn("0");
