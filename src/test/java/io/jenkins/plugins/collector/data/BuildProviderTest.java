@@ -99,7 +99,7 @@ public class BuildProviderTest {
   }
 
   @Test
-  public void should_return_same_builds_when_get_all_need_to_handle_builds_given_the_full_name_of_jobs_are_all_same_to_job_names_with_different_case_from_prometheus_configuration() {
+  public void should_return_same_builds_when_get_all_need_to_handle_builds_given_the_full_name_of_jobs_with_different_case_from_prometheus_configuration() {
     Job mockJob1 = mock(Job.class, RETURNS_DEEP_STUBS);
     when(mockJob1.getFullName()).thenReturn("jObName1");
     Job mockJob2 = mock(Job.class, RETURNS_DEEP_STUBS);
