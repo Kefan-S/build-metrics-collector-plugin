@@ -68,7 +68,6 @@ public class PrometheusAdapterTest {
     assertEquals((double) RECOVER_TIME, recoverTimeSample.value, 0.001);
   }
 
-
   @Test
   public void should_return_prometheus_data_format_given_buildInfo_contains_leadTime() {
     BuildInfo buildInfo = BuildInfo.builder().duration(1L)
