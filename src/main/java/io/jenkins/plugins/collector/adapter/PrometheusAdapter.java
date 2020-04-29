@@ -14,7 +14,7 @@ import static io.jenkins.plugins.collector.config.Constant.METRICS_NAME_PREFIX;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 import static java.util.stream.Collectors.toList;
 
-public class PrometheusAdapter implements MetricsAdapter<List<MetricFamilySamples>>{
+public class PrometheusAdapter implements MetricsAdapter<List<MetricFamilySamples>> {
 
   @Override
   public List<MetricFamilySamples> adapt(BuildInfo buildInfo) {
