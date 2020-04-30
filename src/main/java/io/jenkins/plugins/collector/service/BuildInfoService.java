@@ -36,7 +36,10 @@ public class BuildInfoService {
   }
 
   public List<BuildInfo> getAllBuildInfo() {
-    return buildProvider.getNeedToHandleBuilds().stream().map(this::getBuildInfo).collect(Collectors.toList());
+    List<Run> needToHandleBuilds = buildProvider.getNeedToHandleBuilds();
+    List<BuildInfo> buildInfos = needToHandleBuilds.stream().map(this::getBuildInfo).collect(Collectors.toList());
+    needToHandleBuilds.forEach(build -> buildProvider.remove(build));
+    return buildInfos;
   }
 
   public Long calculateLeadTime(Run build) {

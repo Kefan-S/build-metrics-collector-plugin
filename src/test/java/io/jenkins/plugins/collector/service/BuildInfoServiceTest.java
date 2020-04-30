@@ -17,6 +17,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
@@ -81,5 +82,6 @@ public class BuildInfoServiceTest {
     assertEquals("buildName", allBuildInfo.get(0).getJenkinsJob());
     assertEquals("0", allBuildInfo.get(0).getResult());
     assertEquals("user", allBuildInfo.get(0).getTriggeredBy());
+    Mockito.verify(buildProvider, times(1)).remove(fakeRun);
   }
 }
