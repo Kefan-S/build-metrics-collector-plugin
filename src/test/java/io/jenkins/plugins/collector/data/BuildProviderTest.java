@@ -118,6 +118,24 @@ public class BuildProviderTest {
   }
 
   @Test
+  public void should_ignore_white_space_characters_on_both_sides_of_job_name_when_get_all_need_to_handle_builds_given_the_full_name_from_prometheus_configuration() {
+    Job mockJob1 = mock(Job.class, RETURNS_DEEP_STUBS);
+    when(mockJob1.getFullName()).thenReturn("jobName1");
+    Job mockJob2 = mock(Job.class, RETURNS_DEEP_STUBS);
+    when(mockJob2.getFullName()).thenReturn("jobName2");
+    when(jobProvider.getAllJobs()).thenReturn(newArrayList(mockJob1, mockJob2));
+    Run mockRun1 = mock(Run.class);
+    Run mockRun2 = mock(Run.class);
+    when(mockJob1.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun1))));
+    when(mockJob2.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun2))));
+    when(prometheusConfiguration.getJobName()).thenReturn(" jobNaMe1 :jobNAme2 ");
+
+    List<Run> result = buildProvider.getNeedToHandleBuilds();
+
+    assertEquals(new ArrayList(asList(mockRun1, mockRun2)), result);
+  }
+
+  @Test
   public void should_filter_builds_when_get_all_need_to_handle_builds_given_the_full_name_of_jobs_are_not_same_to_job_names_from_prometheus_configuration() {
     Job mockJob1 = mock(Job.class, RETURNS_DEEP_STUBS);
     when(mockJob1.getFullName()).thenReturn("jobName1");
