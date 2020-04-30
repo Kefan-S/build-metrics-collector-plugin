@@ -115,7 +115,7 @@ public class BuildUtil {
         .build();
   }
 
-  private static List<SCMChangeInfo> getSCMChangeInfo(Run build) {
+  static List<SCMChangeInfo> getSCMChangeInfo(Run build) {
     if (build instanceof WorkflowRun) {
       WorkflowRun workflowRun = (WorkflowRun) build;
       return getTriggerInfoForWorkflowRun(workflowRun);

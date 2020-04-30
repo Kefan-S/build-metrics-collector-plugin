@@ -2,15 +2,24 @@ package io.jenkins.plugins.collector.util;
 
 import hudson.model.Cause;
 import hudson.model.Cause.UpstreamCause;
+import hudson.model.FreeStyleBuild;
 import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
+import hudson.plugins.git.GitChangeSet;
+import hudson.scm.ChangeLogSet;
 import hudson.triggers.SCMTrigger;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.exception.InstanceMissingException;
+import io.jenkins.plugins.collector.model.SCMChangeInfo;
 import io.jenkins.plugins.collector.model.TriggerEnum;
+import io.jenkins.plugins.collector.model.TriggerInfo;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -18,12 +27,13 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
@@ -184,9 +194,9 @@ public class BuildUtilTest {
     Cause.UserIdCause userIdCause = new Cause.UserIdCause("user-id");
     when(fakeRun.getCause(Cause.UserIdCause.class)).thenReturn(userIdCause);
 
-    TriggerEnum trigger = BuildUtil.getTrigger(fakeRun);
-    assertEquals(TriggerEnum.MANUAL_TRIGGER, trigger);
-    assertEquals("user-id", trigger.getTriggerBy());
+    TriggerEnum result = BuildUtil.getTrigger(fakeRun);
+    assertEquals(TriggerEnum.MANUAL_TRIGGER, result);
+    assertEquals("user-id", result.getTriggerBy());
   }
 
   @Test
@@ -196,17 +206,17 @@ public class BuildUtilTest {
     Cause.UserIdCause userIdCause = new Cause.UserIdCause(null);
     when(fakeRun.getCause(Cause.UserIdCause.class)).thenReturn(userIdCause);
 
-    TriggerEnum trigger = BuildUtil.getTrigger(fakeRun);
-    assertEquals(TriggerEnum.MANUAL_TRIGGER, trigger);
-    assertEquals("UnKnown User", trigger.getTriggerBy());
+    TriggerEnum result = BuildUtil.getTrigger(fakeRun);
+    assertEquals(TriggerEnum.MANUAL_TRIGGER, result);
+    assertEquals("UnKnown User", result.getTriggerBy());
   }
 
   @Test
   public void should_return_unKnown_when_get_trigger_given_neither_scm_nor_user_triggered_build() {
     Run fakeRun = Mockito.mock(Run.class);
 
-    TriggerEnum trigger = BuildUtil.getTrigger(fakeRun);
-    assertEquals(TriggerEnum.UNKNOWN, trigger);
+    TriggerEnum result = BuildUtil.getTrigger(fakeRun);
+    assertEquals(TriggerEnum.UNKNOWN, result);
   }
 
   @Test
@@ -301,5 +311,86 @@ public class BuildUtilTest {
 
     when(fakeRun.getCause(UpstreamCause.class)).thenReturn(upstreamCause);
     BuildUtil.getTrigger(fakeRun);
+  }
+
+  @Test
+  public void should_get_scm_change_set_correctly_when_get_SCM_Change_Info_given_work_flow_run_with_change_log() {
+    WorkflowRun run = Mockito.mock(WorkflowRun.class);
+    ChangeLogSet<GitChangeSet> changeLogSet = mock(ChangeLogSet.class);
+    GitChangeSet gitChangeSet = mock(GitChangeSet.class);
+
+    when(run.getChangeSets()).thenReturn(Arrays.asList(changeLogSet));
+    when(changeLogSet.getItems()).thenReturn(new GitChangeSet[]{gitChangeSet});
+    when(gitChangeSet.getAuthorName()).thenReturn("github-user");
+    when(gitChangeSet.getComment()).thenReturn("commit message");
+    when(gitChangeSet.getTimestamp()).thenReturn(1588218559L);
+    when(gitChangeSet.getCommitId()).thenReturn("commit-hash");
+
+    List<SCMChangeInfo> result = BuildUtil.getSCMChangeInfo(run);
+
+    assertEquals(1, result.size());
+    assertEquals("github-user", result.get(0).getUserId());
+    assertEquals("commit message", result.get(0).getCommitMessage());
+    assertEquals(1588218559L, result.get(0).getCommitTimeStamp());
+    assertEquals("commit-hash", result.get(0).getCommitHash());
+  }
+
+  @Test
+  public void should_get_scm_change_set_correctly_when_get_SCM_Change_Info_given_work_flow_run_with_empty_change_log() {
+    WorkflowRun run = Mockito.mock(WorkflowRun.class);
+
+    when(run.getChangeSets()).thenReturn(Collections.emptyList());
+
+    assertEquals(0, BuildUtil.getSCMChangeInfo(run).size());
+
+  }
+
+  @Test
+  public void should_get_scm_change_set_correctly_when_get_SCM_Change_Info_given_free_style_build_with_change_log() {
+    FreeStyleBuild run = Mockito.mock(FreeStyleBuild.class);
+    ChangeLogSet<GitChangeSet> changeLogSet = mock(ChangeLogSet.class);
+    GitChangeSet gitChangeSet = mock(GitChangeSet.class);
+
+    when(run.getChangeSets()).thenReturn(Arrays.asList(changeLogSet));
+    when(changeLogSet.getItems()).thenReturn(new GitChangeSet[]{gitChangeSet});
+    when(gitChangeSet.getAuthorName()).thenReturn("github-user");
+    when(gitChangeSet.getComment()).thenReturn("commit message");
+    when(gitChangeSet.getTimestamp()).thenReturn(1588218559L);
+    when(gitChangeSet.getCommitId()).thenReturn("commit-hash");
+
+    List<SCMChangeInfo> result = BuildUtil.getSCMChangeInfo(run);
+
+    assertEquals(1, result.size());
+    assertEquals("github-user", result.get(0).getUserId());
+    assertEquals("commit message", result.get(0).getCommitMessage());
+    assertEquals(1588218559L, result.get(0).getCommitTimeStamp());
+    assertEquals("commit-hash", result.get(0).getCommitHash());
+  }
+
+  @Test
+  public void should_get_scm_change_set_correctly_when_get_SCM_Change_Info_given_free_style_build_with_empty_change_log() {
+    FreeStyleBuild run = Mockito.mock(FreeStyleBuild.class);
+
+    when(run.getChangeSets()).thenReturn(Collections.emptyList());
+
+    assertEquals(0, BuildUtil.getSCMChangeInfo(run).size());
+
+  }
+
+  @Test
+  public void should_return_null_when_get_SCM_Change_Info_given_neither_work_flow_run_nor_free_style_build() {
+    Run run = Mockito.mock(Run.class);
+
+    assertNull(BuildUtil.getSCMChangeInfo(run));
+  }
+
+  @Test
+  public void should_return_trigger_info_correctly_when_get_trigger_info() {
+    Run run = Mockito.mock(Run.class);
+
+    TriggerInfo result = BuildUtil.getTriggerInfo(run);
+
+    assertEquals(TriggerEnum.UNKNOWN, result.getTriggerType());
+    assertNull(result.getScmChangeInfoList());
   }
 }
