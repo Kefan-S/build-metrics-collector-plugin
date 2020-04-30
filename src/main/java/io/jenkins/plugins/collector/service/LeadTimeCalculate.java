@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.handler;
+package io.jenkins.plugins.collector.service;
 
 import hudson.model.Result;
 import hudson.model.Run;
@@ -11,29 +11,27 @@ import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 
-public class RecoverTimeHandler implements Function<Run, Long> {
-
+public class LeadTimeCalculate implements Function<Run, Long> {
 
   @Override
   public Long apply(@Nonnull Run successBuild) {
     return Optional.of(successBuild)
         .filter(BuildUtil::isFirstSuccessfulBuildAfterError)
-        .map(this::calculateRecoverTime)
-        .filter(recoverTime -> recoverTime > 0)
+        .map(this::calculateLeadTime)
         .orElse(null);
   }
 
 
-  Long calculateRecoverTime(Run currentBuild) {
-    long recoverTime = Long.MIN_VALUE;
-    Run previousBuild = currentBuild.getPreviousBuild();
-    while (!isASuccessAndFinishedMatchedBuild(previousBuild, currentBuild)) {
+  private Long calculateLeadTime(Run successBuild) {
+    long leadTime = successBuild.getDuration();
+    Run previousBuild = successBuild.getPreviousBuild();
+    while (!isASuccessAndFinishedMatchedBuild(previousBuild, successBuild)) {
       if (!isAbortBuild(previousBuild)) {
-        recoverTime = Math.max(recoverTime, getBuildEndTime(currentBuild) - getBuildEndTime(previousBuild));
+        leadTime = Math.max(leadTime, getBuildEndTime(successBuild) - previousBuild.getStartTimeInMillis());
       }
       previousBuild = previousBuild.getPreviousBuild();
     }
-    return recoverTime;
+    return leadTime;
   }
 
   private boolean isASuccessAndFinishedMatchedBuild(Run matchedBuild, Run currentBuild) {

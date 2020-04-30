@@ -24,15 +24,15 @@ public class DefaultPrometheusMetricsTest {
     DefaultPrometheusMetrics defaultPrometheusMetrics = new DefaultPrometheusMetrics();
     defaultPrometheusMetrics.accept(buildInfoList);
 
-    String expectedMetrics = "# HELP default_jenkins_builds_last_build_start_timestamp One build start timestamp\n" +
-        "# TYPE default_jenkins_builds_last_build_start_timestamp gauge\n" +
-        "default_jenkins_builds_last_build_start_timestamp{jenkinsJob=\"fakePipline\",triggeredBy=\"UnkownUser\",result=\"0\",} 3.0\n" +
-        "# HELP default_jenkins_builds_last_build_duration_in_milliseconds One build duration in milliseconds\n" +
-        "# TYPE default_jenkins_builds_last_build_duration_in_milliseconds gauge\n" +
-        "default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob=\"fakePipline\",triggeredBy=\"UnkownUser\",result=\"0\",} 2.0\n" +
-        "# HELP default_jenkins_builds_merge_lead_time Code Merge Lead Time in milliseconds\n" +
-        "# TYPE default_jenkins_builds_merge_lead_time gauge\n" +
-        "default_jenkins_builds_merge_lead_time{jenkinsJob=\"fakePipline\",triggeredBy=\"UnkownUser\",result=\"0\",} 1.0\n";
+    String expectedMetrics = "# HELP default_jenkins_builds_last_build_start_timestamp One build start timestamp\n"
+        + "# TYPE default_jenkins_builds_last_build_start_timestamp gauge\n"
+        + "default_jenkins_builds_last_build_start_timestamp{jenkinsJob=\"fakePipline\",triggeredBy=\"UnkownUser\",result=\"0\",} 3.0\n"
+        + "# HELP default_jenkins_builds_last_build_duration_in_milliseconds One build duration in milliseconds\n"
+        + "# TYPE default_jenkins_builds_last_build_duration_in_milliseconds gauge\n"
+        + "default_jenkins_builds_last_build_duration_in_milliseconds{jenkinsJob=\"fakePipline\",triggeredBy=\"UnkownUser\",result=\"0\",} 2.0\n"
+        + "# HELP default_jenkins_builds_merge_lead_time Code Merge Lead Time in milliseconds\n"
+        + "# TYPE default_jenkins_builds_merge_lead_time gauge\n"
+        + "default_jenkins_builds_merge_lead_time{jenkinsJob=\"fakePipline\",triggeredBy=\"UnkownUser\",result=\"0\",} 1.0\n";
     Assert.assertEquals(expectedMetrics, defaultPrometheusMetrics.getMetrics());
 
   }

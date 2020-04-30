@@ -3,8 +3,6 @@ package io.jenkins.plugins.collector.service;
 import com.google.inject.Inject;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.data.BuildProvider;
-import io.jenkins.plugins.collector.handler.LeadTimeHandler;
-import io.jenkins.plugins.collector.handler.RecoverTimeHandler;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import java.util.List;
@@ -13,39 +11,43 @@ import java.util.stream.Collectors;
 
 public class BuildInfoService {
 
-    LeadTimeHandler leadTimeHandler;
-    RecoverTimeHandler recoverTimeHandler;
-    BuildProvider buildProvider;
+  LeadTimeCalculate leadTimeCalculate;
+  RecoverTimeCalculate recoverTimeCalculate;
+  BuildProvider buildProvider;
 
-    @Inject
-    public BuildInfoService(LeadTimeHandler leadTimeHandler,
-                            RecoverTimeHandler recoverTimeHandler,
-                            BuildProvider buildProvider) {
-        this.leadTimeHandler = leadTimeHandler;
-        this.recoverTimeHandler = recoverTimeHandler;
-        this.buildProvider = buildProvider;
-    }
-    public BuildInfo getBuildInfo(Run run) {
-        return Optional.ofNullable(run).map(build -> BuildInfo.builder().duration(build.getDuration())
-            .leadTime(calculateLeadTime(build))
-            .recoverTime(calculateRecoverTime(build))
-            .startTime(build.getStartTimeInMillis())
-            .jenkinsJob(BuildUtil.getJobName(build))
-            .result(BuildUtil.getResultValue(build))
-            .triggeredBy(BuildUtil.getTrigger(build))
-            .build()).orElse(BuildInfo.builder().build());
-    }
+  @Inject
+  public BuildInfoService(LeadTimeCalculate leadTimeCalculate,
+                          RecoverTimeCalculate recoverTimeCalculate,
+                          BuildProvider buildProvider) {
+    this.leadTimeCalculate = leadTimeCalculate;
+    this.recoverTimeCalculate = recoverTimeCalculate;
+    this.buildProvider = buildProvider;
+  }
 
-    public List<BuildInfo> getAllBuildInfo() {
-        return buildProvider.getNeedToHandleBuilds().stream().map(this::getBuildInfo).collect(Collectors.toList());
-    }
+  public BuildInfo getBuildInfo(Run run) {
+    return Optional.ofNullable(run).map(build -> BuildInfo.builder().duration(build.getDuration())
+        .leadTime(calculateLeadTime(build))
+        .recoverTime(calculateRecoverTime(build))
+        .startTime(build.getStartTimeInMillis())
+        .jenkinsJob(BuildUtil.getJobName(build))
+        .result(BuildUtil.getResultValue(build))
+        .triggeredBy(BuildUtil.getTrigger(build))
+        .build()).orElse(BuildInfo.builder().build());
+  }
 
-    public Long calculateLeadTime(Run build) {
-        return leadTimeHandler.apply(build);
-    }
+  public List<BuildInfo> getAllBuildInfo() {
+    List<Run> needToHandleBuilds = buildProvider.getNeedToHandleBuilds();
+    List<BuildInfo> buildInfos = needToHandleBuilds.stream().map(this::getBuildInfo).collect(Collectors.toList());
+    needToHandleBuilds.forEach(build -> buildProvider.remove(build));
+    return buildInfos;
+  }
 
-    public Long calculateRecoverTime(Run build) {
-        return  recoverTimeHandler.apply(build);
-    }
+  public Long calculateLeadTime(Run build) {
+    return leadTimeCalculate.apply(build);
+  }
+
+  public Long calculateRecoverTime(Run build) {
+    return recoverTimeCalculate.apply(build);
+  }
 
 }
