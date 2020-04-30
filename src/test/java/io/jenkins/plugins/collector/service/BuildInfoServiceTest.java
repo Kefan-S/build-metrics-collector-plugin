@@ -3,6 +3,8 @@ package io.jenkins.plugins.collector.service;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.data.BuildProvider;
 import io.jenkins.plugins.collector.model.BuildInfo;
+import io.jenkins.plugins.collector.model.TriggerEnum;
+import io.jenkins.plugins.collector.model.TriggerInfo;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,7 +51,10 @@ public class BuildInfoServiceTest {
     mockStatic(BuildUtil.class);
     when(BuildUtil.getJobName(fakeRun)).thenReturn("buildName");
     when(BuildUtil.getResultValue(fakeRun)).thenReturn("0");
-//    when(BuildUtil.getTrigger(fakeRun)).thenReturn("user");
+    when(BuildUtil.getTriggerInfo(fakeRun)).thenReturn(
+        TriggerInfo.builder()
+        .triggerType(TriggerEnum.SCM_TRIGGER)
+        .build());
   }
 
   @Test
@@ -63,13 +68,13 @@ public class BuildInfoServiceTest {
     assertEquals(leadTime, buildInfo.getLeadTime());
     assertEquals("buildName", buildInfo.getJenkinsJob());
     assertEquals("0", buildInfo.getResult());
-    assertEquals("user", buildInfo.getTriggeredBy());
+    assertEquals(TriggerEnum.SCM_TRIGGER, buildInfo.getTriggerInfo().getTriggerType());
 
   }
 
   @Test
   public void should_return_all_buildInfo_when_get_all_buildInfo_given_builds_need_to_handle() {
-    List<Run> buildsNeedToHandle = new LinkedList<Run>();
+    List<Run> buildsNeedToHandle = new LinkedList<>();
     buildsNeedToHandle.add(fakeRun);
     when(buildProvider.getNeedToHandleBuilds()).thenReturn(buildsNeedToHandle);
 
@@ -81,7 +86,7 @@ public class BuildInfoServiceTest {
     assertEquals(leadTime, allBuildInfo.get(0).getLeadTime());
     assertEquals("buildName", allBuildInfo.get(0).getJenkinsJob());
     assertEquals("0", allBuildInfo.get(0).getResult());
-    assertEquals("user", allBuildInfo.get(0).getTriggeredBy());
+    assertEquals(TriggerEnum.SCM_TRIGGER, allBuildInfo.get(0).getTriggerInfo().getTriggerType());
     Mockito.verify(buildProvider, times(1)).remove(fakeRun);
   }
 }
