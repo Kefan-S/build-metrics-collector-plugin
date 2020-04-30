@@ -135,10 +135,11 @@ public class BuildUtil {
     Cause originalCause = getOriginalCause(build);
 
     TriggerEnum triggerType = TriggerEnum.UNKNOWN;
-    String triggeredBy = null;
+    String triggeredBy = "UnKnown";
 
     if (originalCause instanceof SCMTriggerCause) {
       triggerType = TriggerEnum.SCM_TRIGGER;
+      triggeredBy = "SCM";
     }
 
     if (originalCause instanceof UserIdCause) {
