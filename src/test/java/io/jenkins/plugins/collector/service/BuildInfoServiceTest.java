@@ -49,7 +49,7 @@ public class BuildInfoServiceTest {
     mockStatic(BuildUtil.class);
     when(BuildUtil.getJobName(fakeRun)).thenReturn("buildName");
     when(BuildUtil.getResultValue(fakeRun)).thenReturn("0");
-    when(BuildUtil.getTrigger(fakeRun)).thenReturn("user");
+//    when(BuildUtil.getTrigger(fakeRun)).thenReturn("user");
   }
 
   @Test

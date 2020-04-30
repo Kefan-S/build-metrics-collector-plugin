@@ -9,6 +9,7 @@ import hudson.triggers.SCMTrigger;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.exception.InstanceMissingException;
+import io.jenkins.plugins.collector.model.TriggerEnum;
 import jenkins.model.Jenkins;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -137,32 +138,6 @@ public class BuildUtilTest {
   }
 
   @Test
-  public void should_get_labels_when_get_labels_given_an_successful_build() {
-    Run fakeRun = Mockito.mock(Run.class, Answers.RETURNS_DEEP_STUBS);
-    when(fakeRun.getParent().getFullName()).thenReturn("name");
-    when(fakeRun.getResult()).thenReturn(Result.SUCCESS);
-    when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
-    when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(new SCMTrigger.SCMTriggerCause("something"));
-
-    String[] labels = BuildUtil.getLabels(fakeRun);
-
-    assertArrayEquals(new String[]{"name", "SCM", "0"}, labels);
-  }
-
-  @Test
-  public void should_get_labels_when_get_labels_given_an_running_build() {
-    Run fakeRun = Mockito.mock(Run.class, Mockito.RETURNS_DEEP_STUBS);
-    when(fakeRun.getParent().getFullName()).thenReturn("name");
-    when(fakeRun.getCause(Cause.UpstreamCause.class)).thenReturn(null);
-    when(fakeRun.getResult()).thenReturn(null);
-    when(fakeRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(new SCMTrigger.SCMTriggerCause("something"));
-
-    String[] labels = BuildUtil.getLabels(fakeRun);
-
-    assertArrayEquals(new String[]{"name", "SCM", "-1"}, labels);
-  }
-
-  @Test
   public void should_get_jobName_when_get_jobName_given_an_successful_build() {
     Run fakeRun = Mockito.mock(Run.class, Answers.RETURNS_DEEP_STUBS);
     when(fakeRun.getParent().getFullName()).thenReturn("name");
@@ -203,14 +178,15 @@ public class BuildUtilTest {
   }
 
   @Test
-  public void should_return_user_id_when_get_trigger_given_user_triggered_build() {
+  public void should_return_MANUAL_TRIGGER_when_get_trigger_given_user_triggered_build() {
     Run fakeRun = Mockito.mock(Run.class);
 
     Cause.UserIdCause userIdCause = new Cause.UserIdCause("user-id");
     when(fakeRun.getCause(Cause.UserIdCause.class)).thenReturn(userIdCause);
 
-    String trigger = BuildUtil.getTrigger(fakeRun);
-    assertEquals("user-id", trigger);
+    TriggerEnum trigger = BuildUtil.getTrigger(fakeRun);
+    assertEquals(TriggerEnum.MANUAL_TRIGGER, trigger);
+    assertEquals("user-id", trigger.getTriggerBy());
   }
 
   @Test
@@ -220,16 +196,17 @@ public class BuildUtilTest {
     Cause.UserIdCause userIdCause = new Cause.UserIdCause(null);
     when(fakeRun.getCause(Cause.UserIdCause.class)).thenReturn(userIdCause);
 
-    String trigger = BuildUtil.getTrigger(fakeRun);
-    assertEquals("UnKnown User", trigger);
+    TriggerEnum trigger = BuildUtil.getTrigger(fakeRun);
+    assertEquals(TriggerEnum.MANUAL_TRIGGER, trigger);
+    assertEquals("UnKnown User", trigger.getTriggerBy());
   }
 
   @Test
   public void should_return_unKnown_when_get_trigger_given_neither_scm_nor_user_triggered_build() {
     Run fakeRun = Mockito.mock(Run.class);
 
-    String trigger = BuildUtil.getTrigger(fakeRun);
-    assertEquals("UnKnown", trigger);
+    TriggerEnum trigger = BuildUtil.getTrigger(fakeRun);
+    assertEquals(TriggerEnum.UNKNOWN, trigger);
   }
 
   @Test
@@ -246,11 +223,11 @@ public class BuildUtilTest {
     when(jenkins.getItemByFullName(any(), any())).thenReturn(fakeJob);
     when(fakeJob.getBuildByNumber(anyInt())).thenReturn(fakeUpstreamRun);
     when(fakeUpstreamRun.getCause(SCMTrigger.SCMTriggerCause.class)).thenReturn(new SCMTrigger.SCMTriggerCause("something"));
-    assertEquals("SCM", BuildUtil.getTrigger(fakeRun));
+    assertEquals(TriggerEnum.SCM_TRIGGER, BuildUtil.getTrigger(fakeRun));
   }
 
   @Test
-  public void should_return_user_id_when_get_trigger_given_user_triggered_upstream_build() {
+  public void should_return_MANUAL_TRIGGER_with_user_id_when_get_trigger_given_user_triggered_upstream_build() {
     Run fakeUpstreamRun = Mockito.mock(Run.class);
     Run fakeRun = Mockito.mock(Run.class);
     mockStatic(Jenkins.class);
@@ -264,11 +241,12 @@ public class BuildUtilTest {
     when(fakeJob.getBuildByNumber(anyInt())).thenReturn(fakeUpstreamRun);
     when(fakeUpstreamRun.getCause(Cause.UserIdCause.class)).thenReturn(new Cause.UserIdCause("user-id"));
 
-    assertEquals("user-id", BuildUtil.getTrigger(fakeRun));
+    assertEquals(TriggerEnum.MANUAL_TRIGGER, BuildUtil.getTrigger(fakeRun));
+    assertEquals("user-id", BuildUtil.getTrigger(fakeRun).getTriggerBy());
   }
 
   @Test
-  public void should_return_UnKnown_User_when_get_trigger_given_anonymous_user_triggered_upstream_build() {
+  public void should_return_MANUAL_TRIGGER_with_UnKnown_User_when_get_trigger_given_anonymous_user_triggered_upstream_build() {
     Run fakeUpstreamRun = Mockito.mock(Run.class);
     Run fakeRun = Mockito.mock(Run.class);
     mockStatic(Jenkins.class);
@@ -282,7 +260,8 @@ public class BuildUtilTest {
     when(fakeJob.getBuildByNumber(anyInt())).thenReturn(fakeUpstreamRun);
     when(fakeUpstreamRun.getCause(Cause.UserIdCause.class)).thenReturn(new Cause.UserIdCause(null));
 
-    assertEquals("UnKnown User", BuildUtil.getTrigger(fakeRun));
+    assertEquals(TriggerEnum.MANUAL_TRIGGER, BuildUtil.getTrigger(fakeRun));
+    assertEquals("UnKnown User", BuildUtil.getTrigger(fakeRun).getTriggerBy());
   }
 
   @Test
@@ -299,7 +278,7 @@ public class BuildUtilTest {
     when(jenkins.getItemByFullName(any(), any())).thenReturn(fakeJob);
     when(fakeJob.getBuildByNumber(anyInt())).thenReturn(fakeUpstreamRun);
 
-    assertEquals("UnKnown", BuildUtil.getTrigger(fakeRun));
+    assertEquals(TriggerEnum.UNKNOWN, BuildUtil.getTrigger(fakeRun));
   }
 
   @Test(expected = InstanceMissingException.class)
