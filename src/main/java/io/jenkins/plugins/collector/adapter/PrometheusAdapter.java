@@ -34,7 +34,7 @@ public class PrometheusAdapter implements MetricsAdapter<List<MetricFamilySample
 
   private String[] getMetricsLabels(BuildInfo buildInfo) {
     String jobFullName = buildInfo.getJenkinsJob();
-    String trigger = buildInfo.getTriggeredBy();
+    String trigger = buildInfo.getTriggerInfo().getTriggerType().getTriggerBy();
     String resultValue = buildInfo.getResult();
     return new String[]{jobFullName, trigger, resultValue};
   }

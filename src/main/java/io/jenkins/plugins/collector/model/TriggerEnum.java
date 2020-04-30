@@ -2,7 +2,7 @@ package io.jenkins.plugins.collector.model;
 
 public enum TriggerEnum {
 
-  SCM_TRIGGER(null), MANUAL_TRIGGER(""), UNKNOWN(null);
+  SCM_TRIGGER("SCM"), MANUAL_TRIGGER(""), UNKNOWN("Unknown");
   private String triggerBy;
 
   TriggerEnum(String triggerBy) {
