@@ -16,5 +16,5 @@ public class TriggerInfo {
 
   private TriggerEnum triggerType;
   private List<SCMChangeInfo> scmChangeInfoList;
-  private String jenkinsUserName;
+  private String triggeredBy;
 }

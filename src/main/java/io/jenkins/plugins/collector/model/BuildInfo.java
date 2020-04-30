@@ -13,7 +13,6 @@ public class BuildInfo {
     private String jenkinsJob;
     private String job;
     private String result;
-    private String triggeredBy;
     private TriggerInfo triggerInfo;
 
 }
