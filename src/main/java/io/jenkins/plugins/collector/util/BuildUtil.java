@@ -67,7 +67,7 @@ public class BuildUtil {
 
   public static String[] getLabels(@Nonnull Run build) {
     String jobFullName = getJobName(build);
-    String trigger = getTrigger(build).getTriggerBy();
+    String trigger = "SCM";
     String resultValue = getResultValue(build);
     return new String[]{jobFullName, trigger, resultValue};
   }
@@ -102,9 +102,7 @@ public class BuildUtil {
 
     Cause.UserIdCause userIdCause = (Cause.UserIdCause) build.getCause(Cause.UserIdCause.class);
     if (userIdCause != null) {
-      String jenkinsUserName = Optional.ofNullable(userIdCause.getUserId()).orElse("UnKnown User");
       TriggerEnum triggerEnum = TriggerEnum.MANUAL_TRIGGER;
-      triggerEnum.setTriggerBy(jenkinsUserName);
       return triggerEnum;
     }
 
