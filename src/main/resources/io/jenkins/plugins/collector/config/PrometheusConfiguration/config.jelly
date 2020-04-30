@@ -6,7 +6,8 @@
     </f:entry>
 
     <f:entry title="${%Job name that you want to collect metrics}" field="jobName">
-      <f:textbox/>
+      <f:textbox />
+      <label style="color:red;font-weight:bold;">the job name should write with english character and the format should like aa:bb:cc</label>
     </f:entry>
 
   </f:section>
