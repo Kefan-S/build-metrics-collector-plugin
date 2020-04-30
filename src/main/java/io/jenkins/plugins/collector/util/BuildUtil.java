@@ -13,7 +13,7 @@ import hudson.scm.ChangeLogSet.Entry;
 import hudson.triggers.SCMTrigger;
 import hudson.triggers.SCMTrigger.SCMTriggerCause;
 import io.jenkins.plugins.collector.exception.InstanceMissingException;
-import io.jenkins.plugins.collector.model.SCMChangeInfo;
+import io.jenkins.plugins.collector.model.ScmChangeInfo;
 import io.jenkins.plugins.collector.model.TriggerEnum;
 import io.jenkins.plugins.collector.model.TriggerInfo;
 import java.util.ArrayList;
@@ -150,12 +150,12 @@ public class BuildUtil {
 
     return TriggerInfo.builder()
         .triggerType(triggerType)
-        .scmChangeInfoList(getSCMChangeInfo(build))
+        .scmChangeInfoList(getScmChangeInfo(build))
         .triggeredBy(triggeredBy)
         .build();
   }
 
-  static List<SCMChangeInfo> getSCMChangeInfo(Run build) {
+  static List<ScmChangeInfo> getScmChangeInfo(Run build) {
     if (build instanceof WorkflowRun) {
       WorkflowRun workflowRun = (WorkflowRun) build;
       return getTriggerInfoForWorkflowRun(workflowRun);
@@ -167,31 +167,31 @@ public class BuildUtil {
     return null;
   }
 
-  private static List<SCMChangeInfo> getTriggerInfoForFreeStyleBuild(FreeStyleBuild freeStyleBuild) {
+  private static List<ScmChangeInfo> getTriggerInfoForFreeStyleBuild(FreeStyleBuild freeStyleBuild) {
 
     return getTriggerInfoByChangeLogSet(freeStyleBuild.getChangeSets());
   }
 
-  private static List<SCMChangeInfo> getTriggerInfoForWorkflowRun(WorkflowRun workflowRun) {
+  private static List<ScmChangeInfo> getTriggerInfoForWorkflowRun(WorkflowRun workflowRun) {
     return getTriggerInfoByChangeLogSet(workflowRun.getChangeSets());
   }
 
-  private static List<SCMChangeInfo> getTriggerInfoByChangeLogSet(List<ChangeLogSet<? extends Entry>> changeSets) {
+  private static List<ScmChangeInfo> getTriggerInfoByChangeLogSet(List<ChangeLogSet<? extends Entry>> changeSets) {
     if (CollectionUtils.isEmpty(changeSets)) {
       return Collections.emptyList();
     }
-    List<SCMChangeInfo> changeInfos = new ArrayList<>();
+    List<ScmChangeInfo> changeInfos = new ArrayList<>();
     Object[] items =  changeSets.get(0).getItems();
     for (Object changeSet : items) {
       if (changeSet instanceof GitChangeSet) {
-        changeInfos.add(buildSCMChangeInfoFromGitChangeSet((GitChangeSet) changeSet));
+        changeInfos.add(buildScmChangeInfoFromGitChangeSet((GitChangeSet) changeSet));
       }
     }
     return changeInfos;
   }
 
-  private static SCMChangeInfo buildSCMChangeInfoFromGitChangeSet(GitChangeSet changeSet) {
-    return SCMChangeInfo.builder()
+  private static ScmChangeInfo buildScmChangeInfoFromGitChangeSet(GitChangeSet changeSet) {
+    return ScmChangeInfo.builder()
             .userId(changeSet.getAuthorName())
             .commitHash(changeSet.getCommitId())
             .commitTimeStamp(changeSet.getTimestamp())

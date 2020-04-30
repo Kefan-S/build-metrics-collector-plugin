@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class SCMChangeInfo {
+public class ScmChangeInfo {
 
   private String userId;
   private String commitHash;

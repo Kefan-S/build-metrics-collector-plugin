@@ -12,7 +12,7 @@ import hudson.triggers.SCMTrigger;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.exception.InstanceMissingException;
-import io.jenkins.plugins.collector.model.SCMChangeInfo;
+import io.jenkins.plugins.collector.model.ScmChangeInfo;
 import io.jenkins.plugins.collector.model.TriggerEnum;
 import io.jenkins.plugins.collector.model.TriggerInfo;
 import java.util.Arrays;
@@ -189,7 +189,7 @@ public class BuildUtilTest {
   }
 
   @Test
-  public void should_return_MANUAL_TRIGGER_when_get_trigger_given_user_triggered_build() {
+  public void should_return_manual_trigger_when_get_trigger_given_user_triggered_build() {
     Run fakeRun = Mockito.mock(Run.class);
 
     Cause.UserIdCause userIdCause = new Cause.UserIdCause("user-id");
@@ -238,7 +238,7 @@ public class BuildUtilTest {
   }
 
   @Test
-  public void should_return_MANUAL_TRIGGER_with_user_id_when_get_trigger_given_user_triggered_upstream_build() {
+  public void should_return_manual_trigger_with_user_id_when_get_trigger_given_user_triggered_upstream_build() {
     Run fakeUpstreamRun = Mockito.mock(Run.class);
     Run fakeRun = Mockito.mock(Run.class);
     mockStatic(Jenkins.class);
@@ -257,7 +257,7 @@ public class BuildUtilTest {
   }
 
   @Test
-  public void should_return_MANUAL_TRIGGER_with_UnKnown_User_when_get_trigger_given_anonymous_user_triggered_upstream_build() {
+  public void should_return_manual_trigger_with_UnKnown_User_when_get_trigger_given_anonymous_user_triggered_upstream_build() {
     Run fakeUpstreamRun = Mockito.mock(Run.class);
     Run fakeRun = Mockito.mock(Run.class);
     mockStatic(Jenkins.class);
@@ -315,7 +315,7 @@ public class BuildUtilTest {
   }
 
   @Test
-  public void should_get_scm_change_set_correctly_when_get_SCM_Change_Info_given_work_flow_run_with_change_log() {
+  public void should_get_scm_change_set_correctly_when_get_scm_Change_Info_given_work_flow_run_with_change_log() {
     WorkflowRun run = Mockito.mock(WorkflowRun.class);
     ChangeLogSet<GitChangeSet> changeLogSet = mock(ChangeLogSet.class);
     GitChangeSet gitChangeSet = mock(GitChangeSet.class);
@@ -327,7 +327,7 @@ public class BuildUtilTest {
     when(gitChangeSet.getTimestamp()).thenReturn(1588218559L);
     when(gitChangeSet.getCommitId()).thenReturn("commit-hash");
 
-    List<SCMChangeInfo> result = BuildUtil.getSCMChangeInfo(run);
+    List<ScmChangeInfo> result = BuildUtil.getScmChangeInfo(run);
 
     assertEquals(1, result.size());
     assertEquals("github-user", result.get(0).getUserId());
@@ -337,17 +337,17 @@ public class BuildUtilTest {
   }
 
   @Test
-  public void should_get_scm_change_set_correctly_when_get_SCM_Change_Info_given_work_flow_run_with_empty_change_log() {
+  public void should_get_scm_change_set_correctly_when_get_scm_Change_Info_given_work_flow_run_with_empty_change_log() {
     WorkflowRun run = Mockito.mock(WorkflowRun.class);
 
     when(run.getChangeSets()).thenReturn(Collections.emptyList());
 
-    assertEquals(0, BuildUtil.getSCMChangeInfo(run).size());
+    assertEquals(0, BuildUtil.getScmChangeInfo(run).size());
 
   }
 
   @Test
-  public void should_get_scm_change_set_correctly_when_get_SCM_Change_Info_given_free_style_build_with_change_log() {
+  public void should_get_scm_change_set_correctly_when_get_scm_Change_Info_given_free_style_build_with_change_log() {
     FreeStyleBuild run = Mockito.mock(FreeStyleBuild.class);
     ChangeLogSet<GitChangeSet> changeLogSet = mock(ChangeLogSet.class);
     GitChangeSet gitChangeSet = mock(GitChangeSet.class);
@@ -359,7 +359,7 @@ public class BuildUtilTest {
     when(gitChangeSet.getTimestamp()).thenReturn(1588218559L);
     when(gitChangeSet.getCommitId()).thenReturn("commit-hash");
 
-    List<SCMChangeInfo> result = BuildUtil.getSCMChangeInfo(run);
+    List<ScmChangeInfo> result = BuildUtil.getScmChangeInfo(run);
 
     assertEquals(1, result.size());
     assertEquals("github-user", result.get(0).getUserId());
@@ -369,20 +369,20 @@ public class BuildUtilTest {
   }
 
   @Test
-  public void should_get_scm_change_set_correctly_when_get_SCM_Change_Info_given_free_style_build_with_empty_change_log() {
+  public void should_get_scm_change_set_correctly_when_get_scm_Change_Info_given_free_style_build_with_empty_change_log() {
     FreeStyleBuild run = Mockito.mock(FreeStyleBuild.class);
 
     when(run.getChangeSets()).thenReturn(Collections.emptyList());
 
-    assertEquals(0, BuildUtil.getSCMChangeInfo(run).size());
+    assertEquals(0, BuildUtil.getScmChangeInfo(run).size());
 
   }
 
   @Test
-  public void should_return_null_when_get_SCM_Change_Info_given_neither_work_flow_run_nor_free_style_build() {
+  public void should_return_null_when_get_scm_Change_Info_given_neither_work_flow_run_nor_free_style_build() {
     Run run = Mockito.mock(Run.class);
 
-    assertNull(BuildUtil.getSCMChangeInfo(run));
+    assertNull(BuildUtil.getScmChangeInfo(run));
   }
 
   @Test
