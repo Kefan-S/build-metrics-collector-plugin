@@ -91,7 +91,6 @@
       </exclusions>
     </dependency>
 
-
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
       <artifactId>workflow-cps</artifactId>
