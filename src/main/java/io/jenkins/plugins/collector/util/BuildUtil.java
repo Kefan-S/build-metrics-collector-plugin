@@ -1,6 +1,8 @@
 package io.jenkins.plugins.collector.util;
 
 import hudson.model.Cause;
+import hudson.model.Cause.UpstreamCause;
+import hudson.model.Cause.UserIdCause;
 import hudson.model.FreeStyleBuild;
 import hudson.model.Job;
 import hudson.model.Result;
@@ -9,6 +11,7 @@ import hudson.plugins.git.GitChangeSet;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
 import hudson.triggers.SCMTrigger;
+import hudson.triggers.SCMTrigger.SCMTriggerCause;
 import io.jenkins.plugins.collector.exception.InstanceMissingException;
 import io.jenkins.plugins.collector.model.SCMChangeInfo;
 import io.jenkins.plugins.collector.model.TriggerEnum;
@@ -108,10 +111,46 @@ public class BuildUtil {
     return TriggerEnum.UNKNOWN;
   }
 
+  public static Cause getOriginalCause(@Nonnull Run build) {
+    Cause.UpstreamCause upstreamCause = (Cause.UpstreamCause) build.getCause(Cause.UpstreamCause.class);
+    if (upstreamCause != null) {
+      Run upstream = getUpstreamRunByUpstreamCause(upstreamCause);
+      if (upstream != null) {
+        return getOriginalCause(upstream);
+      }
+    }
+
+    return (Cause) build.getCauses().get(0);
+  }
+
+  private static Run getUpstreamRunByUpstreamCause(UpstreamCause upstreamCause) {
+    Job job = Optional.ofNullable(Jenkins.getInstanceOrNull())
+        .map(r -> UPSTREAM_JOB_GETTER.apply(r, upstreamCause))
+        .orElseThrow(InstanceMissingException::new);
+
+    return job.getBuildByNumber(upstreamCause.getUpstreamBuild());
+  }
+
   public static TriggerInfo getTriggerInfo(Run build) {
+    Cause originalCause = getOriginalCause(build);
+
+    TriggerEnum triggerType = TriggerEnum.UNKNOWN;
+    String triggeredBy = null;
+
+    if (originalCause instanceof SCMTriggerCause) {
+      triggerType = TriggerEnum.SCM_TRIGGER;
+    }
+
+    if (originalCause instanceof UserIdCause) {
+      triggerType = TriggerEnum.MANUAL_TRIGGER;
+      UserIdCause userIdCause = (UserIdCause) originalCause;
+      triggeredBy = Optional.ofNullable(userIdCause.getUserId()).orElse("UnKnown User");
+    }
+
     return TriggerInfo.builder()
-        .triggerType(getTrigger(build))
+        .triggerType(triggerType)
         .scmChangeInfoList(getSCMChangeInfo(build))
+        .triggeredBy(triggeredBy)
         .build();
   }
 

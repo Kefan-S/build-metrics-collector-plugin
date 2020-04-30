@@ -33,6 +33,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -386,11 +387,42 @@ public class BuildUtilTest {
 
   @Test
   public void should_return_trigger_info_correctly_when_get_trigger_info() {
-    Run run = Mockito.mock(Run.class);
-
+    Run run = Mockito.mock(Run.class, RETURNS_DEEP_STUBS);
+    when(run.getCause(UpstreamCause.class)).thenReturn(null);
+    when(run.getCauses().get(0)).thenReturn(mock(Cause.class));
     TriggerInfo result = BuildUtil.getTriggerInfo(run);
 
     assertEquals(TriggerEnum.UNKNOWN, result.getTriggerType());
     assertNull(result.getScmChangeInfoList());
+  }
+
+  @Test
+  public void should_return_original_cause_when_get_original_cause_given_build_triggered_by_upstream_cause() {
+    Run fakeUpstreamRun = Mockito.mock(Run.class, RETURNS_DEEP_STUBS);
+    Run fakeRun = Mockito.mock(Run.class);
+    mockStatic(Jenkins.class);
+    Job fakeJob = Mockito.mock(Job.class);
+    Jenkins jenkins = Mockito.mock(Jenkins.class);
+    UpstreamCause upstreamCause = Mockito.mock(UpstreamCause.class);
+    Cause mockCause = mock(Cause.class);
+
+    when(fakeRun.getCause(UpstreamCause.class)).thenReturn(upstreamCause);
+    when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
+    when(jenkins.getItemByFullName(any(), any())).thenReturn(fakeJob);
+    when(fakeJob.getBuildByNumber(anyInt())).thenReturn(fakeUpstreamRun);
+    when(fakeUpstreamRun.getCauses().get(0)).thenReturn(mockCause);
+    when(fakeUpstreamRun.getCause(UpstreamCause.class)).thenReturn(null);
+
+    assertEquals(mockCause, BuildUtil.getOriginalCause(fakeRun));
+  }
+
+  @Test
+  public void should_return_original_cause_when_get_original_cause_given_build_triggered_directly() {
+    Run run = Mockito.mock(Run.class, RETURNS_DEEP_STUBS);
+    Cause mockCause = mock(Cause.class);
+    when(run.getCause(UpstreamCause.class)).thenReturn(null);
+    when(run.getCauses().get(0)).thenReturn(mockCause);
+
+    assertEquals(mockCause, BuildUtil.getOriginalCause(run));
   }
 }
