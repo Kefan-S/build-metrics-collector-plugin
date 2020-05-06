@@ -1,6 +1,7 @@
 package io.jenkins.plugins.collector.service;
 
 import io.jenkins.plugins.collector.model.BuildInfo;
+import io.jenkins.plugins.collector.model.TriggerInfo;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -14,7 +15,7 @@ public class DefaultPrometheusMetricsTest {
         .leadTime(1L)
         .duration(2L)
         .startTime(3L)
-        .triggeredBy("UnkownUser")
+        .triggerInfo(TriggerInfo.builder().triggeredBy("UnkownUser").build())
         .result("0")
         .jenkinsJob("fakePipline")
         .build();
