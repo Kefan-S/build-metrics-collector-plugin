@@ -1,46 +1,26 @@
-package io.jenkins.plugins.collector.handler;
+package io.jenkins.plugins.collector.service;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import hudson.model.Result;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.util.BuildUtil;
-import io.prometheus.client.Collector.MetricFamilySamples;
-import io.prometheus.client.Gauge;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
-import static io.jenkins.plugins.collector.util.BuildUtil.getLabels;
 import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
-import static java.util.Collections.emptyList;
 
-public class LeadTimeHandler extends AbstractHandler implements Function<Run, List<MetricFamilySamples>> {
-
-  private Gauge leadTimeMetrics;
-
-  @Inject
-  public LeadTimeHandler(@Named("leadTimeGauge") Gauge leadTimeMetrics) {
-    this.leadTimeMetrics = leadTimeMetrics;
-  }
+public class LeadTimeCalculate implements Function<Run, Long> {
 
   @Override
-  public List<MetricFamilySamples> apply(@Nonnull Run successBuild) {
+  public Long apply(@Nonnull Run successBuild) {
     return Optional.of(successBuild)
         .filter(BuildUtil::isFirstSuccessfulBuildAfterError)
         .map(this::calculateLeadTime)
-        .map(leadTime -> setLeadTimeThenPush(successBuild, leadTime))
-        .orElse(emptyList());
+        .orElse(null);
   }
 
-  private List<MetricFamilySamples> setLeadTimeThenPush(@Nonnull Run successBuild, Long leadTime) {
-    processMetrics(successBuild, leadTime,leadTimeMetrics);
-    return newArrayList(leadTimeMetrics.collect());
-  }
 
   private Long calculateLeadTime(Run successBuild) {
     long leadTime = successBuild.getDuration();
@@ -59,8 +39,4 @@ public class LeadTimeHandler extends AbstractHandler implements Function<Run, Li
         || (!isCompleteOvertime(matchedBuild, currentBuild) && Result.UNSTABLE.isWorseOrEqualTo(matchedBuild.getResult()));
   }
 
-  @Override
-  void setMetricValue(Run build, Long metricValue) {
-    this.leadTimeMetrics.labels(getLabels(build)).set(metricValue);
-  }
 }
