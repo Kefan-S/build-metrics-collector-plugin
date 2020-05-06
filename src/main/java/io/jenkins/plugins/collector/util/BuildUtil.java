@@ -48,7 +48,7 @@ public class BuildUtil {
     return true;
   }
 
-  public static boolean isCompleteOvertime(@Nonnull Run previousBuild,@Nonnull  Run build) {
+  public static boolean isCompleteOvertime(@Nonnull Run previousBuild, @Nonnull Run build) {
     return getBuildEndTime(build) - getBuildEndTime(previousBuild) < 0;
   }
 
@@ -134,10 +134,11 @@ public class BuildUtil {
 
     TriggerEnum triggerType = TriggerEnum.UNKNOWN;
     String triggeredBy = "UnKnown";
+    final List<ScmChangeInfo> scmChangeInfos = getScmChangeInfo(build);
 
     if (originalCause instanceof SCMTriggerCause) {
       triggerType = TriggerEnum.SCM_TRIGGER;
-      triggeredBy = "SCM";
+      triggeredBy = getLastCommitUserId(scmChangeInfos);
     }
 
     if (originalCause instanceof UserIdCause) {
@@ -148,9 +149,16 @@ public class BuildUtil {
 
     return TriggerInfo.builder()
         .triggerType(triggerType)
-        .scmChangeInfoList(getScmChangeInfo(build))
+        .scmChangeInfoList(scmChangeInfos)
         .triggeredBy(triggeredBy)
         .build();
+  }
+
+  private static String getLastCommitUserId(List<ScmChangeInfo> scmChangeInfos) {
+    return scmChangeInfos.stream()
+        .reduce((first, second) -> second)
+        .map(ScmChangeInfo::getUserId)
+        .orElse("SCM");
   }
 
   static List<ScmChangeInfo> getScmChangeInfo(Run build) {
@@ -179,7 +187,7 @@ public class BuildUtil {
       return Collections.emptyList();
     }
     List<ScmChangeInfo> changeInfos = new ArrayList<>();
-    Object[] items =  changeSets.get(0).getItems();
+    Object[] items = changeSets.get(0).getItems();
     for (Object changeSet : items) {
       if (changeSet instanceof GitChangeSet) {
         changeInfos.add(buildScmChangeInfoFromGitChangeSet((GitChangeSet) changeSet));
@@ -190,10 +198,10 @@ public class BuildUtil {
 
   private static ScmChangeInfo buildScmChangeInfoFromGitChangeSet(GitChangeSet changeSet) {
     return ScmChangeInfo.builder()
-            .userId(changeSet.getAuthorName())
-            .commitHash(changeSet.getCommitId())
-            .commitTimeStamp(changeSet.getTimestamp())
-            .commitMessage(changeSet.getComment())
-            .build();
+        .userId(changeSet.getAuthorName())
+        .commitHash(changeSet.getCommitId())
+        .commitTimeStamp(changeSet.getTimestamp())
+        .commitMessage(changeSet.getComment())
+        .build();
   }
 }

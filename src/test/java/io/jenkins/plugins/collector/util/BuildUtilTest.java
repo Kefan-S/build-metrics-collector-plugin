@@ -8,6 +8,7 @@ import hudson.model.Result;
 import hudson.model.Run;
 import hudson.plugins.git.GitChangeSet;
 import hudson.scm.ChangeLogSet;
+import hudson.triggers.SCMTrigger.SCMTriggerCause;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
 import io.jenkins.plugins.collector.exception.InstanceMissingException;
@@ -260,13 +261,28 @@ public class BuildUtilTest {
 
   @Test
   public void should_return_trigger_info_correctly_when_get_trigger_info() {
-    Run run = Mockito.mock(Run.class, RETURNS_DEEP_STUBS);
+    FreeStyleBuild run = Mockito.mock(FreeStyleBuild.class, RETURNS_DEEP_STUBS);
     when(run.getCause(UpstreamCause.class)).thenReturn(null);
-    when(run.getCauses().get(0)).thenReturn(mock(Cause.class));
+    when(run.getCauses().get(0)).thenReturn(mock(SCMTriggerCause.class));
+    ChangeLogSet<GitChangeSet> changeLogSet = mock(ChangeLogSet.class);
+    GitChangeSet gitChangeSet1 = mock(GitChangeSet.class);
+    GitChangeSet gitChangeSet2 = mock(GitChangeSet.class);
+
+    when(run.getChangeSets()).thenReturn(Arrays.asList(changeLogSet));
+    when(changeLogSet.getItems()).thenReturn(new GitChangeSet[]{gitChangeSet1, gitChangeSet2});
+    when(gitChangeSet1.getAuthorName()).thenReturn("github-user1");
+    when(gitChangeSet1.getComment()).thenReturn("commit message1");
+    when(gitChangeSet1.getTimestamp()).thenReturn(1588218558L);
+    when(gitChangeSet1.getCommitId()).thenReturn("commit-hash1");
+    when(gitChangeSet2.getAuthorName()).thenReturn("github-user2");
+    when(gitChangeSet2.getComment()).thenReturn("commit message2");
+    when(gitChangeSet2.getTimestamp()).thenReturn(1588218559L);
+    when(gitChangeSet2.getCommitId()).thenReturn("commit-hash2");
+
     TriggerInfo result = BuildUtil.getTriggerInfo(run);
 
-    assertEquals(TriggerEnum.UNKNOWN, result.getTriggerType());
-    assertNull(result.getScmChangeInfoList());
+    assertEquals(TriggerEnum.SCM_TRIGGER, result.getTriggerType());
+    assertEquals("github-user2", result.getTriggeredBy());
   }
 
   @Test
