@@ -24,7 +24,6 @@ public class OpalDashboard implements RootAction, ModelObjectWithContextMenu {
         return null;
     }
 
-
     public ContextMenu doContextMenu(StaplerRequest request, StaplerResponse response) {
         return new ContextMenu();
     }
