@@ -1,14 +1,29 @@
 package io.jenkins.plugins.collector.util;
 
 import hudson.model.Cause;
+import hudson.model.Cause.UpstreamCause;
+import hudson.model.Cause.UserIdCause;
+import hudson.model.FreeStyleBuild;
 import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
+import hudson.plugins.git.GitChangeSet;
+import hudson.scm.ChangeLogSet;
+import hudson.scm.ChangeLogSet.Entry;
 import hudson.triggers.SCMTrigger;
+import hudson.triggers.SCMTrigger.SCMTriggerCause;
 import io.jenkins.plugins.collector.exception.InstanceMissingException;
+import io.jenkins.plugins.collector.model.ScmChangeInfo;
+import io.jenkins.plugins.collector.model.TriggerEnum;
+import io.jenkins.plugins.collector.model.TriggerInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
+import org.apache.commons.collections.CollectionUtils;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 import static io.jenkins.plugins.collector.config.Constant.BUILD_NO_RESULT_STATUS_VALUE;
 
@@ -33,7 +48,7 @@ public class BuildUtil {
     return true;
   }
 
-  public static boolean isCompleteOvertime(@Nonnull Run previousBuild,@Nonnull  Run build) {
+  public static boolean isCompleteOvertime(@Nonnull Run previousBuild, @Nonnull Run build) {
     return getBuildEndTime(build) - getBuildEndTime(previousBuild) < 0;
   }
 
@@ -52,7 +67,7 @@ public class BuildUtil {
 
   public static String[] getLabels(@Nonnull Run build) {
     String jobFullName = getJobName(build);
-    String trigger = getTrigger(build);
+    String trigger = "SCM";
     String resultValue = getResultValue(build);
     return new String[]{jobFullName, trigger, resultValue};
   }
@@ -67,7 +82,7 @@ public class BuildUtil {
   }
 
 
-  public static String getTrigger(@Nonnull Run build) {
+  public static TriggerEnum getTrigger(@Nonnull Run build) {
     Cause.UpstreamCause upstreamCause = (Cause.UpstreamCause) build.getCause(Cause.UpstreamCause.class);
     if (upstreamCause != null) {
       Job job = Optional.ofNullable(Jenkins.getInstanceOrNull())
@@ -82,14 +97,111 @@ public class BuildUtil {
 
     SCMTrigger.SCMTriggerCause scmTriggerCause = (SCMTrigger.SCMTriggerCause) build.getCause(SCMTrigger.SCMTriggerCause.class);
     if (scmTriggerCause != null) {
-      return "SCM";
+      return TriggerEnum.SCM_TRIGGER;
     }
 
     Cause.UserIdCause userIdCause = (Cause.UserIdCause) build.getCause(Cause.UserIdCause.class);
     if (userIdCause != null) {
-      return Optional.ofNullable(userIdCause.getUserId()).orElse("UnKnown User");
+      TriggerEnum triggerEnum = TriggerEnum.MANUAL_TRIGGER;
+      return triggerEnum;
     }
 
-    return "UnKnown";
+    return TriggerEnum.UNKNOWN;
+  }
+
+  public static Cause getOriginalCause(@Nonnull Run build) {
+    Cause.UpstreamCause upstreamCause = (Cause.UpstreamCause) build.getCause(Cause.UpstreamCause.class);
+    if (upstreamCause != null) {
+      Run upstream = getUpstreamRunByUpstreamCause(upstreamCause);
+      if (upstream != null) {
+        return getOriginalCause(upstream);
+      }
+    }
+
+    return (Cause) build.getCauses().get(0);
+  }
+
+  private static Run getUpstreamRunByUpstreamCause(UpstreamCause upstreamCause) {
+    Job job = Optional.ofNullable(Jenkins.getInstanceOrNull())
+        .map(r -> UPSTREAM_JOB_GETTER.apply(r, upstreamCause))
+        .orElseThrow(InstanceMissingException::new);
+
+    return job.getBuildByNumber(upstreamCause.getUpstreamBuild());
+  }
+
+  public static TriggerInfo getTriggerInfo(Run build) {
+    Cause originalCause = getOriginalCause(build);
+
+    TriggerEnum triggerType = TriggerEnum.UNKNOWN;
+    String triggeredBy = "UnKnown";
+    final List<ScmChangeInfo> scmChangeInfos = getScmChangeInfo(build);
+
+    if (originalCause instanceof SCMTriggerCause) {
+      triggerType = TriggerEnum.SCM_TRIGGER;
+      triggeredBy = getLastCommitUserId(scmChangeInfos);
+    }
+
+    if (originalCause instanceof UserIdCause) {
+      triggerType = TriggerEnum.MANUAL_TRIGGER;
+      UserIdCause userIdCause = (UserIdCause) originalCause;
+      triggeredBy = Optional.ofNullable(userIdCause.getUserId()).orElse("UnKnown User");
+    }
+
+    return TriggerInfo.builder()
+        .triggerType(triggerType)
+        .scmChangeInfoList(scmChangeInfos)
+        .triggeredBy(triggeredBy)
+        .build();
+  }
+
+  private static String getLastCommitUserId(List<ScmChangeInfo> scmChangeInfos) {
+    return scmChangeInfos.stream()
+        .reduce((first, second) -> second)
+        .map(ScmChangeInfo::getUserId)
+        .orElse("SCM");
+  }
+
+  static List<ScmChangeInfo> getScmChangeInfo(Run build) {
+    if (build instanceof WorkflowRun) {
+      WorkflowRun workflowRun = (WorkflowRun) build;
+      return getTriggerInfoForWorkflowRun(workflowRun);
+    }
+    if (build instanceof FreeStyleBuild) {
+      FreeStyleBuild freeStyleBuild = (FreeStyleBuild) build;
+      return getTriggerInfoForFreeStyleBuild(freeStyleBuild);
+    }
+    return null;
+  }
+
+  private static List<ScmChangeInfo> getTriggerInfoForFreeStyleBuild(FreeStyleBuild freeStyleBuild) {
+
+    return getTriggerInfoByChangeLogSet(freeStyleBuild.getChangeSets());
+  }
+
+  private static List<ScmChangeInfo> getTriggerInfoForWorkflowRun(WorkflowRun workflowRun) {
+    return getTriggerInfoByChangeLogSet(workflowRun.getChangeSets());
+  }
+
+  private static List<ScmChangeInfo> getTriggerInfoByChangeLogSet(List<ChangeLogSet<? extends Entry>> changeSets) {
+    if (CollectionUtils.isEmpty(changeSets)) {
+      return Collections.emptyList();
+    }
+    List<ScmChangeInfo> changeInfos = new ArrayList<>();
+    Object[] items = changeSets.get(0).getItems();
+    for (Object changeSet : items) {
+      if (changeSet instanceof GitChangeSet) {
+        changeInfos.add(buildScmChangeInfoFromGitChangeSet((GitChangeSet) changeSet));
+      }
+    }
+    return changeInfos;
+  }
+
+  private static ScmChangeInfo buildScmChangeInfoFromGitChangeSet(GitChangeSet changeSet) {
+    return ScmChangeInfo.builder()
+        .userId(changeSet.getAuthorName())
+        .commitHash(changeSet.getCommitId())
+        .commitTimeStamp(changeSet.getTimestamp())
+        .commitMessage(changeSet.getComment())
+        .build();
   }
 }

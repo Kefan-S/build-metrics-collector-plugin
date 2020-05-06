@@ -1,6 +1,7 @@
 package io.jenkins.plugins.collector.adapter;
 
 import io.jenkins.plugins.collector.model.BuildInfo;
+import io.jenkins.plugins.collector.model.TriggerInfo;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 import java.util.List;
@@ -29,7 +30,7 @@ public class PrometheusAdapterTest {
         .duration(DURATION)
         .jenkinsJob("name")
         .result("0")
-        .triggeredBy("user")
+        .triggerInfo(TriggerInfo.builder().triggeredBy("SCM").build())
         .build();
 
     List<MetricFamilySamples> metricFamilySamples = prometheusAdapter.adapt(buildInfo);
@@ -45,7 +46,7 @@ public class PrometheusAdapterTest {
     assertEquals((double) LEAD_TIME, leadTimeSample.value, 0.001);
     assertEquals((double) RECOVER_TIME, recoverTimeSample.value, 0.001);
     assertEquals("name", sample.labelValues.get(0));
-    assertEquals("user", sample.labelValues.get(1));
+    assertEquals("SCM", sample.labelValues.get(1));
     assertEquals("0", sample.labelValues.get(2));
 
   }
@@ -58,7 +59,7 @@ public class PrometheusAdapterTest {
         .duration(DURATION)
         .jenkinsJob("name")
         .result("0")
-        .triggeredBy("user")
+        .triggerInfo(TriggerInfo.builder().triggeredBy("SCM").build())
         .build();
 
     List<MetricFamilySamples> metricFamilySamples = prometheusAdapter.adapt(buildInfo);
@@ -76,7 +77,7 @@ public class PrometheusAdapterTest {
         .duration(DURATION)
         .jenkinsJob("name")
         .result("0")
-        .triggeredBy("user")
+        .triggerInfo(TriggerInfo.builder().triggeredBy("SCM").build())
         .build();
 
     List<MetricFamilySamples> metricFamilySamples = prometheusAdapter.adapt(buildInfo);
@@ -93,7 +94,7 @@ public class PrometheusAdapterTest {
         .duration(DURATION)
         .jenkinsJob("name")
         .result("0")
-        .triggeredBy("user")
+        .triggerInfo(TriggerInfo.builder().triggeredBy("SCM").build())
         .build();
 
     List<MetricFamilySamples> metricFamilySamples = prometheusAdapter.adapt(buildInfo);

@@ -33,7 +33,6 @@ public class AsyncWorkerManager {
     this.prometheusMetrics = prometheusMetrics;
   }
 
-  @Initializer(after = EXTENSIONS_AUGMENTED)
   @Inject
   public void setBuildInfoService(BuildInfoService buildInfoService) {
     this.buildInfoService = buildInfoService;
