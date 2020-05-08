@@ -1,23 +1,23 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:x="jelly:xml">
-    <j:new var="h" className="hudson.Functions"/>
-    ${h.initPageVariables(context)}
+
   <st:contentType value="text/html;charset=UTF-8"/>
   <st:setHeader name="Expires" value="0" />
   <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
   <x:doctype name="html" />
+  <!DOCTYPE html>
   <html>
   <header>
+    <meta charset="utf-8">
     <title>Opal</title>
-    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/echarts.min.js"></script>
-    <link rel="shortcut icon" href="${resURL}/plugin/build-metrics-collector-plugin/images/opal.png" type="image/vnd.microsoft.icon" />
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.7.0/dist/echarts.min.js"></script>
   </header>
   <style>
-   .opalChart{
-     height: 400px;
-     width: 600px;
-     float: left;
-   }
+    .opalChart{
+      height: 400px;
+      width: 600px;
+      float: left;
+    }
   </style>
   <body>
   <div>

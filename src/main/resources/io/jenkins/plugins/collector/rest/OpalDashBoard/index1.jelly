@@ -1,7 +1,5 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:x="jelly:xml">
-    <j:new var="h" className="hudson.Functions"/>
-    ${h.initPageVariables(context)}
   <st:contentType value="text/html;charset=UTF-8"/>
   <st:setHeader name="Expires" value="0" />
   <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
