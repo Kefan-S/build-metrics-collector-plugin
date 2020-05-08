@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import hudson.Extension;
 import hudson.model.UnprotectedRootAction;
 import hudson.util.HttpResponses;
-import io.jenkins.plugins.collector.service.PrometheusMetrics;
+import io.jenkins.plugins.collector.consumer.prometheus.PrometheusMetrics;
 import io.prometheus.client.exporter.common.TextFormat;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;

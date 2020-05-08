@@ -1,6 +1,7 @@
-package io.jenkins.plugins.collector.service;
+package io.jenkins.plugins.collector.data;
 
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import io.jenkins.plugins.collector.data.PeriodProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;

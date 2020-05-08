@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.service;
+package io.jenkins.plugins.collector.consumer.jenkins;
 
 import hudson.FilePath;
 import hudson.remoting.Callable;
@@ -15,12 +15,12 @@ import org.jenkinsci.remoting.RoleChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JenkinsStorageService implements Consumer<List<BuildInfo>> {
+public class JenkinsStorageConsumer implements Consumer<List<BuildInfo>> {
 
-  private static final Logger logger = LoggerFactory.getLogger(JenkinsStorageService.class);
+  private static final Logger logger = LoggerFactory.getLogger(JenkinsStorageConsumer.class);
   private Jenkins jenkins;
 
-  public JenkinsStorageService(Jenkins jenkins) {
+  public JenkinsStorageConsumer(Jenkins jenkins) {
     this.jenkins = jenkins;
   }
 

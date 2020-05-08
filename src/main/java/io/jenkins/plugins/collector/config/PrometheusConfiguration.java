@@ -3,7 +3,7 @@ package io.jenkins.plugins.collector.config;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import io.jenkins.plugins.collector.service.AsyncWorkerManager;
-import io.jenkins.plugins.collector.service.PeriodProvider;
+import io.jenkins.plugins.collector.data.PeriodProvider;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;

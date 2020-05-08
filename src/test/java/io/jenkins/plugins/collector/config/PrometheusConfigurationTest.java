@@ -3,7 +3,7 @@ package io.jenkins.plugins.collector.config;
 import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
 import io.jenkins.plugins.collector.service.AsyncWorkerManager;
-import io.jenkins.plugins.collector.service.PeriodProvider;
+import io.jenkins.plugins.collector.data.PeriodProvider;
 import java.util.Collection;
 import java.util.Collections;
 import jenkins.model.Jenkins;

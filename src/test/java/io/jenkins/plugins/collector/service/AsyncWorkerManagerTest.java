@@ -1,6 +1,7 @@
 package io.jenkins.plugins.collector.service;
 
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import io.jenkins.plugins.collector.consumer.prometheus.PrometheusMetrics;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.junit.Before;
@@ -18,7 +19,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

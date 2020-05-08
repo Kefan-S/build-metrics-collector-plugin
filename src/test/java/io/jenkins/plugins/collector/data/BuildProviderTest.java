@@ -5,7 +5,6 @@ import hudson.model.Run;
 import hudson.util.RunList;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import io.jenkins.plugins.collector.exception.NoSuchBuildException;
-import io.jenkins.plugins.collector.service.PeriodProvider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

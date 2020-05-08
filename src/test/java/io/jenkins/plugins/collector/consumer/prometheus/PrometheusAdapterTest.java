@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.adapter;
+package io.jenkins.plugins.collector.consumer.prometheus;
 
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.prometheus.client.Collector.MetricFamilySamples;
@@ -14,11 +14,7 @@ public class PrometheusAdapterTest {
   private static final Long LEAD_TIME = 2L;
   private static final Long RECOVER_TIME = 3L;
   private static final Long START_TIME = 4L;
-  PrometheusAdapter prometheusAdapter;
-
-  public PrometheusAdapterTest() {
-    prometheusAdapter = new PrometheusAdapter();
-  }
+  private PrometheusAdapter prometheusAdapter = new PrometheusAdapter();;
 
   @Test
   public void should_return_prometheus_data_format_given_buildInfo_with_leadTime_and_recoverTime() {

@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.service;
+package io.jenkins.plugins.collector.consumer.prometheus;
 
 import io.jenkins.plugins.collector.model.BuildInfo;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class DefaultPrometheusMetricsTest {
     List<BuildInfo> buildInfoList = new ArrayList<>();
     buildInfoList.add(buildInfo);
 
-    DefaultPrometheusMetrics defaultPrometheusMetrics = new DefaultPrometheusMetrics();
+    PrometheusConsumer defaultPrometheusMetrics = new PrometheusConsumer();
     defaultPrometheusMetrics.accept(buildInfoList);
 
     String expectedMetrics = "# HELP default_jenkins_builds_last_build_start_timestamp One build start timestamp\n"
