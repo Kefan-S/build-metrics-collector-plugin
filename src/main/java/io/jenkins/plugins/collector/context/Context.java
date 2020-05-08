@@ -5,11 +5,11 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import hudson.Extension;
-import io.jenkins.plugins.collector.model.BuildInfo;
+import io.jenkins.plugins.collector.consumer.jenkins.JenkinsConsumer;
 import io.jenkins.plugins.collector.consumer.prometheus.PrometheusConsumer;
-import io.jenkins.plugins.collector.consumer.jenkins.JenkinsStorageConsumer;
-import io.jenkins.plugins.collector.service.LeadTimeCalculate;
 import io.jenkins.plugins.collector.consumer.prometheus.PrometheusMetrics;
+import io.jenkins.plugins.collector.model.BuildInfo;
+import io.jenkins.plugins.collector.service.LeadTimeCalculate;
 import io.jenkins.plugins.collector.service.RecoverTimeCalculate;
 import io.prometheus.client.Gauge;
 import java.util.List;
@@ -38,7 +38,7 @@ public class Context extends AbstractModule {
   @Singleton
   @Provides
   private Consumer<List<BuildInfo>> buildInfoConsumer() {
-    return new PrometheusConsumer().andThen(new JenkinsStorageConsumer(Jenkins.get()));
+    return new PrometheusConsumer().andThen(new JenkinsConsumer(Jenkins.get()));
   }
 
   private void bindGauge(String name, String nameSuffix, String description) {

@@ -12,13 +12,13 @@ import jenkins.model.Jenkins;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JenkinsStorageConsumer implements Consumer<List<BuildInfo>> {
+public class JenkinsConsumer implements Consumer<List<BuildInfo>> {
 
-  private static final Logger logger = LoggerFactory.getLogger(JenkinsStorageConsumer.class);
+  private static final Logger logger = LoggerFactory.getLogger(JenkinsConsumer.class);
   private Jenkins jenkins;
   private String folderPath;
 
-  public JenkinsStorageConsumer(Jenkins jenkins) {
+  public JenkinsConsumer(Jenkins jenkins) {
     this.jenkins = jenkins;
     folderPath = jenkins.getRootDir().getPath() + "/cache4Opal/";
   }
@@ -28,22 +28,17 @@ public class JenkinsStorageConsumer implements Consumer<List<BuildInfo>> {
     logger.info("start save the build info to local environment!");
 
     VirtualChannel channel = jenkins.getChannel();
+    assert channel != null;
 
-    for (BuildInfo buildInfo : buildInfos) {
-      boolean result = false;
-      String fileName = buildInfo.getJenkinsJob();
+    buildInfos.forEach(buildInfo -> {
       try {
-        String content = buildInfo.toString();
-        assert channel != null;
-        result = channel.call(new CreateFileTask(folderPath, fileName, content));
+        Boolean result = channel.call(new CreateFileTask(folderPath, buildInfo.getJenkinsJob(), buildInfo.toString()));
+        logger.info("The result of job {} is {}", buildInfo.getJenkinsJob(), result);
       } catch (InterruptedException | IOException e) {
         Thread.currentThread().interrupt();
         logger.error("failed to save the build info!");
       }
-
-      logger.info(String.format("The result of job %s is %s", buildInfo.getJenkinsJob(), result));
-    }
-    logger.info("end save the build info to local environment!");
+    });
   }
 
   public InputStream getDataStream(String jobName) {
@@ -53,13 +48,13 @@ public class JenkinsStorageConsumer implements Consumer<List<BuildInfo>> {
       if (textFile.exists()) {
         return textFile.read();
       } else {
-        logger.warn(String.format("No data for Job %s!", jobName));
+        logger.warn("No data for this Job!");
         return null;
       }
     } catch (IOException | InterruptedException e) {
-       Thread.currentThread().interrupt();
-       logger.error("failed to get data!");
-       return null;
+      Thread.currentThread().interrupt();
+      logger.error("failed to get data!");
+      return null;
     }
   }
 }

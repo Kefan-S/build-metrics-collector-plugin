@@ -6,8 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import jenkins.security.Roles;
+import lombok.EqualsAndHashCode;
 import org.jenkinsci.remoting.RoleChecker;
 
+@EqualsAndHashCode
 public class CreateFileTask implements Serializable, Callable<Boolean, IOException> {
     private static final long serialVersionUID = 1L;
     private final String fileContent;
@@ -44,7 +46,7 @@ public class CreateFileTask implements Serializable, Callable<Boolean, IOExcepti
         folder.mkdirs();
         textFile.write(finalFileContent, "UTF-8");
       } catch (Exception e) {
-        return false;
+        throw new IOException(e.getMessage());
       }
       return true;
     }
