@@ -7,12 +7,14 @@ import com.google.inject.name.Names;
 import hudson.Extension;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.service.DefaultPrometheusMetrics;
+import io.jenkins.plugins.collector.service.JenkinsStorageService;
 import io.jenkins.plugins.collector.service.LeadTimeCalculate;
 import io.jenkins.plugins.collector.service.PrometheusMetrics;
 import io.jenkins.plugins.collector.service.RecoverTimeCalculate;
 import io.prometheus.client.Gauge;
 import java.util.List;
 import java.util.function.Consumer;
+import jenkins.model.Jenkins;
 
 import static io.jenkins.plugins.collector.config.Constant.METRICS_LABEL_NAME_ARRAY;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_NAMESPACE;
@@ -36,7 +38,7 @@ public class Context extends AbstractModule {
   @Singleton
   @Provides
   private Consumer<List<BuildInfo>> buildInfoConsumer() {
-    return new DefaultPrometheusMetrics();
+    return new DefaultPrometheusMetrics().andThen(new JenkinsStorageService(Jenkins.get()));
   }
 
   private void bindGauge(String name, String nameSuffix, String description) {

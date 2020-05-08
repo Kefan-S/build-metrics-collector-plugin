@@ -4,10 +4,13 @@ import com.google.inject.Inject;
 import hudson.Extension;
 import hudson.init.Initializer;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import io.jenkins.plugins.collector.model.BuildInfo;
+import java.util.List;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import jenkins.model.Jenkins;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +24,7 @@ public class AsyncWorkerManager {
 
   Timer timer;
   TimerTask timerTask;
-  private PrometheusMetrics prometheusMetrics;
+  private Consumer<List<BuildInfo>> consumers;
   private BuildInfoService buildInfoService;
 
   public AsyncWorkerManager() {
@@ -29,8 +32,8 @@ public class AsyncWorkerManager {
   }
 
   @Inject
-  public void setPrometheusMetrics(PrometheusMetrics prometheusMetrics) {
-    this.prometheusMetrics = prometheusMetrics;
+  public void setConsumers(Consumer<List<BuildInfo>> consumers) {
+    this.consumers = consumers;
   }
 
   @Initializer(after = EXTENSIONS_AUGMENTED)
@@ -42,7 +45,7 @@ public class AsyncWorkerManager {
   @Initializer(after = EXTENSIONS_AUGMENTED)
   public void init() {
     timer = new Timer("prometheus collector");
-    timerTask = new AsyncWork(prometheusMetrics, buildInfoService);
+    timerTask = new AsyncWork(consumers, buildInfoService);
     timer.schedule(timerTask, 0, TimeUnit.SECONDS.toMillis(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds()));
   }
 
@@ -55,7 +58,7 @@ public class AsyncWorkerManager {
   public void updateAsyncWorker() {
     logger.info("start to update period");
     timerTask.cancel();
-    timerTask = new AsyncWork(prometheusMetrics, buildInfoService);
+    timerTask = new AsyncWork(consumers, buildInfoService);
     long period = TimeUnit.SECONDS.toMillis(PrometheusConfiguration.get().getCollectingMetricsPeriodInSeconds());
     timer.schedule(timerTask, period, period);
     logger.info("update period successful!");
