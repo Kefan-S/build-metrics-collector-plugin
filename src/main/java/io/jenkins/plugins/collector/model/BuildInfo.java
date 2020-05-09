@@ -14,4 +14,9 @@ public class BuildInfo {
   private String job;
   private String result;
   private TriggerInfo triggerInfo;
+
+  @Override
+  public String toString() {
+    return startTime+","+duration+","+leadTime+","+recoverTime+","+jenkinsJob+","+job+","+result+","+triggerInfo.getTriggeredBy();
+  }
 }
