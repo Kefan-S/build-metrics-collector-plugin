@@ -1,6 +1,8 @@
 package io.jenkins.plugins.collector.service;
 
 import com.google.inject.Inject;
+import hudson.security.ACL;
+import hudson.security.ACLContext;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import java.util.List;
 import java.util.TimerTask;
@@ -24,9 +26,11 @@ public class AsyncWork extends TimerTask {
 
   @Override
   public void run() {
-    logger.info("Collecting prometheus metrics");
-    List<BuildInfo> buildInfoList = buildInfoService.getAllBuildInfo();
-    buildInfoConsumer.accept(buildInfoList);
-    logger.info("Prometheus metrics collected successfully");
+    try (ACLContext ctx = ACL.as(ACL.SYSTEM)) {
+      logger.info("Collecting prometheus metrics");
+      List<BuildInfo> buildInfoList = buildInfoService.getAllBuildInfo();
+      buildInfoConsumer.accept(buildInfoList);
+      logger.info("Prometheus metrics collected successfully");
+    }
   }
 }
