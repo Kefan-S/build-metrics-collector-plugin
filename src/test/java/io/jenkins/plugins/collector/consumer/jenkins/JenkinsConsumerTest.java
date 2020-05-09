@@ -2,6 +2,7 @@ package io.jenkins.plugins.collector.consumer.jenkins;
 
 import hudson.remoting.VirtualChannel;
 import io.jenkins.plugins.collector.model.BuildInfo;
+import io.jenkins.plugins.collector.model.TriggerInfo;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +35,8 @@ public class JenkinsConsumerTest {
     when(jenkins.getChannel()).thenReturn(channel);
 
     JenkinsConsumer consumer = new JenkinsConsumer(jenkins);
-    consumer.accept(newArrayList(BuildInfo.builder().jenkinsJob("test").build()));
+    BuildInfo test = BuildInfo.builder().triggerInfo(new TriggerInfo()).jenkinsJob("test").build();
+    consumer.accept(newArrayList(test));
 
     verify(channel).call(taskArgumentCaptor.capture());
     CreateFileTask task = taskArgumentCaptor.getValue();
