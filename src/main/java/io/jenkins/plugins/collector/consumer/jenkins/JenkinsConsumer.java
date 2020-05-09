@@ -1,26 +1,33 @@
 package io.jenkins.plugins.collector.consumer.jenkins;
 
-import hudson.FilePath;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.google.inject.Inject;
 import hudson.remoting.VirtualChannel;
 import io.jenkins.plugins.collector.model.BuildInfo;
+import io.jenkins.plugins.collector.model.BuildInfoResponse;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.function.Consumer;
 import jenkins.model.Jenkins;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JenkinsConsumer implements Consumer<List<BuildInfo>> {
+public class JenkinsConsumer implements JenkinsMetrics {
 
   private static final Logger logger = LoggerFactory.getLogger(JenkinsConsumer.class);
   private Jenkins jenkins;
   private String folderPath;
 
+  @Inject
   public JenkinsConsumer(Jenkins jenkins) {
     this.jenkins = jenkins;
     folderPath = jenkins.getRootDir().getPath() + "/cache4Opal/";
+  }
+
+  @Override
+  public BuildInfoResponse getMetrics(String name) {
+    return new JenkinsAdapter().adapt(getBuildInfoFromFile(name));
   }
 
   @Override
@@ -41,17 +48,18 @@ public class JenkinsConsumer implements Consumer<List<BuildInfo>> {
     });
   }
 
-  public InputStream getDataStream(String jobName) {
-    FilePath textFile = new FilePath(new File(folderPath+jobName));
+  private List<BuildInfo> getBuildInfoFromFile(String jobName) {
+    File file = new File(folderPath + jobName);
 
     try {
-      if (textFile.exists()) {
-        return textFile.read();
+      if (file.exists()) {
+        MappingIterator<BuildInfo> personIter = new CsvMapper().readerWithTypedSchemaFor(BuildInfo.class).readValues(file);
+        return personIter.readAll();
       } else {
         logger.warn("No data for this Job!");
         return null;
       }
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
       Thread.currentThread().interrupt();
       logger.error("failed to get data!");
       return null;
