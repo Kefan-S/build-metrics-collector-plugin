@@ -15,7 +15,7 @@ public class PrometheusAdapterTest {
   private static final Long LEAD_TIME = 2L;
   private static final Long RECOVER_TIME = 3L;
   private static final Long START_TIME = 4L;
-  private PrometheusAdapter prometheusAdapter = new PrometheusAdapter();;
+  private PrometheusAdapter prometheusAdapter = new PrometheusAdapter();
 
   @Test
   public void should_return_prometheus_data_format_given_buildInfo_with_leadTime_and_recoverTime() {

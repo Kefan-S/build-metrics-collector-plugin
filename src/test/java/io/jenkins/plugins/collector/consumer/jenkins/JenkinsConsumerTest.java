@@ -45,12 +45,11 @@ public class JenkinsConsumerTest {
   }
 
   @Test
-  public void should_return_null_when_get_data_stream_given_not_exist_job_name(){
+  public void should_return_null_when_getMetrics_given_not_exist_job_name() {
     when(jenkins.getRootDir()).thenReturn(new File("/folder"));
 
     JenkinsConsumer consumer = new JenkinsConsumer(jenkins);
-    InputStream result = consumer.getDataStream("test");
+    assertNull(consumer.getMetrics("test"));
 
-    assertNull(result);
   }
 }

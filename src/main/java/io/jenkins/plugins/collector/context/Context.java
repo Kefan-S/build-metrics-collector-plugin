@@ -6,6 +6,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import hudson.Extension;
 import io.jenkins.plugins.collector.consumer.jenkins.JenkinsConsumer;
+import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
 import io.jenkins.plugins.collector.consumer.prometheus.PrometheusConsumer;
 import io.jenkins.plugins.collector.consumer.prometheus.PrometheusMetrics;
 import io.jenkins.plugins.collector.model.BuildInfo;
@@ -27,6 +28,7 @@ public class Context extends AbstractModule {
   @Override
   public void configure() {
     bind(PrometheusMetrics.class).to(PrometheusConsumer.class).in(Singleton.class);
+    bind(JenkinsMetrics.class).to(JenkinsConsumer.class).in(Singleton.class);
     bind(RecoverTimeCalculate.class).toInstance(new RecoverTimeCalculate());
     bind(LeadTimeCalculate.class).toInstance(new LeadTimeCalculate());
     bindGauge("leadTimeGauge", "_merge_lead_time", "Code Merge Lead Time in milliseconds");
