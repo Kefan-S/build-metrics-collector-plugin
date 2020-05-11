@@ -1,116 +1,86 @@
-<?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:x="jelly:xml">
+<html>
+<header>
+  <meta charset="utf-8">
+  <title>Opal</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@4.7.0/dist/echarts.min.js"></script>
+  <link rel="shortcut icon" href="/Users/kxin/project/build-metrics-collector-plugin/src/main/webapp/images
+/opal.png" type="image/vnd.microsoft.icon"/>
+</header>
+<style>
+  .opalChart {
+    height: 400px;
+    width: 600px;
+    float: left;
+  }
+</style>
+<body>
+<div>
+  <div id="recoverTime" class="opalChart"></div>
+  <div id="leadTime" class="opalChart"></div>
+  <div id="deployFrequency" class="opalChart"></div>
+  <div id="failureRate" class="opalChart"></div>
+  <div id="avgDuration" class="opalChart"></div>
+</div>
+</body>
+<script type="text/javascript">
+  // 基于准备好的dom，初始化echarts实例
+  var recoverTime = echarts.init(document.getElementById('recoverTime'));
+  var leadTime = echarts.init(document.getElementById('leadTime'));
+  var avgDuration = echarts.init(document.getElementById('avgDuration'));
+  var failureRate = echarts.init(document.getElementById('failureRate'));
+  var deployFrequency = echarts.init(document.getElementById('deployFrequency'));
 
-  <st:contentType value="text/html;charset=UTF-8"/>
-  <st:setHeader name="Expires" value="0" />
-  <st:setHeader name="Cache-Control" value="no-cache,no-store,must-revalidate" />
-  <x:doctype name="html" />
-  <!DOCTYPE html>
-  <html>
-  <header>
-    <meta charset="utf-8">
-    <title>Opal</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@4.7.0/dist/echarts.min.js"></script>
-  </header>
-  <style>
-    .opalChart{
-      height: 400px;
-      width: 600px;
-      float: left;
+  function lineChartOpationGenerator(chartName, xAxisData, yAxisData) {
+    return {
+      title: {
+        text: chartName
+      },
+      xAxis: {
+        type: 'category',
+        data: xAxisData,
+        axisLabel: {
+          formatter: function (value, index) {
+            // 格式化成月/日，只在第一个刻度显示年份
+            console.warn(value)
+            var date = new Date(new Number(value) * 1000);
+            var texts = [(date.getMonth() + 1), date.getDate()];
+            if (index === 0) {
+              texts.unshift(1900 + date.getYear());
+            }
+            return texts.join('/');
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: function (value, index) {
+            var millisecond = new Number(value);
+            var days = parseInt(millisecond / (1000 * 60 * 60 * 24));
+            var hours = parseInt((millisecond % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = parseInt((millisecond % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = (millisecond % (1000 * 60)) / 1000;
+            var time = ""
+            if(days) time = time + days + " 天 ";
+            if(hours) time = time + hours + " 小时 ";
+            if(minutes) time = time + minutes + " 分 ";
+            if(seconds) time = time + seconds + " 秒 ";
+            return time;
+          }
+        }
+      },
+      series: [{
+        data: yAxisData,
+        type: 'line',
+        smooth: true
+      }]
     }
-  </style>
-  <body>
-  <div>
-    <div id="recoverTime" class="opalChart"></div>
-    <div id="leadTime" class="opalChart"></div>
-    <div id="deployFrequency" class="opalChart"></div>
-    <div id="failureRate" class="opalChart"></div>
-    <div id="avgDuration" class="opalChart"></div>
-  </div>
-  </body>
-  <script type="text/javascript">
-    // 基于准备好的dom，初始化echarts实例
-    var recoverTime = echarts.init(document.getElementById('recoverTime'));
+  }
 
-    // 指定图表的配置项和数据
-    var recoverTimeOption = {
+  function gagueChartOpationGenerator(chartName, data, formatter) {
+    return {
       title: {
-        text: 'Recover Time'
-      },
-      xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [{
-        data: [820, 932, 901, 934, 1290, 1330, 1320],
-        type: 'line',
-        smooth: true
-      }]
-    };
-
-    // 使用刚指定的配置项和数据显示图表。
-    recoverTime.setOption(recoverTimeOption);
-
-
-    // 基于准备好的dom，初始化echarts实例
-    var leadTime = echarts.init(document.getElementById('leadTime'));
-
-    // 指定图表的配置项和数据
-    var leadTimeOption = {
-      title: {
-        text: 'Lead Time'
-      },
-      xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [{
-        data: [820, 932, 901, 934, 1290, 1330, 1320],
-        type: 'line',
-        smooth: true
-      }]
-    };
-
-    // 使用刚指定的配置项和数据显示图表。
-    leadTime.setOption(leadTimeOption);
-
-
-    // 基于准备好的dom，初始化echarts实例
-    var avgDuration = echarts.init(document.getElementById('avgDuration'));
-
-    // 指定图表的配置项和数据
-    var avgDurationOption = {
-      title: {
-        text: 'Duration'
-      },
-      xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [{
-        data: [820, 932, 901, 934, 1290, 1330, 1320],
-        type: 'line',
-        smooth: true
-      }]
-    };
-
-    // 使用刚指定的配置项和数据显示图表。
-    avgDuration.setOption(avgDurationOption);
-
-    var failureRate = echarts.init(document.getElementById('failureRate'));
-
-    failureRateOption = {
-      title: {
-        text: 'Failure Rate'
+        text: 'chartName'
       },
       tooltip: {
         formatter: '{a} <br/>{b} : {c}%'
@@ -125,47 +95,36 @@
         {
           name: '业务指标',
           type: 'gauge',
-          detail: {formatter: '{value}%'},
-          data: [{value: 50, name: '失败率'}]
+          detail: {formatter: formatter},
+          data: [{value: data, name: '失败率'}]
         }
       ]
-    };
+    }
+  }
 
-    setInterval(function () {
-      failureRateOption.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
-      failureRate.setOption(failureRateOption, true);
-    }, 2000);
+  var recoverTimeOption = lineChartOpationGenerator('Recover Time', [1583923441, 1584923441, 1585923441, 1586923441, 1587923441, 1588923441, 1589009841],
+      [820, 932, 901, 934, 1290, 1330, 120320]);
+  var leadTimeOption = lineChartOpationGenerator('Lead Time', [1583923441, 1584923441, 1585923441, 1586923441, 1587923441, 1588923441, 1589009841],
+      [820, 932, 901, 934, 1290, 1330, 120320]);
+  var avgDurationOption = lineChartOpationGenerator('Duration', [1583923441, 1584923441, 1585923441, 1586923441, 1587923441, 1588923441, 1589009841],
+      [820, 932, 901, 934, 1290, 1330, 120320]);
+  var failureRateOption = gagueChartOpationGenerator("Failure Rate", 50, "{value}%");
+  var deployFrequencyOption = gagueChartOpationGenerator("Deploy Frequency", 50, "{value}");
 
+  recoverTime.setOption(recoverTimeOption);
+  leadTime.setOption(leadTimeOption);
+  avgDuration.setOption(avgDurationOption);
+  failureRate.setOption(failureRateOption);
+  deployFrequency.setOption(deployFrequencyOption);
 
-    var deployFrequency = echarts.init(document.getElementById('deployFrequency'));
+  setInterval(function () {
+    failureRateOption.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+    failureRate.setOption(failureRateOption, true);
+  }, 2000);
 
-    deployFrequencyOption = {
-      title: {
-        text: 'Deploy Frequency'
-      },
-      tooltip: {
-        formatter: '{a} <br/>{b} : {c}%'
-      },
-      toolbox: {
-        feature: {
-          restore: {},
-          saveAsImage: {}
-        }
-      },
-      series: [
-        {
-          name: '业务指标',
-          type: 'gauge',
-          detail: {formatter: '{value}'},
-          data: [{value: 50, name: '部署频率'}]
-        }
-      ]
-    };
-
-    setInterval(function () {
-      deployFrequencyOption.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
-      deployFrequency.setOption(deployFrequencyOption, true);
-    }, 2000);
-  </script>
-  </html>
-</j:jelly>
+  setInterval(function () {
+    deployFrequencyOption.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+    deployFrequency.setOption(deployFrequencyOption, true);
+  }, 2000);
+</script>
+</html>
