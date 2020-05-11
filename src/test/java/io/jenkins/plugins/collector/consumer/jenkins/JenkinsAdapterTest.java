@@ -56,7 +56,6 @@ public class JenkinsAdapterTest {
         .startTime(1L)
         .jenkinsJob("name")
         .result("0")
-        .triggeredBy("user")
         .build();
   }
 
@@ -66,7 +65,6 @@ public class JenkinsAdapterTest {
         .startTime(2L)
         .jenkinsJob("name")
         .result("2")
-        .triggeredBy("user")
         .build();
   }
 }
