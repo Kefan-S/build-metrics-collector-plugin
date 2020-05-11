@@ -17,11 +17,15 @@
   </header>
   <body>
   <div>
-    <div id="recoverTime" class="opalChart"></div>
-    <div id="leadTime" class="opalChart"></div>
-    <div id="deployFrequency" class="opalChart"></div>
-    <div id="failureRate" class="opalChart"></div>
-    <div id="avgDuration" class="opalChart"></div>
+  <div id="lineChartPanel">
+    <div id="recoverTime" class="opalLineChart"></div>
+    <div id="leadTime" class="opalLineChart"></div>
+    <div id="avgDuration" class="opalGaugeChart"></div>
+  </div>
+  <div id = "gaguePanel">
+    <div id="deployFrequency" class="opalLineChart"></div>
+    <div id="failureRate" class="opalGaugeChart"></div>
+  </div>
   </div>
   </body>
   <script type="text/javascript">
@@ -34,12 +38,14 @@
 
   setInterval(function () {
     $.get("http://localhost:8083/hello", function (data, status) {
-      console.log(data)
-      recoverTime.setOption(lineChartOpationGenerator('Recover Time', data.startTime, data.recoverTime));
-      leadTime.setOption(lineChartOpationGenerator('Lead Time', data.startTime, data.leadTime));
-      avgDuration.setOption(lineChartOpationGenerator('Duration', data.startTime, data.duration));
-      failureRate.setOption(gagueChartOpationGenerator("Failure Rate", data.failureRate, "{value}%", '失败率'));
-      deployFrequency.setOption(gagueChartOpationGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", '部署频率'));
+      if (status === 'success'){
+        data = data ? data : {};
+        recoverTime.setOption(lineChartOpationGenerator('Recover Time', data.startTime, data.recoverTime, "Recover Time", "Start Time"));
+        leadTime.setOption(lineChartOpationGenerator('Lead Time', data.startTime, data.leadTime, "Lead Time", "Start Time"));
+        avgDuration.setOption(lineChartOpationGenerator('Duration', data.startTime, data.duration, "Duration", "Start Time"));
+        failureRate.setOption(gagueChartOpationGenerator("Failure Rate", data.failureRate, "{value}%", '失败率'));
+        deployFrequency.setOption(gagueChartOpationGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", '部署频率'));
+      }
     })
   }, 2000);
   </script>

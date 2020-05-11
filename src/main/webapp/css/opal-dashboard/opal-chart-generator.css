@@ -1,5 +1,16 @@
-.opalChart{
-  height: 400px;
-  width: 600px;
+#lineChartPanel {
+  width: 60%;
   float: left;
+}
+#gaguePanel {
+  width: 30%;
+  float: left;
+}
+.opalLineChart {
+  height: 400px;
+  width: 100%;
+}
+.opalGaugeChart{
+  height: 400px;
+  width: 100%;
 }
