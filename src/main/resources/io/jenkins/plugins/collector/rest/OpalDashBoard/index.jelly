@@ -11,16 +11,10 @@
     <title>Opal</title>
     <link rel="stylesheet" href="${resURL}/plugin/build-metrics-collector-plugin/css/opal-dashboard/opal-chart-generator.css" type="text/css" />
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/echarts.min.js"></script>
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/jquery-3.5.1.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart-generator.js"></script>
     <link rel="shortcut icon" href="${resURL}/plugin/build-metrics-collector-plugin/images/opal.png" type="image/vnd.microsoft.icon" />
   </header>
-  <style>
-   .opalChart{
-     height: 400px;
-     width: 600px;
-     float: left;
-   }
-  </style>
   <body>
   <div>
     <div id="recoverTime" class="opalChart"></div>
@@ -38,101 +32,15 @@
   var failureRate = echarts.init(document.getElementById('failureRate'));
   var deployFrequency = echarts.init(document.getElementById('deployFrequency'));
 
-  function lineChartOpationGenerator(chartName, xAxisData, yAxisData) {
-    return {
-      title: {
-        text: chartName
-      },
-      xAxis: {
-        type: 'category',
-        data: xAxisData,
-        axisLabel: {
-          formatter: function (value, index) {
-            // 格式化成月/日，只在第一个刻度显示年份
-            console.warn(value)
-            var date = new Date(new Number(value) * 1000);
-            var texts = [(date.getMonth() + 1), date.getDate()];
-            if (index === 0) {
-              texts.unshift(1900 + date.getYear());
-            }
-            return texts.join('/');
-          }
-        }
-      },
-      yAxis: {
-        type: 'value',
-        axisLabel: {
-          formatter: function (value, index) {
-            var millisecond = new Number(value);
-            var days = parseInt(millisecond / (1000 * 60 * 60 * 24));
-            var hours = parseInt((millisecond % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var minutes = parseInt((millisecond % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = (millisecond % (1000 * 60)) / 1000;
-            var time = ""
-            if(days) time = time + days + " 天 ";
-            if(hours) time = time + hours + " 小时 ";
-            if(minutes) time = time + minutes + " 分 ";
-            if(seconds) time = time + seconds + " 秒 ";
-            return time;
-          }
-        }
-      },
-      series: [{
-        data: yAxisData,
-        type: 'line',
-        smooth: true
-      }]
-    }
-  }
-
-  function gagueChartOpationGenerator(chartName, data, formatter) {
-    return {
-      title: {
-        text: 'chartName'
-      },
-      tooltip: {
-        formatter: '{a} <br/>{b} : {c}%'
-      },
-      toolbox: {
-        feature: {
-          restore: {},
-          saveAsImage: {}
-        }
-      },
-      series: [
-        {
-          name: '业务指标',
-          type: 'gauge',
-          detail: {formatter: formatter},
-          data: [{value: data, name: '失败率'}]
-        }
-      ]
-    }
-  }
-
-  var recoverTimeOption = lineChartOpationGenerator('Recover Time', [1583923441, 1584923441, 1585923441, 1586923441, 1587923441, 1588923441, 1589009841],
-      [820, 932, 901, 934, 1290, 1330, 120320]);
-  var leadTimeOption = lineChartOpationGenerator('Lead Time', [1583923441, 1584923441, 1585923441, 1586923441, 1587923441, 1588923441, 1589009841],
-      [820, 932, 901, 934, 1290, 1330, 120320]);
-  var avgDurationOption = lineChartOpationGenerator('Duration', [1583923441, 1584923441, 1585923441, 1586923441, 1587923441, 1588923441, 1589009841],
-      [820, 932, 901, 934, 1290, 1330, 120320]);
-  var failureRateOption = gagueChartOpationGenerator("Failure Rate", 50, "{value}%");
-  var deployFrequencyOption = gagueChartOpationGenerator("Deploy Frequency", 50, "{value}");
-
-  recoverTime.setOption(recoverTimeOption);
-  leadTime.setOption(leadTimeOption);
-  avgDuration.setOption(avgDurationOption);
-  failureRate.setOption(failureRateOption);
-  deployFrequency.setOption(deployFrequencyOption);
-
   setInterval(function () {
-    failureRateOption.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
-    failureRate.setOption(failureRateOption, true);
-  }, 2000);
-
-  setInterval(function () {
-    deployFrequencyOption.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
-    deployFrequency.setOption(deployFrequencyOption, true);
+    $.get("http://localhost:8083/hello", function (data, status) {
+      console.log(data)
+      recoverTime.setOption(lineChartOpationGenerator('Recover Time', data.startTime, data.recoverTime));
+      leadTime.setOption(lineChartOpationGenerator('Lead Time', data.startTime, data.leadTime));
+      avgDuration.setOption(lineChartOpationGenerator('Duration', data.startTime, data.duration));
+      failureRate.setOption(gagueChartOpationGenerator("Failure Rate", data.failureRate, "{value}%", '失败率'));
+      deployFrequency.setOption(gagueChartOpationGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", '部署频率'));
+    })
   }, 2000);
   </script>
   </html>
