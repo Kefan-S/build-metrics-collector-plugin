@@ -5,19 +5,30 @@ import com.google.inject.Inject;
 import hudson.Extension;
 import hudson.model.RootAction;
 import hudson.util.HttpResponses;
+import io.jenkins.plugins.collector.config.PrometheusConfiguration;
 import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
+import java.util.Arrays;
+import java.util.List;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+
+import static java.util.stream.Collectors.toList;
 
 @Extension
 public class OpalDashboard implements RootAction {
 
   private JenkinsMetrics jenkinsMetrics;
+  private PrometheusConfiguration prometheusConfiguration;
 
   @Inject
   public void setJenkinsMetrics(JenkinsMetrics jenkinsMetrics) {
     this.jenkinsMetrics = jenkinsMetrics;
+  }
+
+  @Inject
+  public void setPrometheusConfiguration(PrometheusConfiguration prometheusConfiguration) {
+    this.prometheusConfiguration = prometheusConfiguration;
   }
 
   @Override
@@ -36,10 +47,16 @@ public class OpalDashboard implements RootAction {
   }
 
   public HttpResponse doDynamic(StaplerRequest request) {
-    if (request.getRestOfPath().contains("jobname")) {
-      return jenkinsResponse(request.getParameter("jobname"));
+    if (request.getRestOfPath().equalsIgnoreCase("/data")) {
+      return jenkinsResponse(request.getParameter("jobName"));
     }
     return HttpResponses.notFound();
+  }
+
+  public List<String> getMonitoredJobName(){
+    return Arrays.stream(prometheusConfiguration.getJobName().split(":"))
+        .map(String::trim)
+        .collect(toList());
   }
 
   private HttpResponse jenkinsResponse(String jobName) {

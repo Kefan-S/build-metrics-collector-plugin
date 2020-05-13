@@ -1,9 +1,10 @@
 let durationcalculate = function (value) {
   var millisecond = new Number(value);
-  var days = parseInt(millisecond / (1000 * 60 * 60 * 24));
+  var days = parseInt((millisecond / (1000 * 60 * 60 * 24)).toFixed(0));
   var hours = parseInt(
-      (millisecond % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = parseInt((millisecond % (1000 * 60 * 60)) / (1000 * 60));
+      ((millisecond % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toFixed(0));
+  var minutes = parseInt(
+      ((millisecond % (1000 * 60 * 60)) / (1000 * 60)).toFixed(0));
   var seconds = (millisecond % (1000 * 60)) / 1000;
   var time = ""
   if (days) {
@@ -16,14 +17,12 @@ let durationcalculate = function (value) {
     time = time + minutes + " 分 ";
   }
   if (seconds) {
-    time = time + seconds.toFixed(0) + " 秒 ";
+    time = time + seconds.toFixed(2) + " 秒 ";
   }
   return time;
 };
 
-let timeStampTranslator = function (value, index) {
-  // 格式化成月/日，只在第一个刻度显示年份
-  console.warn(value)
+let timeStampToDateTranslator = function (value, index) {
   var date = new Date(new Number(value));
   var texts = [(date.getMonth() + 1), date.getDate()];
   if (index === 0) {
@@ -32,80 +31,92 @@ let timeStampTranslator = function (value, index) {
   return texts.join('/');
 }
 
-function lineChartOpationGenerator(chartName, xAxisData, yAxisData,
+let timeStampToDateTimeTranslator = function (value) {
+  var date = new Date(new Number(value));
+  var y = date.getFullYear();
+  var m = date.getMonth() + 1;
+  m = m < 10 ? ('0' + m) : m;
+  var d = date.getDate();
+  d = d < 10 ? ('0' + d) : d;
+  var h = date.getHours();
+  h = h < 10 ? ('0' + h) : h;
+  var minute = date.getMinutes();
+  var second = date.getSeconds();
+  minute = minute < 10 ? ('0' + minute) : minute;
+  second = second < 10 ? ('0' + second) : second;
+  return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
+}
+
+function lineChartOptionGenerator(chartName, xAxisData, yAxisData,
     yAxisName, xAxisName = "Start Time") {
-  if (xAxisData && yAxisData) {
-    return {
-      grid: {
-        left: 120
+  return {
+    grid: {
+      left: 120
+    },
+    title: {
+      text: chartName
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        animation: false
       },
-      title: {
-        text: chartName
-      },
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          animation: false
-        },
-        formatter: function (params) {
-          return xAxisName + ":" + timeStampTranslator(params[0].axisValue, 0)
-              + "<br/>" + yAxisName + ":" + durationcalculate(params[0].value)
-        }
-      },
-      xAxis: {
-        name: xAxisName,
-        type: 'category',
-        data: xAxisData,
-        axisLabel: {
-          formatter: timeStampTranslator
-        }
-      },
-      yAxis: {
-        name: yAxisName,
-        type: 'value',
-        axisLabel: {
-          formatter: durationcalculate
-        }
-      },
-      series: [{
-        data: yAxisData,
-        type: 'line',
-        smooth: true
-      }]
-    }
+      formatter: function (params) {
+        return xAxisName + ":" + timeStampToDateTimeTranslator(
+            params[0].axisValue)
+            + "<br/>" + yAxisName + ":" + durationcalculate(params[0].value)
+      }
+    },
+    xAxis: {
+      name: xAxisName,
+      type: 'category',
+      data: xAxisData,
+      axisLabel: {
+        formatter: timeStampToDateTranslator
+      }
+    },
+    yAxis: {
+      name: yAxisName,
+      type: 'value',
+      axisLabel: {
+        formatter: durationcalculate
+      }
+    },
+    series: [{
+      data: yAxisData,
+      type: 'line',
+      smooth: true
+    }]
   }
-  return noDataOpationGeneratior(chartName);
 }
 
-function gagueChartOpationGenerator(chartName, data, formatter) {
-  if (data){
-    return {
-      title: {
-        text: chartName
-      },
-      tooltip: {
-        formatter: '{a} <br/>{b} : {c}%'
-      },
-      toolbox: {
-        feature: {
-          restore: {},
-          saveAsImage: {}
-        }
-      },
-      series: [
-        {
-          name: '业务指标',
-          type: 'gauge',
-          detail: {formatter: formatter},
-          data: [{value: data, name: '失败率'}]
-        }
-      ]
-    }
+function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
+    toolTipFormatter) {
+  return {
+    title: {
+      text: chartName,
+    },
+    tooltip: {
+      formatter: toolTipFormatter
+    },
+    toolbox: {
+      feature: {
+        restore: {},
+        saveAsImage: {}
+      }
+    },
+    series: [
+      {
+        name: metricsName,
+        type: 'gauge',
+        detail: {formatter: formatter},
+        data: [{value: data}]
+      }
+    ]
   }
-  return noDataOpationGeneratior(chartName);
 }
 
-function noDataOpationGeneratior(chartName) {
+function noDataOptionGeneratior(chartName) {
   return {
     title: {
       show: true,
@@ -125,4 +136,25 @@ function noDataOpationGeneratior(chartName) {
     },
     series: []
   };
+}
+
+function invalidOpalDataFilter(xAxisData, yAxisData) {
+  let points = yAxisData.filter(data => data !== null).map((data, index) => ({
+    xAxis: xAxisData[index],
+    yAxis: data
+  }));
+  return {
+    xAxisData: points.map(data => data.xAxis),
+    yAxisData: points.map(data => data.yAxis)
+  }
+}
+
+function isNil(object) {
+  if (object === 0) return true;
+  return !object || object.length === 0
+}
+
+function showNoDataReminder(data, chartSelector, noDataDivSelector) {
+  $(chartSelector).css("display", isNil(data) ? "none" : "inline");
+  $(noDataDivSelector).css("display", isNil(data) ? "inline" : "none");
 }

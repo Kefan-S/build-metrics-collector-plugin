@@ -6,11 +6,32 @@
   width: 30%;
   float: left;
 }
-.opalLineChart {
-  height: 400px;
+.opalLineChart{
+  height: 300px;
   width: 100%;
 }
 .opalGaugeChart{
-  height: 400px;
+  height: 300px;
   width: 100%;
+}
+#jobSelectorPanel {
+  width: 30%;
+  float: left;
+  text-align: center;
+}
+#jobNameSelector   {
+  width: 50%;
+  font-size: 20px;
+}
+.opalNodataLineChart {
+  text-align: center;
+  font-size: 20px;
+  color: grey;
+}
+.opalNoDataLineChart div,.opalNoDataGaugeChart div{
+  padding-top: 120px;
+  padding-bottom: 120px;
+  text-align: center;
+  font-size: 20px;
+  color: grey;
 }

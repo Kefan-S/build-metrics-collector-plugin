@@ -16,38 +16,77 @@
     <link rel="shortcut icon" href="${resURL}/plugin/build-metrics-collector-plugin/images/opal.png" type="image/vnd.microsoft.icon" />
   </header>
   <body>
-  <div>
-  <div id="lineChartPanel">
-    <div id="recoverTime" class="opalLineChart"></div>
-    <div id="leadTime" class="opalLineChart"></div>
-    <div id="avgDuration" class="opalGaugeChart"></div>
-  </div>
-  <div id = "gaguePanel">
-    <div id="deployFrequency" class="opalLineChart"></div>
-    <div id="failureRate" class="opalGaugeChart"></div>
-  </div>
-  </div>
+    <div id="opalDashBoard">
+      <div id="lineChartPanel">
+        <div id="recoverTime" class="opalLineChart"></div>
+        <div id="noDataRecoverTime" class="opalNoDataLineChart">
+          <div>Recover Time<br/>No data to display</div>
+        </div>
+        <div id="leadTime" class="opalLineChart"></div>
+        <div id="noDataLeadTime" class="opalNoDataLineChart">
+          <div>Lead Time<br/>No data to display</div>
+        </div>
+        <div id="duration" class="opalGaugeChart"></div>
+        <div id="noDataDuration" class="opalNoDataLineChart">
+          <div>Duration<br/>No data to display</div>
+        </div>
+      </div>
+      <div id="gaguePanel">
+        <div id="deployFrequency" class="opalGaugeChart"></div>
+        <div id="noDataDeployFrequency" class="opalNoDataGaugeChart">
+          <div>Deploy Frequency<br/>No data to display</div>
+        </div>
+        <div id="failureRate" class="opalGaugeChart"></div>
+        <div id="noDataFailureRate" class="opalNoDataGaugeChart">
+          <div>Failure Rate<br/>No data to display</div>
+        </div>
+      </div>
+      <div id="jobSelectorPanel">
+        <div>Monitored Job</div><br/>
+        <select id="jobNameSelector" name="jobNameList">
+          <option value ="hello">hello</option>
+          <option value ="foo">foo</option>
+        </select>
+      </div>
+    </div>
   </body>
   <script type="text/javascript">
-  // 基于准备好的dom，初始化echarts实例
-  var recoverTime = echarts.init(document.getElementById('recoverTime'));
-  var leadTime = echarts.init(document.getElementById('leadTime'));
-  var avgDuration = echarts.init(document.getElementById('avgDuration'));
-  var failureRate = echarts.init(document.getElementById('failureRate'));
-  var deployFrequency = echarts.init(document.getElementById('deployFrequency'));
+      var recoverTime = echarts.init(document.getElementById('recoverTime'));
+      var leadTime = echarts.init(document.getElementById('leadTime'));
+      var duration = echarts.init(document.getElementById('duration'));
+      var failureRate = echarts.init(document.getElementById('failureRate'));
+      var deployFrequency = echarts.init(document.getElementById('deployFrequency'));
 
-  setInterval(function () {
-    $.get("http://localhost:8083/hello", function (data, status) {
-      if (status === 'success'){
-        data = data ? data : {};
-        recoverTime.setOption(lineChartOpationGenerator('Recover Time', data.startTime, data.recoverTime, "Recover Time", "Start Time"));
-        leadTime.setOption(lineChartOpationGenerator('Lead Time', data.startTime, data.leadTime, "Lead Time", "Start Time"));
-        avgDuration.setOption(lineChartOpationGenerator('Duration', data.startTime, data.duration, "Duration", "Start Time"));
-        failureRate.setOption(gagueChartOpationGenerator("Failure Rate", data.failureRate, "{value}%", '失败率'));
-        deployFrequency.setOption(gagueChartOpationGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", '部署频率'));
+      let drawCharts = () => {
+        let param = {
+          jobName: $("#jobNameSelector").val()
+        };
+        $.get(window.location.href + "data", param, function (data, status) {
+          if (status === 'success') {
+            data = data ? data : {};
+
+            recoverTimeData = invalidOpalDataFilter(data.startTime, data.recoverTime);
+            leadTimeData = invalidOpalDataFilter(data.startTime, data.leadTime);
+            durationData = invalidOpalDataFilter(data.startTime, data.duration);
+
+            showNoDataReminder(recoverTimeData.yAxisData,"#recoverTime", "#noDataRecoverTime");
+            showNoDataReminder(leadTimeData.yAxisData,"#leadTime", "#noDataLeadTime");
+            showNoDataReminder(durationData.yAxisData,"#durationTime", "#noDataDuration");
+            showNoDataReminder(data.failureRate, "#failureRate", "#noDataFailureRate");
+            showNoDataReminder(data.deploymentFrequency, "#deployFrequency", "#noDataDeployFrequency");
+
+            recoverTime.setOption(lineChartOptionGenerator('Recover Time', recoverTimeData.xAxisData, recoverTimeData.yAxisData, "Recover Time", "Start Time"));
+            leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData.xAxisData,  leadTimeData.yAxisData, "Lead Time", "Start Time"));
+            duration.setOption(lineChartOptionGenerator('Duration', durationData.xAxisData,  durationData.yAxisData, "Duration", "Start Time"));
+            failureRate.setOption(gagueChartOptionGenerator("Failure Rate", data.failureRate * 100, "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%'));
+            deployFrequency.setOption(gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}'));
+          }
+        })
       }
-    })
-  }, 2000);
+
+      drawCharts();
+      $("#jobNameSelector").change(drawCharts);
+      setInterval(drawCharts, 2000);
   </script>
   </html>
 </j:jelly>
