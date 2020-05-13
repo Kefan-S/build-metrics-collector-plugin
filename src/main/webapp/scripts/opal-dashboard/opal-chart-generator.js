@@ -116,28 +116,6 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
   }
 }
 
-function noDataOptionGeneratior(chartName) {
-  return {
-    title: {
-      show: true,
-      textStyle: {
-        color: 'grey',
-        fontSize: 20
-      },
-      text: `${chartName}\n\nNo data to display`,
-      left: 'center',
-      top: 'center'
-    },
-    xAxis: {
-      show: false
-    },
-    yAxis: {
-      show: false
-    },
-    series: []
-  };
-}
-
 function invalidOpalDataFilter(xAxisData, yAxisData) {
   if (isNil(yAxisData)) return {};
   let points = yAxisData.filter(data => data !== null).map((data, index) => ({
