@@ -3,10 +3,9 @@ package io.jenkins.plugins.collector.data;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.util.RunList;
-import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import io.jenkins.plugins.collector.config.CollectableBuildsJobProperty;
 import io.jenkins.plugins.collector.exception.NoSuchBuildException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,15 +36,12 @@ public class BuildProviderTest {
   private JobProvider jobProvider;
   @Mock
   private PeriodProvider periodProvider;
-  @Mock
-  private PrometheusConfiguration prometheusConfiguration;
   @InjectMocks
   private BuildProvider buildProvider;
 
   @Test
   public void should_return_empty_builds_when_get_all_need_to_handle_builds_given_empty_jobs_and_empty_unHandle_map() {
     when(jobProvider.getAllJobs()).thenReturn(emptyList());
-    when(prometheusConfiguration.getJobName()).thenReturn("jobName");
 
     List<Run> result = buildProvider.getNeedToHandleBuilds();
 
@@ -55,10 +51,9 @@ public class BuildProviderTest {
   @Test
   public void should_return_empty_builds_when_get_all_need_to_handle_builds_given_jobs_have_no_builds_and_empty_unHandle_map() {
     Job mockJob = mock(Job.class, RETURNS_DEEP_STUBS);
-    when(mockJob.getFullName()).thenReturn("jobName");
+    when(mockJob.getProperty(CollectableBuildsJobProperty.class)).thenReturn(new CollectableBuildsJobProperty());
     when(jobProvider.getAllJobs()).thenReturn(new ArrayList<>(asList(mockJob)));
     when(mockJob.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(emptyList()));
-    when(prometheusConfiguration.getJobName()).thenReturn("jobName");
 
     List<Run> result = buildProvider.getNeedToHandleBuilds();
 
@@ -68,11 +63,10 @@ public class BuildProviderTest {
   @Test
   public void should_return_correct_builds_when_get_all_need_to_handle_builds_given_jobs_have_builds_and_empty_unHandle_map() {
     Job mockJob = mock(Job.class, RETURNS_DEEP_STUBS);
-    when(mockJob.getFullName()).thenReturn("jobName");
+    when(mockJob.getProperty(CollectableBuildsJobProperty.class)).thenReturn(new CollectableBuildsJobProperty());
     when(jobProvider.getAllJobs()).thenReturn(new ArrayList<>(asList(mockJob)));
     Run mockRun = mock(Run.class);
     when(mockJob.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun))));
-    when(prometheusConfiguration.getJobName()).thenReturn("jobName");
 
     List<Run> result = buildProvider.getNeedToHandleBuilds();
 
@@ -83,36 +77,18 @@ public class BuildProviderTest {
   public void should_return_same_builds_when_get_all_need_to_handle_builds_given_the_full_name_of_jobs_are_all_same_to_job_names_from_prometheus_configuration() {
     Job mockJob1 = mock(Job.class, RETURNS_DEEP_STUBS);
     when(mockJob1.getFullName()).thenReturn("jobName1");
+    when(mockJob1.getProperty(CollectableBuildsJobProperty.class)).thenReturn(new CollectableBuildsJobProperty());
     Job mockJob2 = mock(Job.class, RETURNS_DEEP_STUBS);
     when(mockJob2.getFullName()).thenReturn("jobName2");
+    when(mockJob2.getProperty(CollectableBuildsJobProperty.class)).thenReturn(new CollectableBuildsJobProperty());
     when(jobProvider.getAllJobs()).thenReturn(newArrayList(mockJob1, mockJob2));
     Run mockRun1 = mock(Run.class);
     Run mockRun2 = mock(Run.class);
     when(mockJob1.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun1))));
     when(mockJob2.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun2))));
-    when(prometheusConfiguration.getJobName()).thenReturn("jobName1:jobName2");
 
     List<Run> result = buildProvider.getNeedToHandleBuilds();
 
-    assertEquals(new ArrayList(asList(mockRun1, mockRun2)), result);
-  }
-
-  @Test
-  public void should_return_same_builds_when_get_all_need_to_handle_builds_given_the_full_name_of_jobs_with_different_case_from_prometheus_configuration() {
-    Job mockJob1 = mock(Job.class, RETURNS_DEEP_STUBS);
-    when(mockJob1.getFullName()).thenReturn("jObName1");
-    Job mockJob2 = mock(Job.class, RETURNS_DEEP_STUBS);
-    when(mockJob2.getFullName()).thenReturn("JobName2");
-    when(jobProvider.getAllJobs()).thenReturn(newArrayList(mockJob1, mockJob2));
-    Run mockRun1 = mock(Run.class);
-    Run mockRun2 = mock(Run.class);
-    when(mockJob1.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun1))));
-    when(mockJob2.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun2))));
-    when(prometheusConfiguration.getJobName()).thenReturn("jobNaMe1:jobNAme2");
-
-    List<Run> result = buildProvider.getNeedToHandleBuilds();
-
-    Collections.reverse(result);
     assertEquals(new ArrayList(asList(mockRun1, mockRun2)), result);
   }
 
@@ -120,14 +96,15 @@ public class BuildProviderTest {
   public void should_ignore_white_space_characters_on_both_sides_of_job_name_when_get_all_need_to_handle_builds_given_the_full_name_from_prometheus_configuration() {
     Job mockJob1 = mock(Job.class, RETURNS_DEEP_STUBS);
     when(mockJob1.getFullName()).thenReturn("jobName1");
+    when(mockJob1.getProperty(CollectableBuildsJobProperty.class)).thenReturn(new CollectableBuildsJobProperty());
     Job mockJob2 = mock(Job.class, RETURNS_DEEP_STUBS);
     when(mockJob2.getFullName()).thenReturn("jobName2");
+    when(mockJob2.getProperty(CollectableBuildsJobProperty.class)).thenReturn(new CollectableBuildsJobProperty());
     when(jobProvider.getAllJobs()).thenReturn(newArrayList(mockJob1, mockJob2));
     Run mockRun1 = mock(Run.class);
     Run mockRun2 = mock(Run.class);
     when(mockJob1.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun1))));
     when(mockJob2.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun2))));
-    when(prometheusConfiguration.getJobName()).thenReturn(" jobNaMe1 :jobNAme2 ");
 
     List<Run> result = buildProvider.getNeedToHandleBuilds();
 
@@ -135,21 +112,17 @@ public class BuildProviderTest {
   }
 
   @Test
-  public void should_filter_builds_when_get_all_need_to_handle_builds_given_the_full_name_of_jobs_are_not_same_to_job_names_from_prometheus_configuration() {
+  public void should_filter_builds_when_get_all_need_to_handle_builds_given_the_job_is_not_collectable_for_opal() {
     Job mockJob1 = mock(Job.class, RETURNS_DEEP_STUBS);
-    when(mockJob1.getFullName()).thenReturn("jobName1");
+    when(mockJob1.getProperty(CollectableBuildsJobProperty.class)).thenReturn(new CollectableBuildsJobProperty());
     Job mockJob2 = mock(Job.class, RETURNS_DEEP_STUBS);
-    when(mockJob2.getFullName()).thenReturn("jobName2");
+    when(mockJob2.getProperty(CollectableBuildsJobProperty.class)).thenReturn(null);
     when(jobProvider.getAllJobs()).thenReturn(newArrayList(mockJob1, mockJob2));
-    Run mockRun1 = mock(Run.class);
-    Run mockRun2 = mock(Run.class);
-    when(mockJob1.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun1))));
-    when(mockJob2.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun2))));
-    when(prometheusConfiguration.getJobName()).thenReturn("jobName1");
+    Run mockRun = mock(Run.class);
+    when(mockJob1.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mockRun))));
 
     List<Run> result = buildProvider.getNeedToHandleBuilds();
-
-    assertEquals(new ArrayList(asList(mockRun1)), result);
+    assertEquals(new ArrayList(asList(mockRun)), result);
   }
 
   @Test
@@ -159,11 +132,10 @@ public class BuildProviderTest {
     fakeBuildsMap.put("full-name", new HashSet(asList(mockExistingBuild)));
     Whitebox.setInternalState(buildProvider, "jobFullNameToUnhandledBuildsMap", fakeBuildsMap);
     Job mockJob = mock(Job.class, RETURNS_DEEP_STUBS);
-    when(mockJob.getFullName()).thenReturn("jobName");
-    when(jobProvider.getAllJobs()).thenReturn(new ArrayList<>(asList(mockJob)));
     when(mockJob.getFullName()).thenReturn("full-name");
+    when(jobProvider.getAllJobs()).thenReturn(new ArrayList<>(asList(mockJob)));
+    when(mockJob.getProperty(CollectableBuildsJobProperty.class)).thenReturn(new CollectableBuildsJobProperty());
     when(mockJob.getBuilds().byTimestamp(anyLong(), anyLong())).thenReturn(RunList.fromRuns(new ArrayList<>(asList(mock(Run.class)))));
-    when(prometheusConfiguration.getJobName()).thenReturn("jobName");
 
     List<Run> result = buildProvider.getNeedToHandleBuilds();
     assertEquals(1, result.size());
