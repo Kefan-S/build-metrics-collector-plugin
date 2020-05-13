@@ -42,11 +42,12 @@
         </div>
       </div>
       <div id="jobSelectorPanel">
-        <div>Monitored Job</div><br/>
-        <select id="jobNameSelector" name="jobNameList">
-          <option value ="hello">hello</option>
-          <option value ="foo">foo</option>
-        </select>
+          <div>Monitored Job</div>
+          <select id="jobNameSelector" name="jobNameList">
+            <j:forEach var='jobName' items='${it.monitoredJobName}'>
+                <option value ="${jobName}">${jobName}</option>
+            </j:forEach>
+          </select>
       </div>
     </div>
   </body>
@@ -71,7 +72,7 @@
 
             showNoDataReminder(recoverTimeData.yAxisData,"#recoverTime", "#noDataRecoverTime");
             showNoDataReminder(leadTimeData.yAxisData,"#leadTime", "#noDataLeadTime");
-            showNoDataReminder(durationData.yAxisData,"#durationTime", "#noDataDuration");
+            showNoDataReminder(durationData.yAxisData,"#duration", "#noDataDuration");
             showNoDataReminder(data.failureRate, "#failureRate", "#noDataFailureRate");
             showNoDataReminder(data.deploymentFrequency, "#deployFrequency", "#noDataDeployFrequency");
 

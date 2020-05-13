@@ -139,6 +139,7 @@ function noDataOptionGeneratior(chartName) {
 }
 
 function invalidOpalDataFilter(xAxisData, yAxisData) {
+  if (isNil(yAxisData)) return {};
   let points = yAxisData.filter(data => data !== null).map((data, index) => ({
     xAxis: xAxisData[index],
     yAxis: data
