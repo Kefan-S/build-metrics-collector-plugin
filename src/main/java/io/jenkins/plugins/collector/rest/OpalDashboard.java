@@ -54,7 +54,7 @@ public class OpalDashboard implements RootAction {
     return HttpResponses.notFound();
   }
 
-  public List<String> getMonitoredJobName(){
+  public List<String> getMonitoredJobName() {
     return jobProvider.getAllJobs().stream()
         .filter(job -> job.getProperty(CollectableBuildsJobProperty.class) != null)
         .map(AbstractItem::getFullName)
