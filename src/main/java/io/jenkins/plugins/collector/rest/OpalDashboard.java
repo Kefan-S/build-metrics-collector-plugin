@@ -3,11 +3,12 @@ package io.jenkins.plugins.collector.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import hudson.Extension;
+import hudson.model.AbstractItem;
 import hudson.model.RootAction;
 import hudson.util.HttpResponses;
-import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import io.jenkins.plugins.collector.config.CollectableBuildsJobProperty;
 import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
-import java.util.Arrays;
+import io.jenkins.plugins.collector.data.JobProvider;
 import java.util.List;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;
@@ -19,7 +20,7 @@ import static java.util.stream.Collectors.toList;
 public class OpalDashboard implements RootAction {
 
   private JenkinsMetrics jenkinsMetrics;
-  private PrometheusConfiguration prometheusConfiguration;
+  private JobProvider jobProvider;
 
   @Inject
   public void setJenkinsMetrics(JenkinsMetrics jenkinsMetrics) {
@@ -27,8 +28,8 @@ public class OpalDashboard implements RootAction {
   }
 
   @Inject
-  public void setPrometheusConfiguration(PrometheusConfiguration prometheusConfiguration) {
-    this.prometheusConfiguration = prometheusConfiguration;
+  public void setJobProvider(JobProvider jobProvider) {
+    this.jobProvider = jobProvider;
   }
 
   @Override
@@ -54,8 +55,9 @@ public class OpalDashboard implements RootAction {
   }
 
   public List<String> getMonitoredJobName(){
-    return Arrays.stream(prometheusConfiguration.getJobName().split(":"))
-        .map(String::trim)
+    return jobProvider.getAllJobs().stream()
+        .filter(job -> job.getProperty(CollectableBuildsJobProperty.class) != null)
+        .map(AbstractItem::getFullName)
         .collect(toList());
   }
 
@@ -64,6 +66,7 @@ public class OpalDashboard implements RootAction {
       response.setStatus(StaplerResponse.SC_OK);
       response.setContentType("application/json; charset=UTF-8");
       response.addHeader("Cache-Control", "must-revalidate,no-cache,no-store");
+      response.addHeader("Access-Control-Allow-Origin", "*");
       response.getWriter().write(new ObjectMapper().writeValueAsString(jenkinsMetrics.getMetrics(jobName)));
     };
   }

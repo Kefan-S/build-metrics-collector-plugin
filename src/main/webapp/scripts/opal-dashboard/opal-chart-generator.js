@@ -129,7 +129,7 @@ function invalidOpalDataFilter(xAxisData, yAxisData) {
 }
 
 function isNil(object) {
-  if (object === 0) return true;
+  if (object === 0) return false;
   return !object || object.length === 0
 }
 
