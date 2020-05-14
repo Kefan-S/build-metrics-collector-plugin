@@ -47,7 +47,7 @@ public class CreateFileTask implements Serializable, Callable<Boolean, IOExcepti
       folder.mkdirs();
       textFile.write(finalFileContent, "UTF-8");
     } catch (Exception e) {
-      throw new IOException(e.getMessage());
+      throw new IOException(e.getMessage(), e);
     }
     return true;
   }
