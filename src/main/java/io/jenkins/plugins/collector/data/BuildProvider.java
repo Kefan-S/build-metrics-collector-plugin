@@ -3,11 +3,9 @@ package io.jenkins.plugins.collector.data;
 import com.google.inject.Inject;
 import hudson.model.Job;
 import hudson.model.Run;
-import io.jenkins.plugins.collector.config.PrometheusConfiguration;
+import io.jenkins.plugins.collector.config.CollectableBuildsJobProperty;
 import io.jenkins.plugins.collector.exception.NoSuchBuildException;
-import io.jenkins.plugins.collector.service.PeriodProvider;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,13 +21,11 @@ public class BuildProvider {
   private Map<String, Set<Run>> jobFullNameToUnhandledBuildsMap = new HashMap<>();
   private JobProvider jobProvider;
   private PeriodProvider periodProvider;
-  private PrometheusConfiguration prometheusConfiguration;
 
   @Inject
-  public BuildProvider(JobProvider jobProvider, PeriodProvider periodProvider, PrometheusConfiguration prometheusConfiguration) {
+  public BuildProvider(JobProvider jobProvider, PeriodProvider periodProvider) {
     this.jobProvider = jobProvider;
     this.periodProvider = periodProvider;
-    this.prometheusConfiguration = prometheusConfiguration;
   }
 
   public List<Run> getNeedToHandleBuilds() {
@@ -57,11 +53,8 @@ public class BuildProvider {
   }
 
   private void updateUnhandledBuilds() {
-    final List<String> jobNameList = Arrays.stream(prometheusConfiguration.getJobName().split(":"))
-        .map(String::trim)
-        .collect(toList());
     jobProvider.getAllJobs().stream()
-        .filter(job -> jobNameList.stream().anyMatch(jobName -> job.getFullName().equalsIgnoreCase(jobName)))
+        .filter(job -> job.getProperty(CollectableBuildsJobProperty.class) != null)
         .forEach(this::updateUnhandledBuildsByJob);
   }
 

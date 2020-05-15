@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.service;
+package io.jenkins.plugins.collector.data;
 
 import hudson.Extension;
 import io.jenkins.plugins.collector.config.PrometheusConfiguration;

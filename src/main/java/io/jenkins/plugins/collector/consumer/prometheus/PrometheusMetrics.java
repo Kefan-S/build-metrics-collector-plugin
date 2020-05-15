@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.service;
+package io.jenkins.plugins.collector.consumer.prometheus;
 
 import io.jenkins.plugins.collector.model.BuildInfo;
 import java.util.List;
