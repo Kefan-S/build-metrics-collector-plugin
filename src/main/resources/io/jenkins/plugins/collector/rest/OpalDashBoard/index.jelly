@@ -79,7 +79,7 @@
             recoverTime.setOption(lineChartOptionGenerator('Recover Time', recoverTimeData.xAxisData, recoverTimeData.yAxisData, "Recover Time", "Start Time"));
             leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData.xAxisData,  leadTimeData.yAxisData, "Lead Time", "Start Time"));
             duration.setOption(lineChartOptionGenerator('Duration', durationData.xAxisData,  durationData.yAxisData, "Duration", "Start Time"));
-            failureRate.setOption(gagueChartOptionGenerator("Failure Rate", data.failureRate * 100, "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%'));
+            failureRate.setOption(gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(0), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%'));
             deployFrequency.setOption(gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}'));
           }
         })
