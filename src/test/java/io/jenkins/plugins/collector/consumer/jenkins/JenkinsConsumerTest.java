@@ -2,10 +2,10 @@ package io.jenkins.plugins.collector.consumer.jenkins;
 
 import hudson.remoting.VirtualChannel;
 import io.jenkins.plugins.collector.model.BuildInfo;
+import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import io.jenkins.plugins.collector.model.TriggerInfo;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import jenkins.model.Jenkins;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,9 +47,11 @@ public class JenkinsConsumerTest {
   @Test
   public void should_return_null_when_getMetrics_given_not_exist_job_name() {
     when(jenkins.getRootDir()).thenReturn(new File("/folder"));
+    JenkinsFilterParameter jenkinsFilterParameter = JenkinsFilterParameter
+        .builder().build();
 
     JenkinsConsumer consumer = new JenkinsConsumer(jenkins);
-    assertNull(consumer.getMetrics("test"));
+    assertNull(consumer.getMetrics(jenkinsFilterParameter));
 
   }
 }

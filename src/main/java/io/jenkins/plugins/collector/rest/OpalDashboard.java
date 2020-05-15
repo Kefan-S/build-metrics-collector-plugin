@@ -9,6 +9,7 @@ import hudson.util.HttpResponses;
 import io.jenkins.plugins.collector.config.CollectableBuildsJobProperty;
 import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
 import io.jenkins.plugins.collector.data.JobProvider;
+import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.util.List;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;
@@ -49,7 +50,12 @@ public class OpalDashboard implements RootAction {
 
   public HttpResponse doDynamic(StaplerRequest request) {
     if (request.getRestOfPath().equalsIgnoreCase("/data")) {
-      return jenkinsResponse(request.getParameter("jobName"));
+      JenkinsFilterParameter jenkinsFilterParameter = JenkinsFilterParameter.builder()
+          .jobName(request.getParameter("jobName"))
+          .beginTime(request.getParameter("beginTime"))
+          .endTime(request.getParameter("endTime"))
+          .build();
+      return jenkinsResponse(jenkinsFilterParameter);
     }
     return HttpResponses.notFound();
   }
@@ -61,13 +67,13 @@ public class OpalDashboard implements RootAction {
         .collect(toList());
   }
 
-  private HttpResponse jenkinsResponse(String jobName) {
+  private HttpResponse jenkinsResponse(JenkinsFilterParameter jenkinsFilterParameter) {
     return (StaplerRequest request, StaplerResponse response, Object node) -> {
       response.setStatus(StaplerResponse.SC_OK);
       response.setContentType("application/json; charset=UTF-8");
       response.addHeader("Cache-Control", "must-revalidate,no-cache,no-store");
       response.addHeader("Access-Control-Allow-Origin", "*");
-      response.getWriter().write(new ObjectMapper().writeValueAsString(jenkinsMetrics.getMetrics(jobName)));
+      response.getWriter().write(new ObjectMapper().writeValueAsString(jenkinsMetrics.getMetrics(jenkinsFilterParameter)));
     };
   }
 }
