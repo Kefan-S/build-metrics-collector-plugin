@@ -67,7 +67,7 @@
           el: '#opalDashBoard',
           data: {
             dateRange: [new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), new Date()],
-            jobName: ${it.monitoredJobName[0]? it.monitoredJobName[0]: "'no job'"},
+            jobName: ${it.monitoredJobName[0] != null ? it.monitoredJobName[0] : "'no job'"},
             jobs: ${it.monitoredJobName}
           },
         })

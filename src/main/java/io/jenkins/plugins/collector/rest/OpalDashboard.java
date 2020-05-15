@@ -64,6 +64,7 @@ public class OpalDashboard implements RootAction {
     return jobProvider.getAllJobs().stream()
         .filter(job -> job.getProperty(CollectableBuildsJobProperty.class) != null)
         .map(AbstractItem::getFullName)
+        .map(jobName -> String.format("'%s'", jobName))
         .collect(toList());
   }
 
