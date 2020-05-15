@@ -1,7 +1,6 @@
-package io.jenkins.plugins.collector.service;
+package io.jenkins.plugins.collector.consumer.prometheus;
 
 import com.google.inject.Inject;
-import io.jenkins.plugins.collector.adapter.PrometheusAdapter;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.exporter.common.TextFormat;
@@ -15,13 +14,13 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultPrometheusMetrics implements PrometheusMetrics {
+public class PrometheusConsumer implements PrometheusMetrics {
 
-  private static final Logger logger = LoggerFactory.getLogger(DefaultPrometheusMetrics.class);
+  private static final Logger logger = LoggerFactory.getLogger(PrometheusConsumer.class);
   private final AtomicReference<String> cachedMetrics;
 
   @Inject
-  public DefaultPrometheusMetrics() {
+  public PrometheusConsumer() {
     this.cachedMetrics = new AtomicReference<>("");
   }
 

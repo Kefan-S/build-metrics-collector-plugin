@@ -1,4 +1,4 @@
-package io.jenkins.plugins.collector.adapter;
+package io.jenkins.plugins.collector.consumer.prometheus;
 
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.prometheus.client.Collector.MetricFamilySamples;
@@ -14,10 +14,9 @@ import static io.jenkins.plugins.collector.config.Constant.METRICS_NAME_PREFIX;
 import static io.jenkins.plugins.collector.config.Constant.METRICS_SUBSYSTEM;
 import static java.util.stream.Collectors.toList;
 
-public class PrometheusAdapter implements MetricsAdapter<List<MetricFamilySamples>> {
+class PrometheusAdapter{
 
-  @Override
-  public List<MetricFamilySamples> adapt(BuildInfo buildInfo) {
+  List<MetricFamilySamples> adapt(BuildInfo buildInfo) {
     LinkedList<Gauge> gauges = new LinkedList<>();
     String[] metricsLabels = getMetricsLabels(buildInfo);
 
@@ -34,7 +33,7 @@ public class PrometheusAdapter implements MetricsAdapter<List<MetricFamilySample
 
   private String[] getMetricsLabels(BuildInfo buildInfo) {
     String jobFullName = buildInfo.getJenkinsJob();
-    String trigger = buildInfo.getTriggeredBy();
+    String trigger = buildInfo.getTriggerInfo().getTriggeredBy();
     String resultValue = buildInfo.getResult();
     return new String[]{jobFullName, trigger, resultValue};
   }

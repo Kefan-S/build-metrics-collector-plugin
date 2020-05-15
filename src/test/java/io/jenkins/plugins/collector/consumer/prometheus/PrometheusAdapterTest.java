@@ -1,6 +1,7 @@
-package io.jenkins.plugins.collector.adapter;
+package io.jenkins.plugins.collector.consumer.prometheus;
 
 import io.jenkins.plugins.collector.model.BuildInfo;
+import io.jenkins.plugins.collector.model.TriggerInfo;
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 import java.util.List;
@@ -14,11 +15,7 @@ public class PrometheusAdapterTest {
   private static final Long LEAD_TIME = 2L;
   private static final Long RECOVER_TIME = 3L;
   private static final Long START_TIME = 4L;
-  PrometheusAdapter prometheusAdapter;
-
-  public PrometheusAdapterTest() {
-    prometheusAdapter = new PrometheusAdapter();
-  }
+  private PrometheusAdapter prometheusAdapter = new PrometheusAdapter();
 
   @Test
   public void should_return_prometheus_data_format_given_buildInfo_with_leadTime_and_recoverTime() {
@@ -29,7 +26,7 @@ public class PrometheusAdapterTest {
         .duration(DURATION)
         .jenkinsJob("name")
         .result("0")
-        .triggeredBy("user")
+        .triggerInfo(TriggerInfo.builder().triggeredBy("SCM").build())
         .build();
 
     List<MetricFamilySamples> metricFamilySamples = prometheusAdapter.adapt(buildInfo);
@@ -45,7 +42,7 @@ public class PrometheusAdapterTest {
     assertEquals((double) LEAD_TIME, leadTimeSample.value, 0.001);
     assertEquals((double) RECOVER_TIME, recoverTimeSample.value, 0.001);
     assertEquals("name", sample.labelValues.get(0));
-    assertEquals("user", sample.labelValues.get(1));
+    assertEquals("SCM", sample.labelValues.get(1));
     assertEquals("0", sample.labelValues.get(2));
 
   }
@@ -58,7 +55,7 @@ public class PrometheusAdapterTest {
         .duration(DURATION)
         .jenkinsJob("name")
         .result("0")
-        .triggeredBy("user")
+        .triggerInfo(TriggerInfo.builder().triggeredBy("SCM").build())
         .build();
 
     List<MetricFamilySamples> metricFamilySamples = prometheusAdapter.adapt(buildInfo);
@@ -76,7 +73,7 @@ public class PrometheusAdapterTest {
         .duration(DURATION)
         .jenkinsJob("name")
         .result("0")
-        .triggeredBy("user")
+        .triggerInfo(TriggerInfo.builder().triggeredBy("SCM").build())
         .build();
 
     List<MetricFamilySamples> metricFamilySamples = prometheusAdapter.adapt(buildInfo);
@@ -93,7 +90,7 @@ public class PrometheusAdapterTest {
         .duration(DURATION)
         .jenkinsJob("name")
         .result("0")
-        .triggeredBy("user")
+        .triggerInfo(TriggerInfo.builder().triggeredBy("SCM").build())
         .build();
 
     List<MetricFamilySamples> metricFamilySamples = prometheusAdapter.adapt(buildInfo);

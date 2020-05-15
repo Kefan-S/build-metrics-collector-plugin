@@ -31,7 +31,7 @@ public class BuildInfoService {
         .startTime(build.getStartTimeInMillis())
         .jenkinsJob(BuildUtil.getJobName(build))
         .result(BuildUtil.getResultValue(build))
-        .triggeredBy(BuildUtil.getTrigger(build))
+        .triggerInfo(BuildUtil.getTriggerInfo(build))
         .build()).orElse(BuildInfo.builder().build());
   }
 
