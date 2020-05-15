@@ -3,22 +3,25 @@ package io.jenkins.plugins.collector.consumer.jenkins;
 import hudson.model.Result;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.model.BuildInfoResponse;
+import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
 class JenkinsAdapter {
 
-  BuildInfoResponse adapt(List<BuildInfo> buildInfos) {
+  BuildInfoResponse adapt(List<BuildInfo> buildInfos, JenkinsFilterParameter jenkinsFilterParameter) {
     if (Objects.isNull(buildInfos)) {
       return null;
     }
 
     List<BuildInfo> validBuilds = buildInfos.stream()
         .filter(buildInfo -> !String.valueOf(Result.ABORTED.ordinal).equals(buildInfo.getResult()))
+        .filter(buildInfo -> filterTime(jenkinsFilterParameter, buildInfo.getStartTime()))
         .collect(toList());
 
     if (validBuilds.isEmpty()) {
@@ -39,6 +42,12 @@ class JenkinsAdapter {
         .leadTime(leadTime)
         .recoverTime(recoverTime)
         .startTime(startTime).build();
+  }
+
+  private boolean filterTime(JenkinsFilterParameter jenkinsFilterParameter, Long buildStartTime) {
+    Long BeginTime = Optional.ofNullable(jenkinsFilterParameter.getBeginTime()).map(Long::parseLong).orElse(Long.MIN_VALUE);
+    Long endTime = Optional.ofNullable(jenkinsFilterParameter.getEndTime()).map(Long::parseLong).orElse(Long.MAX_VALUE);
+    return BeginTime <= buildStartTime && buildStartTime <= endTime;
   }
 
   private BigDecimal failureRateCalculate(List<BuildInfo> validBuilds) {

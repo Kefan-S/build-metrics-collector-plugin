@@ -2,6 +2,7 @@ package io.jenkins.plugins.collector.consumer.jenkins;
 
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.model.BuildInfoResponse;
+import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,12 +15,18 @@ import static org.junit.Assert.assertNull;
 
 public class JenkinsAdapterTest {
 
+  public static final Long BEGIN_TIME = 1588809600L;
+  public static final Long END_TIME = 1588982400L;
   private JenkinsAdapter jenkinsAdapter = new JenkinsAdapter();
   private List<BuildInfo> buildInfos;
+  private JenkinsFilterParameter jenkinsFilterParameter;
 
   @Before
   public void setUp() {
+
     buildInfos = new ArrayList<>();
+    jenkinsFilterParameter = JenkinsFilterParameter
+        .builder().jobName("test").endTime(String.valueOf(END_TIME)).beginTime(String.valueOf(BEGIN_TIME)).build();
   }
 
   @Test
@@ -28,7 +35,7 @@ public class JenkinsAdapterTest {
     abortedBuildInfo.setResult("4");
     buildInfos.add(abortedBuildInfo);
 
-    assertNull(jenkinsAdapter.adapt(buildInfos));
+    assertNull(jenkinsAdapter.adapt(buildInfos, jenkinsFilterParameter));
   }
 
   @Test
@@ -39,12 +46,12 @@ public class JenkinsAdapterTest {
     buildInfos.add(buildInfo);
     buildInfos.add(failedBuildInfo);
 
-    BuildInfoResponse response = jenkinsAdapter.adapt(buildInfos);
+    BuildInfoResponse response = jenkinsAdapter.adapt(buildInfos, jenkinsFilterParameter);
     assertEquals(Integer.valueOf(2), response.getDeploymentFrequency());
     assertEquals(new BigDecimal("0.500"), response.getFailureRate());
     assertEquals(Arrays.asList(1L, null), response.getLeadTime());
     assertEquals(Arrays.asList(1L, null), response.getLeadTime());
-    assertEquals(Arrays.asList(1L, 2L), response.getStartTime());
+    assertEquals(Arrays.asList(BEGIN_TIME, END_TIME), response.getStartTime());
     assertEquals(Arrays.asList(1L, 2L), response.getDuration());
   }
 
@@ -53,7 +60,7 @@ public class JenkinsAdapterTest {
         .duration(1L)
         .leadTime(1L)
         .recoverTime(1L)
-        .startTime(1L)
+        .startTime(BEGIN_TIME)
         .jenkinsJob("name")
         .result("0")
         .build();
@@ -62,7 +69,7 @@ public class JenkinsAdapterTest {
   private BuildInfo buildFailedBuildInfo() {
     return BuildInfo.builder()
         .duration(2L)
-        .startTime(2L)
+        .startTime(END_TIME)
         .jenkinsJob("name")
         .result("2")
         .build();

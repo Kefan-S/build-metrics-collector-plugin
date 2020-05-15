@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import hudson.remoting.VirtualChannel;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.model.BuildInfoResponse;
+import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -26,8 +27,8 @@ public class JenkinsConsumer implements JenkinsMetrics {
   }
 
   @Override
-  public BuildInfoResponse getMetrics(String name) {
-    return new JenkinsAdapter().adapt(getBuildInfoFromFile(name));
+  public BuildInfoResponse getMetrics(JenkinsFilterParameter jenkinsFilterParameter) {
+    return new JenkinsAdapter().adapt(getBuildInfoFromFile(jenkinsFilterParameter.getJobName()), jenkinsFilterParameter);
   }
 
   @Override
