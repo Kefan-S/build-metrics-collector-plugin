@@ -14,6 +14,9 @@
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/jquery-3.5.1.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart-generator.js"></script>
     <link rel="shortcut icon" href="${resURL}/plugin/build-metrics-collector-plugin/images/opal.png" type="image/vnd.microsoft.icon" />
+    <script type="text/javascript" src="http://v1.vuejs.org/js/vue.min.js"></script>
+    <script type="text/javascript" src="http://unpkg.com/iview@1.0.1/dist/iview.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://unpkg.com/iview/dist/styles/iview.css" />
   </header>
   <body>
     <div id="opalDashBoard">
@@ -41,17 +44,33 @@
           <div>Failure Rate<br/>No data to display</div>
         </div>
       </div>
-      <div id="jobSelectorPanel">
-          <div>Monitored Job</div>
-          <select id="jobNameSelector" name="jobNameList">
-            <j:forEach var='jobName' items='${it.monitoredJobName}'>
-                <option value ="${jobName}">${jobName}</option>
-            </j:forEach>
-          </select>
-      </div>
+      <div class="operationField">
+          <div class="filterContainer">
+            <div class="filterTitle">Monitored Job</div>
+            <i-select :model.sync="jobName" style="width:200px" placeholder="select Job">
+              <i-option v-for="item in jobs" :value="item">{{item}}</i-option>
+            </i-select>
+          </div>
+          <div class="filterContainer">
+            <div class="filterTitle">Date Range</div>
+            <i-col span="12">
+              <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-start" placeholder="select Date" style="width: 200px"
+              ></Date-picker>
+            </i-col>
+          </div>
+        </div>
     </div>
   </body>
   <script type="text/javascript">
+
+      var vue = new Vue({
+          el: '#opalDashBoard',
+          data: {
+            dateRange: [new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), new Date()],
+            jobName: ${it.monitoredJobName[0]? it.monitoredJobName[0]: "'no job'"},
+            jobs: ${it.monitoredJobName}
+          },
+        })
       var recoverTime = echarts.init(document.getElementById('recoverTime'));
       var leadTime = echarts.init(document.getElementById('leadTime'));
       var duration = echarts.init(document.getElementById('duration'));
@@ -60,9 +79,11 @@
 
       let drawCharts = () => {
         let param = {
-          jobName: $("#jobNameSelector").val()
+          jobName: vue.jobName,
+          beginTime: new Date(vue.dateRange[0]).getTime(),
+          endTime: new Date(vue.dateRange[1]).getTime()
         };
-        $.get(window.location.href + "data", param, function (data, status) {
+        $$.get(window.location.href + "data", param, function (data, status) {
           if (status === 'success') {
             data = data ? data : {};
 
