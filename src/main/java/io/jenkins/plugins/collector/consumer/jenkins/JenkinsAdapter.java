@@ -45,9 +45,9 @@ class JenkinsAdapter {
   }
 
   private boolean filterTime(JenkinsFilterParameter jenkinsFilterParameter, Long buildStartTime) {
-    Long BeginTime = Optional.ofNullable(jenkinsFilterParameter.getBeginTime()).map(Long::parseLong).orElse(Long.MIN_VALUE);
+    Long beginTime = Optional.ofNullable(jenkinsFilterParameter.getBeginTime()).map(Long::parseLong).orElse(Long.MIN_VALUE);
     Long endTime = Optional.ofNullable(jenkinsFilterParameter.getEndTime()).map(Long::parseLong).orElse(Long.MAX_VALUE);
-    return BeginTime <= buildStartTime && buildStartTime <= endTime;
+    return beginTime <= buildStartTime && buildStartTime <= endTime;
   }
 
   private BigDecimal failureRateCalculate(List<BuildInfo> validBuilds) {

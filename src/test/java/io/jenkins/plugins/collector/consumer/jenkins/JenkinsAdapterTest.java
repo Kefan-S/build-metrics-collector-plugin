@@ -48,11 +48,20 @@ public class JenkinsAdapterTest {
 
     BuildInfoResponse response = jenkinsAdapter.adapt(buildInfos, jenkinsFilterParameter);
     assertEquals(Integer.valueOf(2), response.getDeploymentFrequency());
-    assertEquals(new BigDecimal("0.500"), response.getFailureRate());
+    assertEquals(new BigDecimal("0.50"), response.getFailureRate());
     assertEquals(Arrays.asList(1L, null), response.getLeadTime());
     assertEquals(Arrays.asList(1L, null), response.getLeadTime());
     assertEquals(Arrays.asList(BEGIN_TIME, END_TIME), response.getStartTime());
     assertEquals(Arrays.asList(1L, 2L), response.getDuration());
+  }
+
+  @Test
+  public void should_return_null_given_buildsInfoList_with_startTime_not_in_the_filter_range() {
+    BuildInfo buildInfo = buildSuccessfulBuildInfo();
+    buildInfo.setStartTime(0L);
+    buildInfos.add(buildInfo);
+
+    assertNull(jenkinsAdapter.adapt(buildInfos, jenkinsFilterParameter));
   }
 
   private BuildInfo buildSuccessfulBuildInfo() {
