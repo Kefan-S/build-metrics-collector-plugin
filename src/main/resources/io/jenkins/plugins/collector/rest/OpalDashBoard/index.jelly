@@ -20,31 +20,33 @@
   </header>
   <body>
     <div id="opalDashBoard">
-      <div id="lineChartPanel">
-        <div id="recoverTime" class="opalLineChart"></div>
-        <div id="noDataRecoverTime" class="opalNoDataLineChart">
-          <div>Recover Time<br/>No data to display</div>
+      <div v-if="isNoJob" class="noJobMessage"> No job metrics are collected by Opal </div>
+      <div v-if="!isNoJob">
+        <div id="lineChartPanel">
+          <div id="recoverTime" class="opalLineChart"></div>
+          <div id="noDataRecoverTime" class="opalNoDataLineChart">
+            <div>Recover Time<br/>No data to display</div>
+          </div>
+          <div id="leadTime" class="opalLineChart"></div>
+          <div id="noDataLeadTime" class="opalNoDataLineChart">
+            <div>Lead Time<br/>No data to display</div>
+          </div>
+          <div id="duration" class="opalGaugeChart"></div>
+          <div id="noDataDuration" class="opalNoDataLineChart">
+            <div>Duration<br/>No data to display</div>
+          </div>
         </div>
-        <div id="leadTime" class="opalLineChart"></div>
-        <div id="noDataLeadTime" class="opalNoDataLineChart">
-          <div>Lead Time<br/>No data to display</div>
+        <div id="gaguePanel">
+          <div id="deployFrequency" class="opalGaugeChart"></div>
+          <div id="noDataDeployFrequency" class="opalNoDataGaugeChart">
+            <div>Deploy Frequency<br/>No data to display</div>
+          </div>
+          <div id="failureRate" class="opalGaugeChart"></div>
+          <div id="noDataFailureRate" class="opalNoDataGaugeChart">
+            <div>Failure Rate<br/>No data to display</div>
+          </div>
         </div>
-        <div id="duration" class="opalGaugeChart"></div>
-        <div id="noDataDuration" class="opalNoDataLineChart">
-          <div>Duration<br/>No data to display</div>
-        </div>
-      </div>
-      <div id="gaguePanel">
-        <div id="deployFrequency" class="opalGaugeChart"></div>
-        <div id="noDataDeployFrequency" class="opalNoDataGaugeChart">
-          <div>Deploy Frequency<br/>No data to display</div>
-        </div>
-        <div id="failureRate" class="opalGaugeChart"></div>
-        <div id="noDataFailureRate" class="opalNoDataGaugeChart">
-          <div>Failure Rate<br/>No data to display</div>
-        </div>
-      </div>
-      <div class="operationField">
+        <div class="operationField">
           <div class="filterContainer">
             <div class="filterTitle">Monitored Job</div>
             <i-select :model.sync="jobName" style="width:200px" placeholder="select Job">
@@ -59,6 +61,7 @@
             </i-col>
           </div>
         </div>
+      </div>
     </div>
   </body>
   <script type="text/javascript">
@@ -68,7 +71,8 @@
           data: {
             dateRange: [new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), new Date()],
             jobName: ${it.monitoredJobName[0] != null ? it.monitoredJobName[0] : "'no job'"},
-            jobs: ${it.monitoredJobName}
+            jobs: ${it.monitoredJobName},
+            isNoJob:${it.monitoredJobName.size() == 0}
           },
         })
       var recoverTime = echarts.init(document.getElementById('recoverTime'));
