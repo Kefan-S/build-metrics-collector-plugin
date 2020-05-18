@@ -31,7 +31,7 @@
           <div id="noDataLeadTime" class="opalNoDataLineChart">
             <div>Lead Time<br/>No data to display</div>
           </div>
-          <div id="duration" class="opalGaugeChart"></div>
+          <div id="duration" class="opalLineChart"></div>
           <div id="noDataDuration" class="opalNoDataLineChart">
             <div>Duration<br/>No data to display</div>
           </div>
