@@ -91,7 +91,8 @@ function lineChartOptionGenerator(chartName, xAxisData, yAxisData,
 }
 
 function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
-    toolTipFormatter) {
+    toolTipFormatter,
+    color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']]) {
   return {
     title: {
       text: chartName,
@@ -99,18 +100,18 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
     tooltip: {
       formatter: toolTipFormatter
     },
-    toolbox: {
-      feature: {
-        restore: {},
-        saveAsImage: {}
-      }
-    },
     series: [
       {
+        radius: "90%",
         name: metricsName,
         type: 'gauge',
         detail: {formatter: formatter},
-        data: [{value: data}]
+        data: [{value: data}],
+        axisLine: {            // 坐标轴线
+          lineStyle: {       // 属性lineStyle控制线条样式
+            color: color
+          }
+        }
       }
     ]
   }
@@ -134,6 +135,6 @@ function isNil(object) {
 }
 
 function showNoDataReminder(data, chartSelector, noDataDivSelector) {
-  $(chartSelector).css("display", isNil(data) ? "none" : "inline");
-  $(noDataDivSelector).css("display", isNil(data) ? "inline" : "none");
+  $(chartSelector).css("display", isNil(data) ? "none" : "block");
+  $(noDataDivSelector).css("display", isNil(data) ? "block" : "none");
 }

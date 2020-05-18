@@ -54,7 +54,7 @@ class JenkinsAdapter {
     long failureCount = validBuilds.stream()
         .filter(buildInfo -> !String.valueOf(Result.SUCCESS.ordinal).equals(buildInfo.getResult()))
         .count();
-    return new BigDecimal(failureCount).divide(new BigDecimal(validBuilds.size()), 2, RoundingMode.DOWN);
+    return new BigDecimal(failureCount).divide(new BigDecimal(validBuilds.size()), 4, RoundingMode.DOWN);
   }
 
 }
