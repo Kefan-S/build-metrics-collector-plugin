@@ -43,3 +43,11 @@
   font-size: 16px;
   padding: 10px 0;
 }
+
+.noJobMessage {
+  height: 500px;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
