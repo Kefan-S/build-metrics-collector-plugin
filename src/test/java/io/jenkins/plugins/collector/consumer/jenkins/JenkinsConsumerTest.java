@@ -40,7 +40,7 @@ public class JenkinsConsumerTest {
 
     verify(channel).call(taskArgumentCaptor.capture());
     CreateFileTask task = taskArgumentCaptor.getValue();
-    CreateFileTask expected = new CreateFileTask("/folder/cache4Opal/", "test", "null,null,null,null,test,null,null,null");
+    CreateFileTask expected = new CreateFileTask("/folder/cache4Opal/", "test", "null,null,null,null,test,null,null,null,null");
     assertEquals(expected, task);
   }
 
