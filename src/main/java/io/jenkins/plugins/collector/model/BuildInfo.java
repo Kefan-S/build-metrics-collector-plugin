@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonPropertyOrder({"startTime", "duration", "leadTime", "recoverTime", "jenkinsJob", "job", "result"})
+@JsonPropertyOrder({"startTime", "duration", "leadTime", "recoverTime", "jenkinsJob", "job", "result", "id"})
 public class BuildInfo {
 
   private Long startTime;
@@ -23,12 +23,13 @@ public class BuildInfo {
   private String jenkinsJob;
   private String job;
   private String result;
+  private String id;
   @JsonUnwrapped
   private TriggerInfo triggerInfo;
 
   @Override
   public String toString() {
-    return startTime + "," + duration + "," + leadTime + "," + recoverTime + ","
-        + jenkinsJob + "," + job + "," + result + "," + triggerInfo.getTriggeredBy() + "," + triggerInfo.getLastCommitHash();
+    return startTime + "," + duration + "," + leadTime + "," + recoverTime + "," + jenkinsJob
+        + "," + job + "," + result + "," + id + "," + triggerInfo.getTriggeredBy() + "," + triggerInfo.getLastCommitHash();
   }
 }

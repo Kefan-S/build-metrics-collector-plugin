@@ -30,18 +30,11 @@ class JenkinsAdapter {
 
     BigDecimal failureRate = failureRateCalculate(validBuilds);
 
-    List<Long> startTime = validBuilds.stream().map(BuildInfo::getStartTime).collect(toList());
-    List<Long> duration = validBuilds.stream().map(BuildInfo::getDuration).collect(toList());
-    List<Long> leadTime = validBuilds.stream().map(BuildInfo::getLeadTime).collect(toList());
-    List<Long> recoverTime = validBuilds.stream().map(BuildInfo::getRecoverTime).collect(toList());
-
     return BuildInfoResponse.builder()
         .failureRate(failureRate)
         .deploymentFrequency(validBuilds.size())
-        .duration(duration)
-        .leadTime(leadTime)
-        .recoverTime(recoverTime)
-        .startTime(startTime).build();
+        .buildInfos(validBuilds)
+        .build();
   }
 
   private boolean filterTime(JenkinsFilterParameter jenkinsFilterParameter, Long buildStartTime) {

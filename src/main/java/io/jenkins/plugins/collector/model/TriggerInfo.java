@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonPropertyOrder({"lastCommitHash", "triggeredBy"})
+@JsonPropertyOrder({"triggeredBy", "lastCommitHash"})
 public class TriggerInfo {
 
   @JsonIgnore

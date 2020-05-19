@@ -79,7 +79,7 @@ public class OpalDashboardTest {
     opalDashboard.setJobProvider(jobProvider);
 
     List<String> jobNames = opalDashboard.getMonitoredJobName();
-    assertEquals(jobNames, Arrays.asList("monitoredJob"));
+    assertEquals(jobNames, Arrays.asList("'monitoredJob'"));
   }
 
 }

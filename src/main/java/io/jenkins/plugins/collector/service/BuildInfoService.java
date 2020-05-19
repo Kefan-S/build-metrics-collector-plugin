@@ -29,6 +29,7 @@ public class BuildInfoService {
         .leadTime(calculateLeadTime(build))
         .recoverTime(calculateRecoverTime(build))
         .startTime(build.getStartTimeInMillis())
+        .id(build.getId())
         .jenkinsJob(BuildUtil.getJobName(build))
         .result(BuildUtil.getResultValue(build))
         .triggerInfo(BuildUtil.getTriggerInfo(build))

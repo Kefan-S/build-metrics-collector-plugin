@@ -11,8 +11,5 @@ public class BuildInfoResponse {
 
   private BigDecimal failureRate;
   private Integer deploymentFrequency;
-  private List<Long> startTime;
-  private List<Long> duration;
-  private List<Long> leadTime;
-  private List<Long> recoverTime;
+  private List<BuildInfo> buildInfos;
 }

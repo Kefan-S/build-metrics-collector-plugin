@@ -50,10 +50,7 @@ public class JenkinsAdapterTest {
     BuildInfoResponse response = jenkinsAdapter.adapt(buildInfos, jenkinsFilterParameter);
     assertEquals(Integer.valueOf(3), response.getDeploymentFrequency());
     assertEquals(new BigDecimal("0.6666"), response.getFailureRate());
-    assertEquals(Arrays.asList(1L, null, null), response.getLeadTime());
-    assertEquals(Arrays.asList(1L, null, null), response.getLeadTime());
-    assertEquals(Arrays.asList(BEGIN_TIME, END_TIME, END_TIME), response.getStartTime());
-    assertEquals(Arrays.asList(1L, 2L, 2L), response.getDuration());
+    assertEquals(buildInfos, response.getBuildInfos());
   }
 
   @Test
