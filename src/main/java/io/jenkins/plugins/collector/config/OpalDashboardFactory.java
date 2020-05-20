@@ -5,7 +5,6 @@ import hudson.Extension;
 import hudson.model.Action;
 import hudson.model.Job;
 import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
-import io.jenkins.plugins.collector.data.JobProvider;
 import io.jenkins.plugins.collector.rest.OpalJobDashboard;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,16 +15,10 @@ import lombok.NonNull;
 public class OpalDashboardFactory extends TransientActionFactory<Job> {
 
   private JenkinsMetrics jenkinsMetrics;
-  private JobProvider jobProvider;
 
   @Inject
   public void setJenkinsMetrics(JenkinsMetrics jenkinsMetrics) {
     this.jenkinsMetrics = jenkinsMetrics;
-  }
-
-  @Inject
-  public void setJobProvider(JobProvider jobProvider) {
-    this.jobProvider = jobProvider;
   }
 
   @Override
@@ -36,7 +29,7 @@ public class OpalDashboardFactory extends TransientActionFactory<Job> {
   @NonNull
   @Override
   public Collection<? extends Action> createFor(@NonNull Job job) {
-    return Collections.singleton(new OpalJobDashboard(job, jenkinsMetrics, jobProvider));
+    return Collections.singleton(new OpalJobDashboard(job, jenkinsMetrics));
   }
 
 
