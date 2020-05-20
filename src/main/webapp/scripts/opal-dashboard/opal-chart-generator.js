@@ -142,3 +142,9 @@ const durationToolTipFormat = (xAxisName, yAxisName) => (params) => {
       `Result:${resultCodeMap[data.result]}<br/>` +
       `Num:${data.id}<br/>`;
 }
+
+const BUILD_DATA = {
+  failureRate: null,
+  deploymentFrequency: null,
+  buildInfos: []
+}
