@@ -1,3 +1,5 @@
+const resultCodeMap = ["SUCCESS", "UNSTABLE", "FAILURE", "NOT_BUILT", "ABORT"]
+
 let durationcalculate = function (value) {
   var millisecond = new Number(value);
   var days = parseInt((millisecond / (1000 * 60 * 60 * 24)).toFixed(0));
@@ -23,7 +25,7 @@ let durationcalculate = function (value) {
 };
 
 let timeStampToDateTranslator = function (value, index) {
-  var date = new Date(new Number(value));
+  var date = new Date(new Number(JSON.parse(value).startTime));
   var texts = [(date.getMonth() + 1), date.getDate()];
   if (index === 0) {
     texts.unshift(1900 + date.getYear());
@@ -32,7 +34,7 @@ let timeStampToDateTranslator = function (value, index) {
 }
 
 let timeStampToDateTimeTranslator = function (value) {
-  var date = new Date(new Number(value));
+  var date = new Date(new Number(JSON.parse(value).startTime));
   var y = date.getFullYear();
   var m = date.getMonth() + 1;
   m = m < 10 ? ('0' + m) : m;
@@ -47,8 +49,8 @@ let timeStampToDateTimeTranslator = function (value) {
   return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
 }
 
-function lineChartOptionGenerator(chartName, xAxisData, yAxisData,
-    yAxisName, xAxisName = "Start Time") {
+function lineChartOptionGenerator(chartName, data,
+    yAxisName, xAxisName = "Start Time", yAxisField, toolTipFormat) {
   return {
     grid: {
       left: 120
@@ -61,16 +63,12 @@ function lineChartOptionGenerator(chartName, xAxisData, yAxisData,
       axisPointer: {
         animation: false
       },
-      formatter: function (params) {
-        return xAxisName + ":" + timeStampToDateTimeTranslator(
-            params[0].axisValue)
-            + "<br/>" + yAxisName + ":" + durationcalculate(params[0].value)
-      }
+      formatter: toolTipFormat
     },
     xAxis: {
       name: xAxisName,
       type: 'category',
-      data: xAxisData,
+      data: data.map(xdata => JSON.stringify(xdata)),
       axisLabel: {
         formatter: timeStampToDateTranslator
       }
@@ -83,7 +81,7 @@ function lineChartOptionGenerator(chartName, xAxisData, yAxisData,
       }
     },
     series: [{
-      data: yAxisData,
+      data: data.map(ydata => ydata[yAxisField]),
       type: 'line',
       smooth: true
     }]
@@ -117,18 +115,6 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
   }
 }
 
-function invalidOpalDataFilter(xAxisData, yAxisData) {
-  if (isNil(yAxisData)) return {};
-  let points = yAxisData.filter(data => data !== null).map((data, index) => ({
-    xAxis: xAxisData[index],
-    yAxis: data
-  }));
-  return {
-    xAxisData: points.map(data => data.xAxis),
-    yAxisData: points.map(data => data.yAxis)
-  }
-}
-
 function isNil(object) {
   if (object === 0) return false;
   return !object || object.length === 0
@@ -137,4 +123,22 @@ function isNil(object) {
 function showNoDataReminder(data, chartSelector, noDataDivSelector) {
   $(chartSelector).css("display", isNil(data) ? "none" : "block");
   $(noDataDivSelector).css("display", isNil(data) ? "block" : "none");
+}
+
+const lineChartToolTipFormat = (xAxisName, yAxisName) => (params) => {
+  let data = JSON.parse(params[0].axisValue);
+  return `${xAxisName}:${timeStampToDateTimeTranslator(params[0].axisValue)}<br/>`+
+      `${yAxisName}:${durationcalculate(params[0].value)}<br/>`+
+      `Triggered By:${data.triggeredBy}<br/>` +
+      `Commit version:${data.lastCommitHash}<br/>`
+}
+
+const durationToolTipFormat = (xAxisName, yAxisName) => (params) => {
+  let data = JSON.parse(params[0].axisValue);
+  return `${xAxisName}:${timeStampToDateTimeTranslator(params[0].axisValue)}<br/>`+
+      `${yAxisName}:${durationcalculate(params[0].value)}<br/>`+
+      `Triggered By:${data.triggeredBy}<br/>` +
+      `Commit version:${data.lastCommitHash}<br/>`+
+      `Result:${resultCodeMap[data.result]}<br/>` +
+      `Num:${data.id}<br/>`;
 }
