@@ -43,11 +43,11 @@ public class BuildInfoService {
     return buildInfos;
   }
 
-  public Long calculateLeadTime(Run build) {
+  private Long calculateLeadTime(Run build) {
     return leadTimeCalculate.apply(build);
   }
 
-  public Long calculateRecoverTime(Run build) {
+  private Long calculateRecoverTime(Run build) {
     return recoverTimeCalculate.apply(build);
   }
 

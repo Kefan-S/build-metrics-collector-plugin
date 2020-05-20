@@ -24,8 +24,17 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ BuildUtil.class, LeadTimeCalculate.class, RecoverTimeCalculate.class})
+@PrepareForTest({BuildUtil.class, LeadTimeCalculate.class, RecoverTimeCalculate.class})
 public class BuildInfoServiceTest {
+
+  private static final Long DURATION = 1L;
+  private static final Long LEAD_TIME = 2L;
+  private static final Long RECOVER_TIME = 3L;
+  private static final Long START_TIME = 4L;
+  private static final String ID = "2";
+  private static final String JOB_NAME = "buildName";
+  private static final String RESULT = "0";
+
   @Mock
   LeadTimeCalculate leadTimeCalculate;
   @Mock
@@ -35,26 +44,26 @@ public class BuildInfoServiceTest {
   @InjectMocks
   private BuildInfoService buildInfoService;
 
-  Long duration = 1L;
-  Long leadTime = 2L;
-  Long recoverTime = 3L;
-  Long startTime = 4L;
-  Run fakeRun;
+  private TriggerInfo triggerInfo;
+  private Run fakeRun;
 
   @Before
   public void setup() {
-    fakeRun = Mockito.mock(Run.class, Answers.RETURNS_DEEP_STUBS);
-    when(fakeRun.getDuration()).thenReturn(duration);
-    when(fakeRun.getStartTimeInMillis()).thenReturn(startTime);
-    when(leadTimeCalculate.apply(fakeRun)).thenReturn(leadTime);
-    when(recoverTimeCalculate.apply(fakeRun)).thenReturn(recoverTime);
-    mockStatic(BuildUtil.class);
-    when(BuildUtil.getJobName(fakeRun)).thenReturn("buildName");
-    when(BuildUtil.getResultValue(fakeRun)).thenReturn("0");
-    when(BuildUtil.getTriggerInfo(fakeRun)).thenReturn(
-        TriggerInfo.builder()
+    triggerInfo = TriggerInfo.builder()
         .triggerType(TriggerEnum.SCM_TRIGGER)
-        .build());
+        .triggeredBy("user")
+        .lastCommitHash("hash")
+        .build();
+    fakeRun = Mockito.mock(Run.class, Answers.RETURNS_DEEP_STUBS);
+    when(fakeRun.getDuration()).thenReturn(DURATION);
+    when(fakeRun.getStartTimeInMillis()).thenReturn(START_TIME);
+    when(fakeRun.getId()).thenReturn(ID);
+    when(leadTimeCalculate.apply(fakeRun)).thenReturn(LEAD_TIME);
+    when(recoverTimeCalculate.apply(fakeRun)).thenReturn(RECOVER_TIME);
+    mockStatic(BuildUtil.class);
+    when(BuildUtil.getJobName(fakeRun)).thenReturn(JOB_NAME);
+    when(BuildUtil.getResultValue(fakeRun)).thenReturn(RESULT);
+    when(BuildUtil.getTriggerInfo(fakeRun)).thenReturn(triggerInfo);
   }
 
   @Test
@@ -62,13 +71,14 @@ public class BuildInfoServiceTest {
 
     BuildInfo buildInfo = buildInfoService.getBuildInfo(fakeRun);
 
-    assertEquals(duration, buildInfo.getDuration());
-    assertEquals(recoverTime, buildInfo.getRecoverTime());
-    assertEquals(startTime, buildInfo.getStartTime());
-    assertEquals(leadTime, buildInfo.getLeadTime());
-    assertEquals("buildName", buildInfo.getJenkinsJob());
-    assertEquals("0", buildInfo.getResult());
-    assertEquals(TriggerEnum.SCM_TRIGGER, buildInfo.getTriggerInfo().getTriggerType());
+    assertEquals(DURATION, buildInfo.getDuration());
+    assertEquals(RECOVER_TIME, buildInfo.getRecoverTime());
+    assertEquals(START_TIME, buildInfo.getStartTime());
+    assertEquals(LEAD_TIME, buildInfo.getLeadTime());
+    assertEquals(JOB_NAME, buildInfo.getJenkinsJob());
+    assertEquals(RESULT, buildInfo.getResult());
+    assertEquals(ID, buildInfo.getId());
+    assertEquals(triggerInfo, buildInfo.getTriggerInfo());
 
   }
 
@@ -80,13 +90,14 @@ public class BuildInfoServiceTest {
 
     List<BuildInfo> allBuildInfo = buildInfoService.getAllBuildInfo();
 
-    assertEquals(duration, allBuildInfo.get(0).getDuration());
-    assertEquals(recoverTime, allBuildInfo.get(0).getRecoverTime());
-    assertEquals(startTime, allBuildInfo.get(0).getStartTime());
-    assertEquals(leadTime, allBuildInfo.get(0).getLeadTime());
-    assertEquals("buildName", allBuildInfo.get(0).getJenkinsJob());
-    assertEquals("0", allBuildInfo.get(0).getResult());
-    assertEquals(TriggerEnum.SCM_TRIGGER, allBuildInfo.get(0).getTriggerInfo().getTriggerType());
+    assertEquals(DURATION, allBuildInfo.get(0).getDuration());
+    assertEquals(RECOVER_TIME, allBuildInfo.get(0).getRecoverTime());
+    assertEquals(START_TIME, allBuildInfo.get(0).getStartTime());
+    assertEquals(LEAD_TIME, allBuildInfo.get(0).getLeadTime());
+    assertEquals(JOB_NAME, allBuildInfo.get(0).getJenkinsJob());
+    assertEquals(RESULT, allBuildInfo.get(0).getResult());
+    assertEquals(ID, allBuildInfo.get(0).getId());
+    assertEquals(triggerInfo, allBuildInfo.get(0).getTriggerInfo());
     Mockito.verify(buildProvider, times(1)).remove(fakeRun);
   }
 }
