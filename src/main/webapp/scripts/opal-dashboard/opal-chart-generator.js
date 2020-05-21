@@ -8,16 +8,16 @@ let durationcalculate = function (value) {
   var seconds = (mss % (1000 * 60)) / 1000;
   var time = ""
   if (days) {
-    time = time + days + " 天 ";
+    time = time + days + " d ";
   }
   if (hours) {
-    time = time + hours + " 小时 ";
+    time = time + hours + " h ";
   }
   if (minutes) {
-    time = time + minutes + " 分 ";
+    time = time + minutes + " m ";
   }
   if (seconds) {
-    time = time + seconds.toFixed(2) + " 秒 ";
+    time = time + seconds.toFixed(2) + " s ";
   }
   return time;
 };
