@@ -28,7 +28,7 @@ public class Context extends AbstractModule {
   @Override
   public void configure() {
     bind(PrometheusMetrics.class).to(PrometheusConsumer.class).in(Singleton.class);
-    bind(JenkinsMetrics.class).to(JenkinsConsumer.class).in(Singleton.class);
+    bind(JenkinsMetrics.class).toInstance(new JenkinsConsumer(Jenkins.get()));
     bind(RecoverTimeCalculate.class).toInstance(new RecoverTimeCalculate());
     bind(LeadTimeCalculate.class).toInstance(new LeadTimeCalculate());
     bindGauge("leadTimeGauge", "_merge_lead_time", "Code Merge Lead Time in milliseconds");
@@ -39,8 +39,8 @@ public class Context extends AbstractModule {
 
   @Singleton
   @Provides
-  private Consumer<List<BuildInfo>> buildInfoConsumer() {
-    return new PrometheusConsumer().andThen(new JenkinsConsumer(Jenkins.get()));
+  private Consumer<List<BuildInfo>> buildInfoConsumer(PrometheusMetrics prometheusMetrics, JenkinsMetrics jenkinsMetrics) {
+    return prometheusMetrics.andThen(jenkinsMetrics);
   }
 
   private void bindGauge(String name, String nameSuffix, String description) {
