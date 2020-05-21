@@ -93,9 +93,9 @@
                     showNoDataReminder(data.failureRate, "#failureRate", "#noDataFailureRate");
                     showNoDataReminder(data.deploymentFrequency, "#deployFrequency", "#noDataDeployFrequency");
 
-              recoverTime.setOption(lineChartOptionGenerator('Recover Time', recoverTimeData, "Recover Time", "Start Time", "recoverTime", lineChartToolTipFormat("Recover Time", "Start Time")));
-              leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData, "Lead Time", "Start Time", "leadTime", lineChartToolTipFormat("Lead Time", "Start Time")));
-              duration.setOption(lineChartOptionGenerator('Duration', durationData, "Duration", "Start Time", "duration", durationToolTipFormat("Duration", "Start Time")));
+            recoverTime.setOption(lineChartOptionGenerator('Recover Time', recoverTimeData, "Recover Time", "Start Time", "recoverTime", lineChartToolTipFormat("Start Time", "Recover Time")));
+            leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData, "Lead Time", "Start Time", "leadTime", lineChartToolTipFormat("Start Time", "Lead Time")));
+            duration.setOption(lineChartOptionGenerator('Duration', durationData, "Duration", "Start Time", "duration", durationToolTipFormat("Start Time", "Duration")));
                     failureRate.setOption(gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(2), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%',
                         [[0.1, '#91c7ae'], [0.3, '#FFA500'], [0.5, '#c23531'], [1, '#990077']]));
                     deployFrequency.setOption(gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}',
