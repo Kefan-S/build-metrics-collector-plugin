@@ -1,13 +1,11 @@
 const resultCodeMap = ["SUCCESS", "UNSTABLE", "FAILURE", "NOT_BUILT", "ABORT"]
 
 let durationcalculate = function (value) {
-  var millisecond = new Number(value);
-  var days = parseInt((millisecond / (1000 * 60 * 60 * 24)).toFixed(0));
-  var hours = parseInt(
-      ((millisecond % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toFixed(0));
-  var minutes = parseInt(
-      ((millisecond % (1000 * 60 * 60)) / (1000 * 60)).toFixed(0));
-  var seconds = (millisecond % (1000 * 60)) / 1000;
+  var mss= new Number(value);
+  var days = parseInt(mss / (1000 * 60 * 60 * 24) + 0.001 );
+  var hours = parseInt((mss % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60) + 0.001);
+  var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60) + 0.001);
+  var seconds = (mss % (1000 * 60)) / 1000;
   var time = ""
   if (days) {
     time = time + days + " 天 ";
