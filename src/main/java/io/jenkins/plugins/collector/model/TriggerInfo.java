@@ -1,6 +1,7 @@
 package io.jenkins.plugins.collector.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonPropertyOrder({"triggeredBy", "lastCommitHash"})
 public class TriggerInfo {
 
   @JsonIgnore
@@ -20,4 +22,5 @@ public class TriggerInfo {
   @JsonIgnore
   private List<ScmChangeInfo> scmChangeInfoList;
   private String triggeredBy;
+  private String lastCommitHash;
 }

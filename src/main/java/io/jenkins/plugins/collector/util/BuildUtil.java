@@ -147,10 +147,15 @@ public class BuildUtil {
       triggeredBy = Optional.ofNullable(userIdCause.getUserId()).orElse("UnKnown User");
     }
 
+    String lastCommitHash = scmChangeInfos.stream()
+        .reduce((first, second) -> second)
+        .map(ScmChangeInfo::getCommitHash).orElse("");
+
     return TriggerInfo.builder()
         .triggerType(triggerType)
         .scmChangeInfoList(scmChangeInfos)
         .triggeredBy(triggeredBy)
+        .lastCommitHash(lastCommitHash)
         .build();
   }
 

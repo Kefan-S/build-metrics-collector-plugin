@@ -1,10 +1,9 @@
 package io.jenkins.plugins.collector.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
-import hudson.Extension;
 import hudson.model.AbstractItem;
-import hudson.model.RootAction;
+import hudson.model.Action;
+import hudson.model.Job;
 import hudson.util.HttpResponses;
 import io.jenkins.plugins.collector.config.CollectableBuildsJobProperty;
 import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
@@ -12,30 +11,35 @@ import io.jenkins.plugins.collector.data.JobProvider;
 import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.util.List;
 import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import static java.util.stream.Collectors.toList;
 
-@Extension
-public class OpalDashboard implements RootAction {
+public class OpalJobDashboard implements Action, StaplerProxy {
 
+  private Job job;
   private JenkinsMetrics jenkinsMetrics;
   private JobProvider jobProvider;
 
-  @Inject
-  public void setJenkinsMetrics(JenkinsMetrics jenkinsMetrics) {
+  public OpalJobDashboard(Job job, JenkinsMetrics jenkinsMetrics, JobProvider jobProvider) {
+    this.job = job;
     this.jenkinsMetrics = jenkinsMetrics;
+    this.jobProvider = jobProvider;
   }
 
-  @Inject
-  public void setJobProvider(JobProvider jobProvider) {
-    this.jobProvider = jobProvider;
+  public int getBuildStepsCount() {
+    return job.getNextBuildNumber();
+  }
+
+  public boolean getPostBuildStepsCount() {
+    return job.getProperty(CollectableBuildsJobProperty.class) != null;
   }
 
   @Override
   public String getIconFileName() {
-    return "/plugin/build-metrics-collector-plugin/images/opal.png";
+    return this.job.getProperty(CollectableBuildsJobProperty.class) != null ? "/plugin/build-metrics-collector-plugin/images/opal.png" : null;
   }
 
   @Override
@@ -46,6 +50,11 @@ public class OpalDashboard implements RootAction {
   @Override
   public String getUrlName() {
     return "opal";
+  }
+
+  @Override
+  public Object getTarget() {
+    return this.job.getProperty(CollectableBuildsJobProperty.class) != null ? this : null;
   }
 
   public HttpResponse doDynamic(StaplerRequest request) {

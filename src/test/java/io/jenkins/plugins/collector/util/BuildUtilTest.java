@@ -283,6 +283,7 @@ public class BuildUtilTest {
 
     assertEquals(TriggerEnum.SCM_TRIGGER, result.getTriggerType());
     assertEquals("github-user2", result.getTriggeredBy());
+    assertEquals("commit-hash2", result.getLastCommitHash());
   }
 
   @Test

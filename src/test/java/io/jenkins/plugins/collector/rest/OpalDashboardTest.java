@@ -7,6 +7,7 @@ import io.jenkins.plugins.collector.config.CollectableBuildsJobProperty;
 import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
 import io.jenkins.plugins.collector.data.JobProvider;
 import io.jenkins.plugins.collector.model.BuildInfoResponse;
+import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -37,7 +38,9 @@ public class OpalDashboardTest {
     OpalDashboard opalDashboard = new OpalDashboard();
     JenkinsMetrics jenkinsMetrics = Mockito.mock(JenkinsMetrics.class);
     BuildInfoResponse buildInfoResponse = BuildInfoResponse.builder().build();
-    Mockito.when(jenkinsMetrics.getMetrics("MockJob")).thenReturn(buildInfoResponse);
+    JenkinsFilterParameter jenkinsFilterParameter = JenkinsFilterParameter
+        .builder().jobName("MockJob").build();
+    Mockito.when(jenkinsMetrics.getMetrics(jenkinsFilterParameter)).thenReturn(buildInfoResponse);
     opalDashboard.setJenkinsMetrics(jenkinsMetrics);
     StaplerRequest staplerRequest = Mockito.mock(StaplerRequest.class);
     Mockito.when(staplerRequest.getParameter("jobName")).thenReturn("MockJob");
@@ -76,7 +79,7 @@ public class OpalDashboardTest {
     opalDashboard.setJobProvider(jobProvider);
 
     List<String> jobNames = opalDashboard.getMonitoredJobName();
-    assertEquals(jobNames, Arrays.asList("monitoredJob"));
+    assertEquals(jobNames, Arrays.asList("'monitoredJob'"));
   }
 
 }
