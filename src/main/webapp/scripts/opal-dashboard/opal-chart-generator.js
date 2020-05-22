@@ -54,7 +54,9 @@ function lineChartOptionGenerator(chartName, data,
       left: 120
     },
     title: {
-      text: chartName
+      text: chartName,
+      left: "center",
+      top: 'bottom'
     },
     tooltip: {
       trigger: 'axis',
@@ -92,6 +94,8 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
   return {
     title: {
       text: chartName,
+      left: "center",
+      top: 'bottom'
     },
     tooltip: {
       formatter: toolTipFormatter
