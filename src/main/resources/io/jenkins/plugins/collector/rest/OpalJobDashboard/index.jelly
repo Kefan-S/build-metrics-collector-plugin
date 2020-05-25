@@ -46,6 +46,10 @@
         <div id="noDataDuration" class="opalNoDataLineChart">
           <div>Duration<br/>No data to display</div>
         </div>
+        <div id="deployDistribution" class="opalLineChart"></div>
+        <div id="noDataDeployDistribution" class="opalNoDataLineChart">
+          <div>Deploy Distribution<br/>No data to display</div>
+        </div>
       </div>
       <div id="gaguePanel">
         <div id="deployFrequency" class="opalGaugeChart"></div>
@@ -85,6 +89,8 @@
               showNoDataReminder(durationData,"#duration", "#noDataDuration");
               showNoDataReminder(data.failureRate, "#failureRate", "#noDataFailureRate");
               showNoDataReminder(data.deploymentFrequency, "#deployFrequency", "#noDataDeployFrequency");
+              showNoDataReminder(data.deploymentFrequency, "#deployDistribution", "#noDataDeployDistribution");
+
 
               recoverTime.setOption(lineChartOptionGenerator('Recover Time', recoverTimeData, "Recover Time", "Start Time", "recoverTime", lineChartToolTipFormat("Start Time", "Recover Time")));
               leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData, "Lead Time", "Start Time", "leadTime", lineChartToolTipFormat("Start Time", "Lead Time")));
@@ -93,6 +99,8 @@
                   [[0.1, '#91c7ae'], [0.3, '#FFA500'], [0.5, '#c23531'], [1, '#990077']]));
               deployFrequency.setOption(gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}',
                   [[0.1, '#c23531'], [0.8, '#63869e'], [1, '#91c7ae']]));
+              deployDistribution.setOption(deployTimeDistributionChartOptionGenerator(data));
+
             }
           })
         }
@@ -103,6 +111,8 @@
     var duration = echarts.init(document.getElementById('duration'));
     var failureRate = echarts.init(document.getElementById('failureRate'));
     var deployFrequency = echarts.init(document.getElementById('deployFrequency'));
+    var deployDistribution = echarts.init(document.getElementById('deployDistribution'));
+
     duration.on("click", function (param) {
       let data = JSON.parse(param.name)
       window.open(window.location.href.replace("opal", data.id))
