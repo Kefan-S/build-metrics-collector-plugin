@@ -79,8 +79,8 @@
             drawCharts: () => {
               let param = {
                 jobName: vue.jobName,
-                beginTime: new Date(vue.dateRange[0]).getTime(),
-                endTime: new Date(vue.dateRange[1]).getTime()
+                beginTime: new Date(vue.dateRange[0].toLocaleDateString()).getTime(),
+                endTime: new Date(vue.dateRange[1].toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1
               };
               $$.get(window.location.href + "data", param, function (data, status) {
                   if (status === 'success') {
