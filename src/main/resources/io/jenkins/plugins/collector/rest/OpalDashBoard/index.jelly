@@ -26,7 +26,7 @@
           <div class="dateRangeContainer">
             <div class="labelTitle">Date Range</div>
             <i-col span="12">
-              <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-end" placeholder="select Date" clearable="false" style="width: 175px; height: 33px;"
+              <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-end" placeholder="select Date" clearable="false" class="opalDateRange"
               ></Date-picker>
             </i-col>
           </div>
