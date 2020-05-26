@@ -105,6 +105,11 @@
           })
         }
       },
+      watch: {
+        dateRange: function () {
+          vue.drawCharts()
+        }
+      }
     })
     var recoverTime = echarts.init(document.getElementById('recoverTime'));
     var leadTime = echarts.init(document.getElementById('leadTime'));
