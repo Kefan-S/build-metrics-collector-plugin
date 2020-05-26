@@ -11,29 +11,29 @@ import static io.jenkins.plugins.collector.util.BuildUtil.getBuildEndTime;
 import static io.jenkins.plugins.collector.util.BuildUtil.isAbortBuild;
 import static io.jenkins.plugins.collector.util.BuildUtil.isCompleteOvertime;
 
-public class RecoverTimeCalculate implements Function<Run, Long> {
+public class RecoveryTimeCalculate implements Function<Run, Long> {
 
 
   @Override
   public Long apply(@Nonnull Run successBuild) {
     return Optional.of(successBuild)
         .filter(BuildUtil::isFirstSuccessfulBuildAfterError)
-        .map(this::calculateRecoverTime)
-        .filter(recoverTime -> recoverTime > 0)
+        .map(this::calculateRecoveryTime)
+        .filter(recoveryTime -> recoveryTime > 0)
         .orElse(null);
   }
 
 
-  Long calculateRecoverTime(Run currentBuild) {
-    long recoverTime = Long.MIN_VALUE;
+  Long calculateRecoveryTime(Run currentBuild) {
+    long recoveryTime = Long.MIN_VALUE;
     Run previousBuild = currentBuild.getPreviousBuild();
     while (!isASuccessAndFinishedMatchedBuild(previousBuild, currentBuild)) {
       if (!isAbortBuild(previousBuild)) {
-        recoverTime = Math.max(recoverTime, getBuildEndTime(currentBuild) - getBuildEndTime(previousBuild));
+        recoveryTime = Math.max(recoveryTime, getBuildEndTime(currentBuild) - getBuildEndTime(previousBuild));
       }
       previousBuild = previousBuild.getPreviousBuild();
     }
-    return recoverTime;
+    return recoveryTime;
   }
 
   private boolean isASuccessAndFinishedMatchedBuild(Run matchedBuild, Run currentBuild) {

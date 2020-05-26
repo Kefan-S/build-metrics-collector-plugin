@@ -34,9 +34,9 @@
           </div>
         </div>
       <div id="lineChartPanel">
-        <div id="recoverTime" class="opalLineChart"></div>
-        <div id="noDataRecoverTime" class="opalNoDataLineChart">
-          <div>Recover Time<br/>No data to display</div>
+        <div id="recoveryTime" class="opalLineChart"></div>
+        <div id="noDataRecoveryTime" class="opalNoDataLineChart">
+          <div>Recovery Time<br/>No data to display</div>
         </div>
         <div id="leadTime" class="opalLineChart"></div>
         <div id="noDataLeadTime" class="opalNoDataLineChart">
@@ -80,11 +80,11 @@
             if (status === 'success') {
               data = data ? data : BUILD_DATA;
 
-              recoverTimeData = data.buildInfos.filter(data => data.recoverTime !== null);
+              recoveryTimeData = data.buildInfos.filter(data => data.recoveryTime !== null);
               leadTimeData = data.buildInfos.filter(data => data.leadTime !== null);
               durationData = data.buildInfos.filter(data => data.duration !== null);
 
-              showNoDataReminder(recoverTimeData,"#recoverTime", "#noDataRecoverTime");
+              showNoDataReminder(recoveryTimeData,"#recoveryTime", "#noDataRecoveryTime");
               showNoDataReminder(leadTimeData,"#leadTime", "#noDataLeadTime");
               showNoDataReminder(durationData,"#duration", "#noDataDuration");
               showNoDataReminder(data.failureRate, "#failureRate", "#noDataFailureRate");
@@ -92,7 +92,7 @@
               showNoDataReminder(data.deploymentFrequency, "#deployDistribution", "#noDataDeployDistribution");
 
 
-              recoverTime.setOption(lineChartOptionGenerator('Recover Time', recoverTimeData, "Recover Time", "Start Time", "recoverTime", lineChartToolTipFormat("Start Time", "Recover Time")));
+              recoveryTime.setOption(lineChartOptionGenerator('Recovery Time', recoveryTimeData, "Recovery Time", "Start Time", "recoveryTime", lineChartToolTipFormat("Start Time", "Recovery Time")));
               leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData, "Lead Time", "End Time", "leadTime", lineChartToolTipFormat("End Time", "Lead Time")));
               duration.setOption(lineChartOptionGenerator('Duration', durationData, "Duration", "End Time", "duration", durationToolTipFormat("End Time", "Duration")));
               failureRate.setOption(gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(2), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%',
@@ -106,7 +106,7 @@
         }
       },
     })
-    var recoverTime = echarts.init(document.getElementById('recoverTime'));
+    var recoveryTime = echarts.init(document.getElementById('recoveryTime'));
     var leadTime = echarts.init(document.getElementById('leadTime'));
     var duration = echarts.init(document.getElementById('duration'));
     var failureRate = echarts.init(document.getElementById('failureRate'));

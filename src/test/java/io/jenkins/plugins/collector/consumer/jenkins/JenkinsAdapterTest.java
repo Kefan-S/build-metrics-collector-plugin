@@ -5,7 +5,6 @@ import io.jenkins.plugins.collector.model.BuildInfoResponse;
 import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +65,7 @@ public class JenkinsAdapterTest {
     return BuildInfo.builder()
         .duration(1L)
         .leadTime(1L)
-        .recoverTime(1L)
+        .recoveryTime(1L)
         .startTime(BEGIN_TIME)
         .jenkinsJob("name")
         .result("0")
