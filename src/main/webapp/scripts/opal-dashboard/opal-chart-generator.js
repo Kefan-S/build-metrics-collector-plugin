@@ -110,7 +110,7 @@ function lineChartOptionGenerator(chartName, data,
 
 function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
     toolTipFormatter,
-    color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']]) {
+    color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']], maxScale, axisLabelFormatter) {
   return {
     title: {
       text: chartName,
@@ -122,6 +122,7 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
     },
     series: [
       {
+        max: maxScale,
         radius: "90%",
         name: metricsName,
         type: 'gauge',
@@ -131,6 +132,9 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
           lineStyle: {       // 属性lineStyle控制线条样式
             color: color
           }
+        },
+        axisLabel: {
+          formatter: axisLabelFormatter
         }
       }
     ]

@@ -102,9 +102,9 @@
             leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData, "Lead Time", "End Time", "leadTime", lineChartToolTipFormat("End Time", "Lead Time")));
             duration.setOption(lineChartOptionGenerator('Duration', durationData, "Duration", "End Time", "duration", durationToolTipFormat("End Time", "Duration")));
             failureRate.setOption(gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(2), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%',
-                [[0.1, '#91c7ae'], [0.3, '#FFA500'], [0.5, '#c23531'], [1, '#990077']]));
+                [[0.1, '#91c7ae'], [0.3, '#FFA500'], [0.5, '#c23531'], [1, '#990077']], 100, value => value));
             deployFrequency.setOption(gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}',
-                [[0.1, '#c23531'], [0.8, '#63869e'], [1, '#91c7ae']]));
+                [[0.1, '#c23531'], [0.8, '#63869e'], [1, '#91c7ae']], 200, value => value === 200 ? value + "+" : value));
             deployDistribution.setOption(deployTimeDistributionChartOptionGenerator(data));
                   }
               })
