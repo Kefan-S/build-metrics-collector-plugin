@@ -40,10 +40,10 @@ class JenkinsAdapter {
   }
 
   private boolean filterByTriggerUser(JenkinsFilterParameter jenkinsFilterParameter, BuildInfo buildInfo) {
-    if (!StringUtils.isEmpty(jenkinsFilterParameter.getTriggerBy())) {
-      return buildInfo.getTriggerInfo().getTriggeredBy().equals(jenkinsFilterParameter.getTriggerBy());
+    if (StringUtils.isEmpty(jenkinsFilterParameter.getTriggerBy()) || "All users".equals(jenkinsFilterParameter.getTriggerBy())) {
+      return true;
     }
-    return true;
+    return buildInfo.getTriggerInfo().getTriggeredBy().equals(jenkinsFilterParameter.getTriggerBy());
   }
 
   private boolean filterByTime(JenkinsFilterParameter jenkinsFilterParameter, Long buildStartTime) {
