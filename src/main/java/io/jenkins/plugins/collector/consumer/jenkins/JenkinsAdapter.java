@@ -9,6 +9,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang.StringUtils;
 
 import static java.util.stream.Collectors.toList;
 
@@ -21,7 +22,8 @@ class JenkinsAdapter {
 
     List<BuildInfo> validBuilds = buildInfos.stream()
         .filter(buildInfo -> !String.valueOf(Result.ABORTED.ordinal).equals(buildInfo.getResult()))
-        .filter(buildInfo -> filterTime(jenkinsFilterParameter, buildInfo.getStartTime()))
+        .filter(buildInfo -> filterByTime(jenkinsFilterParameter, buildInfo.getStartTime()))
+        .filter(buildInfo -> filterByTriggerUser(jenkinsFilterParameter, buildInfo))
         .collect(toList());
 
     if (validBuilds.isEmpty()) {
@@ -37,11 +39,19 @@ class JenkinsAdapter {
         .build();
   }
 
-  private boolean filterTime(JenkinsFilterParameter jenkinsFilterParameter, Long buildStartTime) {
+  private boolean filterByTriggerUser(JenkinsFilterParameter jenkinsFilterParameter, BuildInfo buildInfo) {
+    if (!StringUtils.isEmpty(jenkinsFilterParameter.getTriggerBy())) {
+      return buildInfo.getTriggerInfo().getTriggeredBy().equals(jenkinsFilterParameter.getTriggerBy());
+    }
+    return true;
+  }
+
+  private boolean filterByTime(JenkinsFilterParameter jenkinsFilterParameter, Long buildStartTime) {
     Long beginTime = Optional.ofNullable(jenkinsFilterParameter.getBeginTime()).map(Long::parseLong).orElse(Long.MIN_VALUE);
     Long endTime = Optional.ofNullable(jenkinsFilterParameter.getEndTime()).map(Long::parseLong).orElse(Long.MAX_VALUE);
     return beginTime <= buildStartTime && buildStartTime <= endTime;
   }
+
 
   private BigDecimal failureRateCalculate(List<BuildInfo> validBuilds) {
     long failureCount = validBuilds.stream()
