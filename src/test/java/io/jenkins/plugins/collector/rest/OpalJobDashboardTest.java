@@ -9,6 +9,8 @@ import io.jenkins.plugins.collector.model.BuildInfoResponse;
 import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,6 +67,24 @@ public class OpalJobDashboardTest {
     Mockito.when(staplerResponse.getWriter()).thenReturn(printWriter);
     httpResponse.generateResponse(null, staplerResponse, null);
     Mockito.verify(printWriter, Mockito.times(1)).write(new ObjectMapper().writeValueAsString(buildInfoResponse));
+  }
+
+  @Test
+  public void should_get_users_response_given_users_rest_path() throws IOException, ServletException {
+
+    PrintWriter printWriter = Mockito.mock(PrintWriter.class);
+    List<String> users = new ArrayList<>();
+    users.add("trigger user1");
+
+    Mockito.when(jenkinsMetrics.getBuildUsers("MockJob")).thenReturn(users);
+    Mockito.when(job.getName()).thenReturn("MockJob");
+    Mockito.when(staplerRequest.getRestOfPath()).thenReturn("/users");
+
+    HttpResponse httpResponse = opalJobDashboard.doDynamic(staplerRequest);
+
+    Mockito.when(staplerResponse.getWriter()).thenReturn(printWriter);
+    httpResponse.generateResponse(null, staplerResponse, null);
+    Mockito.verify(printWriter, Mockito.times(1)).write(new ObjectMapper().writeValueAsString(users));
   }
 
   @Test

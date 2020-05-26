@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import jenkins.model.Jenkins;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,14 @@ public class JenkinsConsumer implements JenkinsMetrics {
   @Override
   public BuildInfoResponse getMetrics(JenkinsFilterParameter jenkinsFilterParameter) {
     return new JenkinsAdapter().adapt(getBuildInfoFromFile(jenkinsFilterParameter.getJobName()), jenkinsFilterParameter);
+  }
+
+  @Override
+  public List<String> getBuildUsers(String jobName) {
+    List<BuildInfo> buildInfos = getBuildInfoFromFile(jobName);
+    return Objects.requireNonNull(buildInfos).stream()
+        .map(buildInfo -> buildInfo.getTriggerInfo().getTriggeredBy())
+        .collect(Collectors.toList());
   }
 
   @Override

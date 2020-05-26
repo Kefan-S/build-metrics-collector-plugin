@@ -10,5 +10,7 @@ public interface JenkinsMetrics extends Consumer<List<BuildInfo>> {
 
   BuildInfoResponse getMetrics(JenkinsFilterParameter jenkinsFilterParameter);
 
+  List<String> getBuildUsers(String jobName);
+
 }
 
