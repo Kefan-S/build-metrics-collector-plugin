@@ -1,7 +1,3 @@
-#opalDashBoard {
-  margin: 20px;
-}
-
 #lineChartPanel {
   width: 60%;
   float: left;
@@ -31,23 +27,47 @@
   color: grey;
 }
 
-.operationField {
-  float: left;
-}
-
-.filterContainer {
-  padding: 10px 20px;
-}
-
-.filterTitle {
-  font-size: 16px;
-  padding: 10px 0;
-}
-
 .noJobMessage {
   height: 500px;
   font-size: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.headerContainer {
+  display: flex;
+  background-color: #6983aa;
+  height: 45px;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.dateRangeContainer {
+  display: flex;
+  align-items: center;
+}
+
+.labelTitle {
+  font-size: 14px;
+  line-height: 45px;
+  padding-right: 8px;
+  color: white;
+}
+
+.jobDisplayContainer {
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 50px;
+}
+
+.labelValue {
+  font-size: 16px;
+  color: white;
+  font-weight: bold;
+}
+
+.opalDateRange {
+  width: 175px;
+  height: 33px;
 }

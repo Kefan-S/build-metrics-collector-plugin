@@ -13,13 +13,12 @@ import org.jenkinsci.remoting.RoleChecker;
 public class CreateFileTask implements Serializable, Callable<Boolean, IOException> {
 
   private static final long serialVersionUID = 1L;
+  private static final String fileName = "/opal";
   private final String fileContent;
-  private final String fileName;
   private final String folderPath;
 
-  CreateFileTask(String folderPath, String fileName, String fileContent) {
+  CreateFileTask(String folderPath, String fileContent) {
     this.folderPath = folderPath;
-    this.fileName = fileName;
     this.fileContent = fileContent;
   }
 
@@ -31,7 +30,6 @@ public class CreateFileTask implements Serializable, Callable<Boolean, IOExcepti
   @Override
   public Boolean call() throws IOException {
     try {
-      FilePath folder = new FilePath(new File(folderPath));
       FilePath textFile = new FilePath(new File(folderPath + fileName));
       String finalFileContent = "";
       String eol = System.getProperty("line.separator");
@@ -44,7 +42,6 @@ public class CreateFileTask implements Serializable, Callable<Boolean, IOExcepti
       }
       textFile.deleteContents();
       finalFileContent = finalFileContent.replaceAll("\n", System.lineSeparator());
-      folder.mkdirs();
       textFile.write(finalFileContent, "UTF-8");
     } catch (Exception e) {
       throw new IOException(e.getMessage(), e);

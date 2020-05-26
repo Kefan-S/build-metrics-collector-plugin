@@ -54,7 +54,9 @@ function lineChartOptionGenerator(chartName, data,
       left: 120
     },
     title: {
-      text: chartName
+      text: chartName,
+      left: "center",
+      top: 'bottom'
     },
     tooltip: {
       trigger: 'axis',
@@ -92,6 +94,8 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
   return {
     title: {
       text: chartName,
+      left: "center",
+      top: 'bottom'
     },
     tooltip: {
       formatter: toolTipFormatter
@@ -112,6 +116,67 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
     ]
   }
 }
+
+function deployTimeDistributionChartOptionGenerator(data) {
+  return {
+    grid: {
+      left: 120
+    },
+    title: {
+      text: 'Deploy Time Distribution',
+      left: "center",
+      top: 'bottom'
+    },
+    tooltip: {
+      trigger: 'axis',
+      formatter: function (params) {
+        return `deploy frequency: ${params[0].value}<br/>`+
+            `time: ${params[0].axisValue}:00 - ${parseInt(params[0].axisValue)+1}:00`
+      }
+    },
+    toolbox: {
+      show: true
+    },
+    calculable: true,
+    xAxis: [
+      {
+        name: 'Time',
+        type: 'category',
+        data: Array.from(new Array(24).keys()),
+        axisLabel: {
+          formatter: value => `${value}:00`
+        }
+      }
+    ],
+    yAxis: [
+      {
+        name: 'deploy frequency',
+        type: 'value'
+      }
+    ],
+    series: [
+      {
+        name: 'deploy frequency',
+        type: 'bar',
+        data: deployFrequencyDistributionCalculate(data),
+        markPoint: {
+          data: [
+            {type: 'max', name: 'max'},
+          ]
+        }
+      }
+    ]
+  }
+}
+
+function deployFrequencyDistributionCalculate(data) {
+  let distributions = new Array(24).fill(0);
+  data.buildInfos.map(data => new Date(data.startTime).getHours()).forEach(
+      hours => distributions[hours]++
+  )
+  return distributions;
+}
+
 
 function isNil(object) {
   if (object === 0) return false;

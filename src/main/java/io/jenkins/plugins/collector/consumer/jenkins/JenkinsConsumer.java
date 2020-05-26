@@ -3,6 +3,8 @@ package io.jenkins.plugins.collector.consumer.jenkins;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.inject.Inject;
+import hudson.model.Item;
+import hudson.model.TopLevelItem;
 import hudson.remoting.VirtualChannel;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.model.BuildInfoResponse;
@@ -10,6 +12,8 @@ import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import jenkins.model.Jenkins;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +22,10 @@ public class JenkinsConsumer implements JenkinsMetrics {
 
   private static final Logger logger = LoggerFactory.getLogger(JenkinsConsumer.class);
   private Jenkins jenkins;
-  private String folderPath;
 
   @Inject
   public JenkinsConsumer(Jenkins jenkins) {
     this.jenkins = jenkins;
-    folderPath = jenkins.getRootDir().getPath() + "/cache4Opal/";
   }
 
   @Override
@@ -40,9 +42,13 @@ public class JenkinsConsumer implements JenkinsMetrics {
 
     buildInfos.forEach(buildInfo -> {
       try {
-        Boolean result = channel.call(new CreateFileTask(folderPath, buildInfo.getJenkinsJob(), buildInfo.toString()));
-        logger.info("The result of job {} is {}", buildInfo.getJenkinsJob(), result);
-      } catch (InterruptedException | IOException e) {
+        TopLevelItem item = jenkins.getItem(buildInfo.getJenkinsJob());
+        if (Objects.nonNull(item)) {
+          File rootFile = item.getRootDir();
+          Boolean result = channel.call(new CreateFileTask(rootFile.getPath(), buildInfo.toString()));
+          logger.info("The result of job {} is {}", buildInfo.getJenkinsJob(), result);
+        }
+      } catch (Exception e) {
         Thread.currentThread().interrupt();
         logger.error("failed to save the build info!");
       }
@@ -50,8 +56,10 @@ public class JenkinsConsumer implements JenkinsMetrics {
   }
 
   private List<BuildInfo> getBuildInfoFromFile(String jobName) {
-    File file = new File(folderPath + jobName);
 
+    String folderPath = Optional.ofNullable(jenkins.getItem(jobName))
+        .map(Item::getRootDir).map(File::getPath).orElse("");
+    File file = new File(folderPath + "/opal");
     try {
       if (file.exists()) {
         MappingIterator<BuildInfo> personIter = new CsvMapper().readerWithTypedSchemaFor(BuildInfo.class).readValues(file);

@@ -14,12 +14,25 @@
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/jquery-3.5.1.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart-generator.js"></script>
     <link rel="shortcut icon" href="${resURL}/plugin/build-metrics-collector-plugin/images/opal.png" type="image/vnd.microsoft.icon" />
-    <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts//vue.min.js"></script>
-    <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts//iview.min.js"></script>
+    <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/vue.min.js"></script>
+    <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/iview.min.js"></script>
     <link rel="stylesheet" type="text/css" href="${resURL}/plugin/build-metrics-collector-plugin/css/iview/iview.css" />
   </header>
   <body>
     <div id="opalDashBoard">
+       <div class="headerContainer">
+          <div class="dateRangeContainer">
+            <div class="labelTitle">Date Range</div>
+            <i-col span="12">
+              <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-end" clearable="false" placeholder="select Date" class="opalDateRange"
+              ></Date-picker>
+            </i-col>
+          </div>
+          <div class="jobDisplayContainer">
+            <span class="labelTitle">Monitored Job</span>
+            <span class="labelValue">{{jobName}}</span>
+          </div>
+        </div>
       <div id="lineChartPanel">
         <div id="recoverTime" class="opalLineChart"></div>
         <div id="noDataRecoverTime" class="opalNoDataLineChart">
@@ -29,9 +42,13 @@
         <div id="noDataLeadTime" class="opalNoDataLineChart">
           <div>Lead Time<br/>No data to display</div>
         </div>
-        <div id="duration" class="opalGaugeChart"></div>
+        <div id="duration" class="opalLineChart"></div>
         <div id="noDataDuration" class="opalNoDataLineChart">
           <div>Duration<br/>No data to display</div>
+        </div>
+        <div id="deployDistribution" class="opalLineChart"></div>
+        <div id="noDataDeployDistribution" class="opalNoDataLineChart">
+          <div>Deploy Distribution<br/>No data to display</div>
         </div>
       </div>
       <div id="gaguePanel">
@@ -44,71 +61,65 @@
           <div>Failure Rate<br/>No data to display</div>
         </div>
       </div>
-      <div class="operationField">
-          <div class="filterContainer">
-            <div class="filterTitle">Monitored Job</div>
-            <i-select :model.sync="jobName" style="width:200px" placeholder="select Job">
-              <i-option v-for="item in jobs" :value="item">{{item}}</i-option>
-            </i-select>
-          </div>
-          <div class="filterContainer">
-            <div class="filterTitle">Date Range</div>
-            <i-col span="12">
-              <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-start" placeholder="select Date" style="width: 200px"
-              ></Date-picker>
-            </i-col>
-          </div>
-        </div>
     </div>
   </body>
   <script type="text/javascript">
 
-      var vue = new Vue({
-          el: '#opalDashBoard',
-          data: {
-            dateRange: [new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), new Date()],
-            jobName: ${it.monitoredJobName[0] != null ? it.monitoredJobName[0] : "'no job'"},
-            jobs: ${it.monitoredJobName}
-          },
-        })
-      var recoverTime = echarts.init(document.getElementById('recoverTime'));
-      var leadTime = echarts.init(document.getElementById('leadTime'));
-      var duration = echarts.init(document.getElementById('duration'));
-      var failureRate = echarts.init(document.getElementById('failureRate'));
-      var deployFrequency = echarts.init(document.getElementById('deployFrequency'));
+    var vue = new Vue({
+      el: '#opalDashBoard',
+      data: {
+        dateRange: [new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), new Date()],
+        jobName: ${it.currentJobName},
+        drawCharts: () => {
+          let param = {
+            jobName: vue.jobName,
+            beginTime: new Date(vue.dateRange[0].toLocaleDateString()).getTime(),
+            endTime: new Date(vue.dateRange[1].toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1
+          };
+          $$.get(window.location.href + "data", param, function (data, status) {
+            if (status === 'success') {
+              data = data ? data : BUILD_DATA;
 
-      let drawCharts = () => {
-        let param = {
-          jobName: vue.jobName,
-          beginTime: new Date(vue.dateRange[0]).getTime(),
-          endTime: new Date(vue.dateRange[1]).getTime()
-        };
-        $$.get(window.location.href + "data", param, function (data, status) {
-          if (status === 'success') {
-            data = data ? data : {};
+              recoverTimeData = data.buildInfos.filter(data => data.recoverTime !== null);
+              leadTimeData = data.buildInfos.filter(data => data.leadTime !== null);
+              durationData = data.buildInfos.filter(data => data.duration !== null);
 
-            recoverTimeData = invalidOpalDataFilter(data.startTime, data.recoverTime);
-            leadTimeData = invalidOpalDataFilter(data.startTime, data.leadTime);
-            durationData = invalidOpalDataFilter(data.startTime, data.duration);
+              showNoDataReminder(recoverTimeData,"#recoverTime", "#noDataRecoverTime");
+              showNoDataReminder(leadTimeData,"#leadTime", "#noDataLeadTime");
+              showNoDataReminder(durationData,"#duration", "#noDataDuration");
+              showNoDataReminder(data.failureRate, "#failureRate", "#noDataFailureRate");
+              showNoDataReminder(data.deploymentFrequency, "#deployFrequency", "#noDataDeployFrequency");
+              showNoDataReminder(data.deploymentFrequency, "#deployDistribution", "#noDataDeployDistribution");
 
-            showNoDataReminder(recoverTimeData.yAxisData,"#recoverTime", "#noDataRecoverTime");
-            showNoDataReminder(leadTimeData.yAxisData,"#leadTime", "#noDataLeadTime");
-            showNoDataReminder(durationData.yAxisData,"#duration", "#noDataDuration");
-            showNoDataReminder(data.failureRate, "#failureRate", "#noDataFailureRate");
-            showNoDataReminder(data.deploymentFrequency, "#deployFrequency", "#noDataDeployFrequency");
 
-            recoverTime.setOption(lineChartOptionGenerator('Recover Time', recoverTimeData.xAxisData, recoverTimeData.yAxisData, "Recover Time", "Start Time"));
-            leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData.xAxisData,  leadTimeData.yAxisData, "Lead Time", "Start Time"));
-            duration.setOption(lineChartOptionGenerator('Duration', durationData.xAxisData,  durationData.yAxisData, "Duration", "Start Time"));
-            failureRate.setOption(gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(0), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%'));
-            deployFrequency.setOption(gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}'));
-          }
-        })
-      }
+              recoverTime.setOption(lineChartOptionGenerator('Recover Time', recoverTimeData, "Recover Time", "Start Time", "recoverTime", lineChartToolTipFormat("Start Time", "Recover Time")));
+              leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData, "Lead Time", "Start Time", "leadTime", lineChartToolTipFormat("Start Time", "Lead Time")));
+              duration.setOption(lineChartOptionGenerator('Duration', durationData, "Duration", "Start Time", "duration", durationToolTipFormat("Start Time", "Duration")));
+              failureRate.setOption(gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(2), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%',
+                  [[0.1, '#91c7ae'], [0.3, '#FFA500'], [0.5, '#c23531'], [1, '#990077']]));
+              deployFrequency.setOption(gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}',
+                  [[0.1, '#c23531'], [0.8, '#63869e'], [1, '#91c7ae']]));
+              deployDistribution.setOption(deployTimeDistributionChartOptionGenerator(data));
 
-      drawCharts();
-      $("#jobNameSelector").change(drawCharts);
-      setInterval(drawCharts, 2000);
+            }
+          })
+        }
+      },
+    })
+    var recoverTime = echarts.init(document.getElementById('recoverTime'));
+    var leadTime = echarts.init(document.getElementById('leadTime'));
+    var duration = echarts.init(document.getElementById('duration'));
+    var failureRate = echarts.init(document.getElementById('failureRate'));
+    var deployFrequency = echarts.init(document.getElementById('deployFrequency'));
+    var deployDistribution = echarts.init(document.getElementById('deployDistribution'));
+
+    duration.on("click", function (param) {
+      let data = JSON.parse(param.name)
+      window.open(window.location.href.replace("opal", data.id))
+    })
+
+    vue.drawCharts();
+    setInterval(vue.drawCharts, 2000);
   </script>
   </html>
 </j:jelly>
