@@ -11,7 +11,7 @@ import io.jenkins.plugins.collector.consumer.prometheus.PrometheusConsumer;
 import io.jenkins.plugins.collector.consumer.prometheus.PrometheusMetrics;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.service.LeadTimeCalculate;
-import io.jenkins.plugins.collector.service.RecoverTimeCalculate;
+import io.jenkins.plugins.collector.service.RecoveryTimeCalculate;
 import io.prometheus.client.Gauge;
 import java.util.List;
 import java.util.function.Consumer;
@@ -29,10 +29,10 @@ public class Context extends AbstractModule {
   public void configure() {
     bind(PrometheusMetrics.class).to(PrometheusConsumer.class).in(Singleton.class);
     bind(JenkinsMetrics.class).toInstance(new JenkinsConsumer(Jenkins.get()));
-    bind(RecoverTimeCalculate.class).toInstance(new RecoverTimeCalculate());
+    bind(RecoveryTimeCalculate.class).toInstance(new RecoveryTimeCalculate());
     bind(LeadTimeCalculate.class).toInstance(new LeadTimeCalculate());
     bindGauge("leadTimeGauge", "_merge_lead_time", "Code Merge Lead Time in milliseconds");
-    bindGauge("recoverTimeGauge", "_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds");
+    bindGauge("recoveryTimeGauge", "_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds");
     bindGauge("startTimeGauge", "_last_build_start_timestamp", "One build start timestamp");
     bindGauge("durationGauge", "_last_build_duration_in_milliseconds", "One build duration in milliseconds");
   }

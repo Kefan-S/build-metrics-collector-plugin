@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({BuildUtil.class, LeadTimeCalculate.class, RecoverTimeCalculate.class})
+@PrepareForTest({BuildUtil.class, LeadTimeCalculate.class, RecoveryTimeCalculate.class})
 public class BuildInfoServiceTest {
 
   private static final Long DURATION = 1L;
@@ -38,7 +38,7 @@ public class BuildInfoServiceTest {
   @Mock
   LeadTimeCalculate leadTimeCalculate;
   @Mock
-  RecoverTimeCalculate recoverTimeCalculate;
+  RecoveryTimeCalculate recoveryTimeCalculate;
   @Mock
   BuildProvider buildProvider;
   @InjectMocks
@@ -59,7 +59,7 @@ public class BuildInfoServiceTest {
     when(fakeRun.getStartTimeInMillis()).thenReturn(START_TIME);
     when(fakeRun.getId()).thenReturn(ID);
     when(leadTimeCalculate.apply(fakeRun)).thenReturn(LEAD_TIME);
-    when(recoverTimeCalculate.apply(fakeRun)).thenReturn(RECOVER_TIME);
+    when(recoveryTimeCalculate.apply(fakeRun)).thenReturn(RECOVER_TIME);
     mockStatic(BuildUtil.class);
     when(BuildUtil.getJobName(fakeRun)).thenReturn(JOB_NAME);
     when(BuildUtil.getResultValue(fakeRun)).thenReturn(RESULT);
@@ -72,7 +72,7 @@ public class BuildInfoServiceTest {
     BuildInfo buildInfo = buildInfoService.getBuildInfo(fakeRun);
 
     assertEquals(DURATION, buildInfo.getDuration());
-    assertEquals(RECOVER_TIME, buildInfo.getRecoverTime());
+    assertEquals(RECOVER_TIME, buildInfo.getRecoveryTime());
     assertEquals(START_TIME, buildInfo.getStartTime());
     assertEquals(LEAD_TIME, buildInfo.getLeadTime());
     assertEquals(JOB_NAME, buildInfo.getJenkinsJob());
@@ -91,7 +91,7 @@ public class BuildInfoServiceTest {
     List<BuildInfo> allBuildInfo = buildInfoService.getAllBuildInfo();
 
     assertEquals(DURATION, allBuildInfo.get(0).getDuration());
-    assertEquals(RECOVER_TIME, allBuildInfo.get(0).getRecoverTime());
+    assertEquals(RECOVER_TIME, allBuildInfo.get(0).getRecoveryTime());
     assertEquals(START_TIME, allBuildInfo.get(0).getStartTime());
     assertEquals(LEAD_TIME, allBuildInfo.get(0).getLeadTime());
     assertEquals(JOB_NAME, allBuildInfo.get(0).getJenkinsJob());

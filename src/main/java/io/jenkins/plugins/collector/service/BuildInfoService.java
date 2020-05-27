@@ -12,22 +12,22 @@ import java.util.stream.Collectors;
 public class BuildInfoService {
 
   LeadTimeCalculate leadTimeCalculate;
-  RecoverTimeCalculate recoverTimeCalculate;
+  RecoveryTimeCalculate recoveryTimeCalculate;
   BuildProvider buildProvider;
 
   @Inject
   public BuildInfoService(LeadTimeCalculate leadTimeCalculate,
-                          RecoverTimeCalculate recoverTimeCalculate,
+                          RecoveryTimeCalculate recoveryTimeCalculate,
                           BuildProvider buildProvider) {
     this.leadTimeCalculate = leadTimeCalculate;
-    this.recoverTimeCalculate = recoverTimeCalculate;
+    this.recoveryTimeCalculate = recoveryTimeCalculate;
     this.buildProvider = buildProvider;
   }
 
   public BuildInfo getBuildInfo(Run run) {
     return Optional.ofNullable(run).map(build -> BuildInfo.builder().duration(build.getDuration())
         .leadTime(calculateLeadTime(build))
-        .recoverTime(calculateRecoverTime(build))
+        .recoveryTime(calculateRecoveryTime(build))
         .startTime(build.getStartTimeInMillis())
         .id(build.getId())
         .jenkinsJob(BuildUtil.getJobName(build))
@@ -47,8 +47,8 @@ public class BuildInfoService {
     return leadTimeCalculate.apply(build);
   }
 
-  private Long calculateRecoverTime(Run build) {
-    return recoverTimeCalculate.apply(build);
+  private Long calculateRecoveryTime(Run build) {
+    return recoveryTimeCalculate.apply(build);
   }
 
 }

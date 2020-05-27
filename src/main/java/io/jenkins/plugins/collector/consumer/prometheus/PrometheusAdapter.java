@@ -23,7 +23,7 @@ class PrometheusAdapter{
     bindGauge("_last_build_start_timestamp", "One build start timestamp", gauges, buildInfo.getStartTime(), metricsLabels);
     bindGauge("_last_build_duration_in_milliseconds", "One build duration in milliseconds", gauges, buildInfo.getDuration(), metricsLabels);
     bindGauge("_merge_lead_time", "Code Merge Lead Time in milliseconds", gauges, buildInfo.getLeadTime(), metricsLabels);
-    bindGauge("_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds", gauges, buildInfo.getRecoverTime(), metricsLabels);
+    bindGauge("_failed_build_recovery_time", "Failed Build Recovery Time in milliseconds", gauges, buildInfo.getRecoveryTime(), metricsLabels);
 
     return gauges.stream()
         .map(Gauge::collect)

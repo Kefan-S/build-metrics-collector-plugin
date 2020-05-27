@@ -4,7 +4,7 @@ import hudson.model.Result;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.builder.MockBuild;
 import io.jenkins.plugins.collector.builder.MockBuildBuilder;
-import io.jenkins.plugins.collector.service.RecoverTimeCalculate;
+import io.jenkins.plugins.collector.service.RecoveryTimeCalculate;
 import io.jenkins.plugins.collector.util.BuildUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,16 +22,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({BuildUtil.class, RecoverTimeCalculate.class})
-public class RecoverTimeCalculateTest {
+@PrepareForTest({BuildUtil.class, RecoveryTimeCalculate.class})
+public class RecoveryTimeCalculateTest {
 
-  private RecoverTimeCalculate recoverTimeCalculate;
+  private RecoveryTimeCalculate recoveryTimeCalculate;
   public static final String[] LEAD_TIME_HANDLER_LABELS = METRICS_LABEL_NAME_ARRAY.toArray(new String[0]);
 
   @Before
   public void setUp() {
     PowerMockito.mockStatic(BuildUtil.class);
-    recoverTimeCalculate = new RecoverTimeCalculate();
+    recoveryTimeCalculate = new RecoveryTimeCalculate();
     when(BuildUtil.isCompleteOvertime(any(), any())).thenCallRealMethod();
     when(BuildUtil.getBuildEndTime(any())).thenCallRealMethod();
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(any())).thenCallRealMethod();
@@ -42,45 +42,45 @@ public class RecoverTimeCalculateTest {
 
   @Test
   public void should_do_nothing_if_current_build_is_not_first_successful_build_after_error() throws Exception {
-    RecoverTimeCalculate recoverTimeCalculate = PowerMockito.spy(new RecoverTimeCalculate());
+    RecoveryTimeCalculate recoveryTimeCalculate = PowerMockito.spy(new RecoveryTimeCalculate());
     Run currentBuild = new MockBuildBuilder().create();
 
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(false);
-    PowerMockito.doReturn(1L).when(recoverTimeCalculate, "calculateRecoverTime",currentBuild);
+    PowerMockito.doReturn(1L).when(recoveryTimeCalculate, "calculateRecoveryTime",currentBuild);
 
-    Long actual = recoverTimeCalculate.apply(currentBuild);
+    Long actual = recoveryTimeCalculate.apply(currentBuild);
 
     assertNull(actual);
-    PowerMockito.verifyPrivate(recoverTimeCalculate, never()).invoke("calculateRecoverTime",currentBuild);
+    PowerMockito.verifyPrivate(recoveryTimeCalculate, never()).invoke("calculateRecoveryTime",currentBuild);
   }
 
   @Test
   public void should_calculate_recover_time_if_current_build_is_first_successful_build_after_error() throws Exception {
-    RecoverTimeCalculate recoverTimeCalculate = PowerMockito.spy(new RecoverTimeCalculate());
+    RecoveryTimeCalculate recoveryTimeCalculate = PowerMockito.spy(new RecoveryTimeCalculate());
     Run currentBuild = new MockBuildBuilder().create();
 
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
-    PowerMockito.doReturn(1L).when(recoverTimeCalculate, "calculateRecoverTime", currentBuild);
+    PowerMockito.doReturn(1L).when(recoveryTimeCalculate, "calculateRecoveryTime", currentBuild);
 
-    Long actual = recoverTimeCalculate.apply(currentBuild);
+    Long actual = recoveryTimeCalculate.apply(currentBuild);
 
     assertEquals(1L, actual.longValue());
-    PowerMockito.verifyPrivate(recoverTimeCalculate, times(1)).invoke("calculateRecoverTime", currentBuild);
+    PowerMockito.verifyPrivate(recoveryTimeCalculate, times(1)).invoke("calculateRecoveryTime", currentBuild);
   }
 
   @Test
   public void should_return_different_metric_data_when_handle_different_build_given_different_build() throws Exception {
-    RecoverTimeCalculate recoverTimeCalculate = PowerMockito.spy(new RecoverTimeCalculate());
+    RecoveryTimeCalculate recoveryTimeCalculate = PowerMockito.spy(new RecoveryTimeCalculate());
     Run currentBuild1 = new MockBuildBuilder().create();
     Run currentBuild2 = new MockBuildBuilder().create();
 
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild1)).thenReturn(true);
-    PowerMockito.doReturn(1L).when(recoverTimeCalculate, "calculateRecoverTime", currentBuild1);
+    PowerMockito.doReturn(1L).when(recoveryTimeCalculate, "calculateRecoveryTime", currentBuild1);
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild2)).thenReturn(true);
-    PowerMockito.doReturn(2L).when(recoverTimeCalculate, "calculateRecoverTime", currentBuild2);
+    PowerMockito.doReturn(2L).when(recoveryTimeCalculate, "calculateRecoveryTime", currentBuild2);
 
-    Long actual1 = recoverTimeCalculate.apply(currentBuild1);
-    Long actual2 = recoverTimeCalculate.apply(currentBuild2);
+    Long actual1 = recoveryTimeCalculate.apply(currentBuild1);
+    Long actual2 = recoveryTimeCalculate.apply(currentBuild2);
 
     assertEquals(1L, actual1.longValue());
     assertEquals(2L, actual2.longValue());
@@ -88,26 +88,26 @@ public class RecoverTimeCalculateTest {
 
   @Test
   public void should_not_set_value_to_metrics_if_calculated_lead_time_is_negative() throws Exception {
-    RecoverTimeCalculate recoverTimeCalculate = PowerMockito.spy(new RecoverTimeCalculate());
+    RecoveryTimeCalculate recoveryTimeCalculate = PowerMockito.spy(new RecoveryTimeCalculate());
     Run currentBuild = new MockBuildBuilder().create();
 
     PowerMockito.when(BuildUtil.isFirstSuccessfulBuildAfterError(currentBuild)).thenReturn(true);
-    PowerMockito.doReturn(-1L).when(recoverTimeCalculate, "calculateRecoverTime", currentBuild);
+    PowerMockito.doReturn(-1L).when(recoveryTimeCalculate, "calculateRecoveryTime", currentBuild);
 
-    Long actual = recoverTimeCalculate.apply(currentBuild);
+    Long actual = recoveryTimeCalculate.apply(currentBuild);
 
-    PowerMockito.verifyPrivate(recoverTimeCalculate, times(1)).invoke("calculateRecoverTime", currentBuild);
+    PowerMockito.verifyPrivate(recoveryTimeCalculate, times(1)).invoke("calculateRecoveryTime", currentBuild);
     assertNull(actual);
   }
 
   @Test
   public void should_do_nothing_when_call_accept_given_a_unsuccessful_build() throws Exception {
-    RecoverTimeCalculate recoverTimeCalculate = PowerMockito.spy(new RecoverTimeCalculate());
+    RecoveryTimeCalculate recoveryTimeCalculate = PowerMockito.spy(new RecoveryTimeCalculate());
     Run currentBuild = new MockBuildBuilder().result(Result.FAILURE).create();
 
-    Long actual = recoverTimeCalculate.apply(currentBuild);
+    Long actual = recoveryTimeCalculate.apply(currentBuild);
 
-    PowerMockito.verifyPrivate(recoverTimeCalculate, never()).invoke("calculateRecoverTime", currentBuild);
+    PowerMockito.verifyPrivate(recoveryTimeCalculate, never()).invoke("calculateRecoveryTime", currentBuild);
     assertNull(actual);
   }
 
@@ -116,7 +116,7 @@ public class RecoverTimeCalculateTest {
     MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(70).duration(20).result(Result.FAILURE).previousBuild(null).create();
     MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
 
-    Long actual = recoverTimeCalculate.apply(lastBuild);
+    Long actual = recoveryTimeCalculate.apply(lastBuild);
 
     assertEquals(60L, actual.longValue());
   }
@@ -127,7 +127,7 @@ public class RecoverTimeCalculateTest {
     MockBuild previousBuild = previousPreviousBuild.createNextBuild(30L, 50L, Result.FAILURE);
     MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
 
-    Long actual = recoverTimeCalculate.apply(lastBuild);
+    Long actual = recoveryTimeCalculate.apply(lastBuild);
 
     Long exceptedRecoveryTime = BuildUtil.getBuildEndTime(lastBuild) - BuildUtil.getBuildEndTime(previousPreviousBuild);
     assertEquals(exceptedRecoveryTime, actual);
@@ -139,7 +139,7 @@ public class RecoverTimeCalculateTest {
     MockBuild previousBuild = previousPreviousBuild.createNextBuild(30L, 150L, Result.SUCCESS);
     MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
 
-    Long actual = recoverTimeCalculate.apply(lastBuild);
+    Long actual = recoveryTimeCalculate.apply(lastBuild);
 
     Long exceptedRecoveryTime = BuildUtil.getBuildEndTime(lastBuild) - BuildUtil.getBuildEndTime(previousPreviousBuild);
     assertEquals(exceptedRecoveryTime, actual);
@@ -151,7 +151,7 @@ public class RecoverTimeCalculateTest {
     MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(70).duration(20).result(Result.SUCCESS).previousBuild(null).create();
     MockBuild lastBuild = previousBuild.createNextBuild(30L, 50L, Result.SUCCESS);
 
-    Long actual = recoverTimeCalculate.apply(lastBuild);
+    Long actual = recoveryTimeCalculate.apply(lastBuild);
 
     assertNull(actual);
   }
@@ -161,7 +161,7 @@ public class RecoverTimeCalculateTest {
     MockBuild previousBuild = new MockBuildBuilder().startTimeInMillis(70).duration(100).result(Result.SUCCESS).previousBuild(null).create();
     MockBuild lastBuild = previousBuild.createNextBuild(10L, 50L, Result.SUCCESS);
 
-    Long actual = recoverTimeCalculate.apply(lastBuild);
+    Long actual = recoveryTimeCalculate.apply(lastBuild);
 
     assertNull(actual);
   }
@@ -170,7 +170,7 @@ public class RecoverTimeCalculateTest {
   public void should_not_send_recoveryTime_given_a_failed_build() {
     MockBuild lastBuild = new MockBuildBuilder().startTimeInMillis(70).duration(100).result(Result.FAILURE).previousBuild(null).create();
 
-    Long actual = recoverTimeCalculate.apply(lastBuild);
+    Long actual = recoveryTimeCalculate.apply(lastBuild);
 
     assertNull(actual);
   }
@@ -179,7 +179,7 @@ public class RecoverTimeCalculateTest {
   public void should_not_send_recoveryTime_given_a_first_success_build() {
     MockBuild lastBuild = new MockBuildBuilder().startTimeInMillis(70).duration(100).result(Result.SUCCESS).previousBuild(null).create();
 
-    Long actual = recoverTimeCalculate.apply(lastBuild);
+    Long actual = recoveryTimeCalculate.apply(lastBuild);
 
     assertNull(actual);
   }

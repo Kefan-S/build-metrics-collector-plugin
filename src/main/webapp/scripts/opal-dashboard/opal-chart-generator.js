@@ -22,17 +22,37 @@ let durationcalculate = function (value) {
   return time;
 };
 
+let startTimeDateFormatter = function (value, index) {
+  let data = JSON.parse(value);
+  return timeStampToDateTranslator(data.startTime, index);
+}
+
+let endTimeDateFormatter = function (value, index) {
+  let data = JSON.parse(value);
+  return timeStampToDateTranslator(data.startTime + data.duration, index);
+};
+
+let startTimeDateTimeFormatter = function (value, index) {
+  let data = JSON.parse(value);
+  return timeStampToDateTimeTranslator(data.startTime);
+};
+
+let endTimeDateTimeFormatter = function (value, index) {
+  let data = JSON.parse(value);
+  return timeStampToDateTimeTranslator(data.startTime + data.duration);
+};
+
 let timeStampToDateTranslator = function (value, index) {
-  var date = new Date(new Number(JSON.parse(value).startTime));
+  var date = new Date(value);
   var texts = [(date.getMonth() + 1), date.getDate()];
   if (index === 0) {
     texts.unshift(1900 + date.getYear());
   }
   return texts.join('/');
-}
+};
 
 let timeStampToDateTimeTranslator = function (value) {
-  var date = new Date(new Number(JSON.parse(value).startTime));
+  var date = new Date(value);
   var y = date.getFullYear();
   var m = date.getMonth() + 1;
   m = m < 10 ? ('0' + m) : m;
@@ -70,7 +90,7 @@ function lineChartOptionGenerator(chartName, data,
       type: 'category',
       data: data.map(xdata => JSON.stringify(xdata)),
       axisLabel: {
-        formatter: timeStampToDateTranslator
+        formatter: endTimeDateFormatter
       }
     },
     yAxis: {
@@ -90,7 +110,7 @@ function lineChartOptionGenerator(chartName, data,
 
 function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
     toolTipFormatter,
-    color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']]) {
+    color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']], maxScale, axisLabelFormatter) {
   return {
     title: {
       text: chartName,
@@ -102,6 +122,7 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
     },
     series: [
       {
+        max: maxScale,
         radius: "90%",
         name: metricsName,
         type: 'gauge',
@@ -111,6 +132,9 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
           lineStyle: {       // 属性lineStyle控制线条样式
             color: color
           }
+        },
+        axisLabel: {
+          formatter: axisLabelFormatter
         }
       }
     ]
@@ -190,7 +214,8 @@ function showNoDataReminder(data, chartSelector, noDataDivSelector) {
 
 const lineChartToolTipFormat = (xAxisName, yAxisName) => (params) => {
   let data = JSON.parse(params[0].axisValue);
-  return `${xAxisName}:${timeStampToDateTimeTranslator(params[0].axisValue)}<br/>`+
+  return `Start Time:${startTimeDateTimeFormatter(params[0].axisValue)}<br/>`+
+      `${xAxisName}:${endTimeDateTimeFormatter(params[0].axisValue)}<br/>`+
       `${yAxisName}:${durationcalculate(params[0].value)}<br/>`+
       `Triggered By:${data.triggeredBy}<br/>` +
       `Commit version:${data.lastCommitHash}<br/>`
@@ -198,7 +223,8 @@ const lineChartToolTipFormat = (xAxisName, yAxisName) => (params) => {
 
 const durationToolTipFormat = (xAxisName, yAxisName) => (params) => {
   let data = JSON.parse(params[0].axisValue);
-  return `${xAxisName}:${timeStampToDateTimeTranslator(params[0].axisValue)}<br/>`+
+  return `Start Time:${startTimeDateTimeFormatter(params[0].axisValue)}<br/>`+
+      `${xAxisName}:${endTimeDateTimeFormatter(params[0].axisValue)}<br/>`+
       `${yAxisName}:${durationcalculate(params[0].value)}<br/>`+
       `Triggered By:${data.triggeredBy}<br/>` +
       `Commit version:${data.lastCommitHash}<br/>`+

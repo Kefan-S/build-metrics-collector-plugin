@@ -8,8 +8,8 @@
   </Match>
 
   <Match>
-    <Class name="io.jenkins.plugins.collector.service.RecoverTimeCalculate"/>
-    <Method name="calculateRecoverTime"/>
+    <Class name="io.jenkins.plugins.collector.service.RecoveryTimeCalculate"/>
+    <Method name="calculateRecoveryTime"/>
     <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
   </Match>
 
@@ -32,7 +32,7 @@
   </Match>
 
   <Match>
-    <Class name="io.jenkins.plugins.collector.service.RecoverTimeCalculate"/>
+    <Class name="io.jenkins.plugins.collector.service.RecoveryTimeCalculate"/>
     <Method name="isASuccessAndFinishedMatchedBuild"/>
     <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
   </Match>
