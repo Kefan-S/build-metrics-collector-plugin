@@ -36,7 +36,7 @@
               <i-option v-for="item in jobs" :value="item">{{item}}</i-option>
             </i-select>
           </div>
-          <div class="filterDisplayContainer">
+          <div class="filterUserContainer">
             <span class="labelTitle">Trigger By</span>
             <i-select :model.sync="triggerBy" style="width:150px; height: 33px" placeholder="select user" clearable="true">
               <i-option v-for="item in users" :value="item">{{item}}</i-option>
@@ -125,9 +125,7 @@
               $.get(window.location.href + "users", param, function (data, status) {
                 if (status === 'success') {
                 vue.triggerBy = 'All users';
-                vue.users.length = 0;
-                vue.users.push(vue.triggerBy);
-                vue.users.push.apply(vue.users, data);
+                vue.users = ["All users", ...data]
                 vue.drawCharts();
                 }
               })
