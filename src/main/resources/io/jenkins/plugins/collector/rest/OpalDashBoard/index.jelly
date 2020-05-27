@@ -32,7 +32,7 @@
           </div>
           <div class="jobDisplayContainer">
             <span class="labelTitle">Monitored Job</span>
-            <i-select :model.sync="jobName" style="width:100px; height: 33px" placeholder="select Job" on-change="drawCharts">
+            <i-select :model.sync="jobName" style="width:100px; height: 33px" placeholder="select Job">
               <i-option v-for="item in jobs" :value="item">{{item}}</i-option>
             </i-select>
           </div>
@@ -110,6 +110,14 @@
               })
             }
           },
+          watch: {
+            jobName: function () {
+              vue.drawCharts();
+            },
+            dateRange: function () {
+              vue.drawCharts()
+            }
+          }
         })
       var recoveryTime = echarts.init(document.getElementById('recoveryTime'));
       var leadTime = echarts.init(document.getElementById('leadTime'));
