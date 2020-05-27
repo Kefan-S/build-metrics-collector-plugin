@@ -28,7 +28,13 @@
               ></Date-picker>
             </i-col>
           </div>
-          <div class="jobDisplayContainer">
+          <div class="filterDisplayContainer">
+            <span class="labelTitle">Trigger By</span>
+            <i-select :model.sync="triggerBy" style="width:150px; height: 33px" placeholder="select user" clearable="true">
+              <i-option v-for="item in users" :value="item">{{item}}</i-option>
+            </i-select>
+          </div>
+          <div class="filterDisplayContainer">
             <span class="labelTitle">Monitored Job</span>
             <span class="labelValue">{{jobName}}</span>
           </div>
@@ -70,11 +76,14 @@
       data: {
         dateRange: [new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), new Date()],
         jobName: ${it.currentJobName},
+        triggerBy: 'All users',
+        users: ['All users'],
         drawCharts: () => {
           let param = {
             jobName: vue.jobName,
             beginTime: new Date(vue.dateRange[0].toLocaleDateString()).getTime(),
-            endTime: new Date(vue.dateRange[1].toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1
+            endTime: new Date(vue.dateRange[1].toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1,
+            triggerBy: vue.triggerBy
           };
           $$.get(window.location.href + "data", param, function (data, status) {
             if (status === 'success') {
@@ -103,12 +112,26 @@
 
             }
           })
+        },
+        getUsers: () => {
+          let param = {
+            jobName: vue.jobName,
+          };
+          $.get(window.location.href + "users", param, function (data, status) {
+            if (status === 'success') {
+              vue.users.push.apply(vue.users, data)
+              vue.drawCharts();
+            }
+          })
         }
       },
       watch: {
         dateRange: function () {
           vue.drawCharts()
-        }
+        },
+        triggerBy: function () {
+          vue.drawCharts()
+        },
       }
     })
     var recoveryTime = echarts.init(document.getElementById('recoveryTime'));
@@ -123,7 +146,7 @@
       window.open(window.location.href.replace("opal", data.id))
     })
 
-    vue.drawCharts();
+    vue.getUsers();
     setInterval(vue.drawCharts, 2000);
   </script>
   </html>
