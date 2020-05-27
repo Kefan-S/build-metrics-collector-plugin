@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
 import io.jenkins.plugins.collector.model.BuildInfoResponse;
 import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
-import java.util.List;
+import java.util.Set;
 import org.kohsuke.stapler.StaplerRequest;
 
 public class JenkinsService {
@@ -17,7 +17,7 @@ public class JenkinsService {
   }
 
 
-  public List<String> getBuildUsers(String jobName) {
+  public Set<String> getBuildUsers(String jobName) {
     return jenkinsMetrics.getBuildUsers(jobName);
   }
 

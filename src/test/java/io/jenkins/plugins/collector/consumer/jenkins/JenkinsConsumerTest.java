@@ -7,6 +7,8 @@ import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import io.jenkins.plugins.collector.model.TriggerInfo;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 import jenkins.model.Jenkins;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,6 +61,16 @@ public class JenkinsConsumerTest {
 
     JenkinsConsumer consumer = new JenkinsConsumer(jenkins);
     assertNull(consumer.getMetrics(jenkinsFilterParameter));
+
+  }
+
+  @Test
+  public void should_return_empty_set_when_getBuildUsers_given_not_exist_job_name() {
+    when(jenkins.getItem(any())).thenReturn(item);
+    when(item.getRootDir()).thenReturn(new File("/folder"));
+
+    JenkinsConsumer consumer = new JenkinsConsumer(jenkins);
+    assertTrue(consumer.getBuildUsers("MockJob").isEmpty());
 
   }
 }

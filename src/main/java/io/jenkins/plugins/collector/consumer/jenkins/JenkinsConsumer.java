@@ -11,11 +11,14 @@ import io.jenkins.plugins.collector.model.BuildInfoResponse;
 import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import jenkins.model.Jenkins;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +38,14 @@ public class JenkinsConsumer implements JenkinsMetrics {
   }
 
   @Override
-  public List<String> getBuildUsers(String jobName) {
+  public Set<String> getBuildUsers(String jobName) {
     List<BuildInfo> buildInfos = getBuildInfoFromFile(jobName);
-    return Objects.requireNonNull(buildInfos).stream()
-        .map(buildInfo -> buildInfo.getTriggerInfo().getTriggeredBy())
-        .collect(Collectors.toList());
+    if (!CollectionUtils.isEmpty(buildInfos)) {
+      return buildInfos.stream()
+          .map(buildInfo -> buildInfo.getTriggerInfo().getTriggeredBy())
+          .collect(Collectors.toSet());
+    }
+    return new HashSet<>();
   }
 
   @Override

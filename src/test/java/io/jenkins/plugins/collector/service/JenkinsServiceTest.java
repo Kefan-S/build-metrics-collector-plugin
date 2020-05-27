@@ -3,8 +3,8 @@ package io.jenkins.plugins.collector.service;
 import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
 import io.jenkins.plugins.collector.model.BuildInfoResponse;
 import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,12 +54,12 @@ public class JenkinsServiceTest {
 
   @Test
   public void should_return_user_list_when_get_build_users() {
-    List<String> users = new ArrayList<>();
+    Set<String> users = new HashSet<>();
     users.add("trigger user1");
-
+    users.add("trigger user1");
     Mockito.when(jenkinsMetrics.getBuildUsers("MockJob")).thenReturn(users);
 
-    List<String> actualUser = jenkinsService.getBuildUsers("MockJob");
+    Set<String> actualUser = jenkinsService.getBuildUsers("MockJob");
     Assert.assertEquals(users, actualUser);
   }
 
