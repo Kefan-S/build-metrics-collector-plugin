@@ -92,7 +92,7 @@
               showNoDataReminder(data.deploymentFrequency, "#deployDistribution", "#noDataDeployDistribution");
 
 
-              recoveryTime.setOption(lineChartOptionGenerator('Recovery Time', recoveryTimeData, "Recovery Time", "Start Time", "recoveryTime", lineChartToolTipFormat("Start Time", "Recovery Time")));
+              recoveryTime.setOption(lineChartOptionGenerator('Recovery Time', recoveryTimeData, "Recovery Time", "End Time", "recoveryTime", lineChartToolTipFormat("End Time", "Recovery Time")));
               leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData, "Lead Time", "End Time", "leadTime", lineChartToolTipFormat("End Time", "Lead Time")));
               duration.setOption(lineChartOptionGenerator('Duration', durationData, "Duration", "End Time", "duration", durationToolTipFormat("End Time", "Duration")));
               failureRate.setOption(gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(2), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%',
