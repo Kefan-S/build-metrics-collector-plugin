@@ -55,16 +55,22 @@
   color: white;
 }
 
-.jobDisplayContainer {
+.filterDisplayContainer {
   align-items: center;
   padding-left: 20px;
-  padding-right: 50px;
+}
+
+.filterUserContainer {
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 40px;
 }
 
 .labelValue {
   font-size: 16px;
   color: white;
   font-weight: bold;
+  padding-right: 40px;
 }
 
 .opalDateRange {
