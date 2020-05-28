@@ -136,7 +136,7 @@
               })
             },
             goHome: () => {
-              window.location.href=window.location.href.replace("/opal", "");
+              window.location.replace(window.location.href.replace("/opal", ""));
             }
           },
           watch: {
