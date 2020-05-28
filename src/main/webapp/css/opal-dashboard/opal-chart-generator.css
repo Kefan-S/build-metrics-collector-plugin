@@ -35,14 +35,6 @@
   align-items: center;
 }
 
-.headerContainer {
-  display: flex;
-  background-color: #6983aa;
-  height: 45px;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-}
-
 .dateRangeContainer {
   display: flex;
   align-items: center;
@@ -76,4 +68,57 @@
 .opalDateRange {
   width: 175px;
   height: 33px;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  background-color: #6983aa;
+  height: 45px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.home-page-icon {
+  cursor: pointer;
+  padding-left: 20px;
+  color: white
+}
+
+.filter-block {
+  display: flex;
+}
+
+.date-range-container {
+  display: flex;
+  align-items: center;
+}
+
+.filter-container {
+  align-items: center;
+  padding-left: 20px;
+}
+
+.label-title {
+  font-size: 14px;
+  line-height: 45px;
+  padding-right: 8px;
+  color: white;
+}
+
+.label-value {
+  font-size: 16px;
+  color: white;
+  font-weight: bold;
+  padding-right: 40px;
+}
+
+.opal-daterange {
+  width: 175px;
+  height: 33px;
+}
+
+.user-select {
+  width: 150px;
+  height: 33px
 }

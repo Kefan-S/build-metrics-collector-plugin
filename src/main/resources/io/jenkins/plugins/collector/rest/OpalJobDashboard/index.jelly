@@ -20,7 +20,11 @@
   </header>
   <body>
     <div id="opalDashBoard">
-       <div class="headerContainer">
+       <div class="header-container">
+         <div class="home-page-icon" title="Home Page" onclick="vue.goHome()">
+           <Icon type="md-home" size="32"/>
+         </div>
+         <div class="filter-block">
           <div class="dateRangeContainer">
             <div class="labelTitle">Date Range</div>
             <i-col span="12">
@@ -38,6 +42,7 @@
             <span class="labelTitle">Monitored Job</span>
             <span class="labelValue">{{jobName}}</span>
           </div>
+         </div>
         </div>
       <div id="lineChartPanel">
         <div id="recoveryTime" class="opalLineChart"></div>
@@ -123,6 +128,9 @@
               vue.drawCharts();
             }
           })
+        },
+        goHome: () => {
+          window.location.href=window.location.href.replace("/opal", "");
         }
       },
       watch: {

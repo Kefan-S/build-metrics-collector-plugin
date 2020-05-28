@@ -22,26 +22,31 @@
     <div id="opalDashBoard">
       <div v-if="isNoJob" class="noJobMessage"> No job metrics are collected by Opal </div>
       <div v-if="!isNoJob">
-        <div class="headerContainer">
-          <div class="dateRangeContainer">
-            <div class="labelTitle">Date Range</div>
-            <i-col span="12">
-              <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-end" placeholder="select Date" clearable="false" class="opalDateRange"
-              ></Date-picker>
-            </i-col>
+       <div class="header-container">
+          <div class="home-page-icon" title="Home Page" onclick="vue.goHome()">
+            <Icon type="md-home" size="32"/>
           </div>
-          <div class="filterDisplayContainer">
-            <span class="labelTitle">Monitored Job</span>
-            <i-select :model.sync="jobName" style="width:100px; height: 33px" placeholder="select Job">
-              <i-option v-for="item in jobs" :value="item">{{item}}</i-option>
-            </i-select>
-          </div>
-          <div class="filterUserContainer">
-            <span class="labelTitle">Trigger By</span>
-            <i-select :model.sync="triggerBy" style="width:150px; height: 33px" placeholder="select user" clearable="true">
-              <i-option v-for="item in users" :value="item">{{item}}</i-option>
-            </i-select>
-          </div>
+          <div class="filter-block">
+            <div class="dateRangeContainer">
+              <div class="labelTitle">Date Range</div>
+              <i-col span="12">
+                <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-end" placeholder="select Date" clearable="false" class="opalDateRange"
+                ></Date-picker>
+              </i-col>
+            </div>
+            <div class="filterDisplayContainer">
+              <span class="labelTitle">Monitored Job</span>
+              <i-select :model.sync="jobName" style="width:100px; height: 33px" placeholder="select Job">
+                <i-option v-for="item in jobs" :value="item">{{item}}</i-option>
+              </i-select>
+            </div>
+            <div class="filterUserContainer">
+              <span class="labelTitle">Trigger By</span>
+              <i-select :model.sync="triggerBy" style="width:150px; height: 33px" placeholder="select user" clearable="true">
+                <i-option v-for="item in users" :value="item">{{item}}</i-option>
+              </i-select>
+            </div>
+           </div>
         </div>
         <div id="lineChartPanel">
           <div id="recoveryTime" class="opalLineChart"></div>
@@ -129,6 +134,9 @@
                 vue.drawCharts();
                 }
               })
+            },
+            goHome: () => {
+              window.location.href=window.location.href.replace("/opal", "");
             }
           },
           watch: {
