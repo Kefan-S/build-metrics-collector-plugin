@@ -4,22 +4,17 @@
   padding: 0 4%;
 }
 
-#gaguePanel {
+#gaugePanel {
   width: 30%;
   float: left;
 }
 
-.opalLineChart {
+.opal-line-chart, .opal-gauge-chart {
   height: 300px;
   width: 100%;
 }
 
-.opalGaugeChart {
-  height: 300px;
-  width: 100%;
-}
-
-.opalNoDataLineChart div, .opalNoDataGaugeChart div {
+.opal-no-data-line-chart div, .opal-no-data-gauge-chart div {
   padding-top: 120px;
   padding-bottom: 120px;
   text-align: center;
@@ -27,47 +22,12 @@
   color: grey;
 }
 
-.noJobMessage {
+.no-job-message {
   height: 500px;
   font-size: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.dateRangeContainer {
-  display: flex;
-  align-items: center;
-}
-
-.labelTitle {
-  font-size: 14px;
-  line-height: 45px;
-  padding-right: 8px;
-  color: white;
-}
-
-.filterDisplayContainer {
-  align-items: center;
-  padding-left: 20px;
-}
-
-.filterUserContainer {
-  align-items: center;
-  padding-left: 20px;
-  padding-right: 40px;
-}
-
-.labelValue {
-  font-size: 16px;
-  color: white;
-  font-weight: bold;
-  padding-right: 40px;
-}
-
-.opalDateRange {
-  width: 175px;
-  height: 33px;
 }
 
 .header-container {
@@ -99,6 +59,12 @@
   padding-left: 20px;
 }
 
+.filter-container-end {
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 40px;
+}
+
 .label-title {
   font-size: 14px;
   line-height: 45px;
@@ -118,7 +84,3 @@
   height: 33px;
 }
 
-.user-select {
-  width: 150px;
-  height: 33px
-}

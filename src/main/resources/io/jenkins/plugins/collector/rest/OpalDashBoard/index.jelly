@@ -20,28 +20,28 @@
   </header>
   <body>
     <div id="opalDashBoard">
-      <div v-if="isNoJob" class="noJobMessage"> No job metrics are collected by Opal </div>
+      <div v-if="isNoJob" class="no-job-message"> No job metrics are collected by Opal </div>
       <div v-if="!isNoJob">
        <div class="header-container">
           <div class="home-page-icon" title="Home Page" onclick="vue.goHome()">
             <Icon type="md-home" size="32"/>
           </div>
           <div class="filter-block">
-            <div class="dateRangeContainer">
-              <div class="labelTitle">Date Range</div>
+            <div class="date-range-container">
+              <div class="label-title">Date Range</div>
               <i-col span="12">
-                <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-end" placeholder="select Date" clearable="false" class="opalDateRange"
+                <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-end" placeholder="select Date" clearable="false" class="opal-daterange"
                 ></Date-picker>
               </i-col>
             </div>
-            <div class="filterDisplayContainer">
-              <span class="labelTitle">Monitored Job</span>
+            <div class="filter-container">
+              <span class="label-title">Monitored Job</span>
               <i-select :model.sync="jobName" style="width:100px; height: 33px" placeholder="select Job">
                 <i-option v-for="item in jobs" :value="item">{{item}}</i-option>
               </i-select>
             </div>
-            <div class="filterUserContainer">
-              <span class="labelTitle">Trigger By</span>
+            <div class="filter-container-end">
+              <span class="label-title">Trigger By</span>
               <i-select :model.sync="triggerBy" style="width:150px; height: 33px" placeholder="select user" clearable="true">
                 <i-option v-for="item in users" :value="item">{{item}}</i-option>
               </i-select>
@@ -49,30 +49,30 @@
            </div>
         </div>
         <div id="lineChartPanel">
-          <div id="recoveryTime" class="opalLineChart"></div>
-          <div id="noDataRecoveryTime" class="opalNoDataLineChart">
+          <div id="recoveryTime" class="opal-line-chart"></div>
+          <div id="noDataRecoveryTime" class="opal-no-data-line-chart">
             <div>Recovery Time<br/>No data to display</div>
           </div>
-          <div id="leadTime" class="opalLineChart"></div>
-          <div id="noDataLeadTime" class="opalNoDataLineChart">
+          <div id="leadTime" class="opal-line-chart"></div>
+          <div id="noDataLeadTime" class="opal-no-data-line-chart">
             <div>Lead Time<br/>No data to display</div>
           </div>
-          <div id="duration" class="opalLineChart"></div>
-          <div id="noDataDuration" class="opalNoDataLineChart">
+          <div id="duration" class="opal-line-chart"></div>
+          <div id="noDataDuration" class="opal-no-data-line-chart">
             <div>Duration<br/>No data to display</div>
           </div>
-          <div id="deployDistribution" class="opalLineChart"></div>
-          <div id="noDataDeployDistribution" class="opalNoDataLineChart">
+          <div id="deployDistribution" class="opal-line-chart"></div>
+          <div id="noDataDeployDistribution" class="opal-no-data-line-chart">
             <div>Deploy Distribution<br/>No data to display</div>
           </div>
         </div>
-        <div id="gaguePanel">
-          <div id="deployFrequency" class="opalGaugeChart"></div>
-          <div id="noDataDeployFrequency" class="opalNoDataGaugeChart">
+        <div id="gaugePanel">
+          <div id="deployFrequency" class="opal-gauge-chart"></div>
+          <div id="noDataDeployFrequency" class="opal-no-data-gauge-chart">
             <div>Deploy Frequency<br/>No data to display</div>
           </div>
-          <div id="failureRate" class="opalGaugeChart"></div>
-          <div id="noDataFailureRate" class="opalNoDataGaugeChart">
+          <div id="failureRate" class="opal-gauge-chart"></div>
+          <div id="noDataFailureRate" class="opal-no-data-gauge-chart">
             <div>Failure Rate<br/>No data to display</div>
           </div>
         </div>
