@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<link rel="stylesheet" href="./opal-chart-generator.css" type="text/css"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.7.0/dist/echarts.min.js"></script>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://unpkg.com/iview/dist/styles/iview.css">
+<script type="text/javascript" src="http://unpkg.com/iview/dist/iview.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/vuex@3.4.0/dist/vuex.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.js"></script>
+<script src="opal-chart-generator.js"></script>
+<body>
+<div id="opal-dash-board">
+  <div class="opal-header-container">
+    <opal-home-icon></opal-home-icon>
+    <opal-date-range-selector></opal-date-range-selector>
+    <opal-user-selector></opal-user-selector>
+    <opal-job-selector></opal-job-selector>
+  </div>
+  <opal-chart-panel :items="lineChartItems" clazz="opal-line-chart" id="opal-line-chart-panel"></opal-chart-panel>
+  <opal-chart-panel :items="gaugeChartItems" clazz="opal-gauge-chart" id="opal-gauge-chart-panel"></opal-chart-panel>
+</div>
+<!--<div class="opal-no-job-message"> No job metrics are collected by Opal </div>-->
+</body>
+</html>
+<script>
+
+  Vue.component('opal-chart', {
+    props:['option', 'identity', 'clazz'],
+    template: `<div>
+                  <div v-if="option" :id="identity" :class="clazz"></div>
+                  <div v-else class="opal-no-data-div">
+                    <div>Recovery Time<br/>No data to display</div>
+                  </div>
+              </div>`,
+    mounted() {
+      this.$nextTick(function() {
+        this.draw()
+      })
+    },
+    methods:{
+      draw: function () {
+        if (this.option){
+          echarts.init(document.getElementById(this.identity)).setOption(this.option)
+        }
+      }
+    }
+  });
+
+  Vue.component('opal-chart-panel', {
+    props: {
+      'items': Array,
+      'clazz': String
+    },
+    template: `
+            <div>
+              <opal-chart v-for="item in items" :key="item.id" :identity="item.id" :option="item.option" :clazz="clazz"/>
+            </div>
+    `
+  });
+
+  Vue.component('opal-user-selector', {
+    template: `
+          <div>
+            <span class="opal-selector-title">Trigger By</span>
+            <i-select :value='selectedUser' style="width:150px; height: 33px" placeholder="select user" >
+              <i-option v-for="user in users" :key="user" :value="user">{{user}}</i-option>
+            </i-select>
+          </div>
+    `,
+    methods: {
+      ...Vuex.mapActions({
+        getUsers: 'GET_USERS'
+      })
+    },
+    computed: Vuex.mapState([
+      'users',
+      'selectedUser'
+    ]),
+    mounted() {
+      this.$nextTick(function() {
+        this.getUsers()
+      })
+    }
+  });
+
+  Vue.component('opal-job-selector', {
+    template: `
+          <div>
+            <span class="opal-selector-title">Trigger By</span>
+            <i-select :value="selectedJob" style="width:150px; height: 33px" placeholder="select job">
+              <i-option v-for="job in jobs" :key="job" :value="job">{{job}}</i-option>
+            </i-select>
+          </div>
+    `,
+    computed: Vuex.mapState([
+      'jobs',
+      'selectedJob'
+    ]),
+  });
+
+
+  Vue.component('opal-date-range-selector', {
+    template: `
+      <div class="opal-date-range-container">
+      <div class="opal-selector-title">Date Range</div>
+      <i-col span="12">
+        <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-end" :clearable="false" placeholder="select date" class="opal-date-range">
+        </Date-picker>
+      </i-col>
+      </div>
+    `,
+    computed: Vuex.mapState([
+      'dateRange'
+    ])
+  });
+
+  Vue.component('opal-home-icon', {
+    template: `
+          <div class="opal-home-page-icon" title="Home Page" onclick="goHome()">
+            <Icon type="md-home" size="32"/>
+          </div>
+    `,
+    methods: {
+      goHome: () => {
+        window.location.replace(window.location.href.replace("/opal", ""));
+      }
+    }
+  });
+
+  const store = new Vuex.Store({
+    state: {
+      count: 10,
+      users: ['kxin', 'niu'],
+      jobs: ['job1', 'job2', 'foo'],
+      dateRange: [new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), new Date()],
+      selectedJob: 'foo',
+      selectedUser: 'All users',
+      data: null,
+    },
+    getters: {
+      lineChartItems: ({data}) => {
+        data = data ? data : BUILD_DATA;
+        let recoveryTimeData = data.buildInfos.filter(data => data.recoveryTime !== null);
+        let leadTimeData = data.buildInfos.filter(data => data.leadTime !== null);
+        let durationData = data.buildInfos.filter(data => data.duration !== null);
+        return [{
+          id:"opal-recovery-time-chart",
+          option:lineChartOptionGenerator('Recovery Time', recoveryTimeData, "Recovery Time", "End Time", "recoveryTime", lineChartToolTipFormat("End Time", "Recovery Time"))
+        },{
+          id:"opal-lead-time-chart",
+          option: lineChartOptionGenerator('Lead Time', leadTimeData, "Lead Time", "End Time", "leadTime", lineChartToolTipFormat("End Time", "Lead Time"))
+        },{
+          id:"opal-duration-chart",
+          option:lineChartOptionGenerator('Duration', durationData, "Duration", "End Time", "duration", durationToolTipFormat("End Time", "Duration"))
+        },{
+          id:"opal-build-distribution-chart",
+          option:deployTimeDistributionChartOptionGenerator(data)
+        }]
+      },
+      gaugeChartItems: ({data}) => {
+        data = data ? data : BUILD_DATA;
+        return [{
+          id:"failure-rate-chart",
+          option:gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(2), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%',
+              [[0.1, '#91c7ae'], [0.3, '#FFA500'], [0.5, '#c23531'], [1, '#990077']], 100, value => value)
+        },{
+          id:"deploy-frequency-chart",
+          option: gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}',
+              [[0.1, '#c23531'], [0.8, '#63869e'], [1, '#91c7ae']], 200, value => value === 200 ? value + "+" : value)
+        }]
+      },
+    },
+    mutations: {
+      'GET_USERS_SUCCESS': (state, payload) => {
+        state.users = payload, state.selectedUser = payload[0]
+      },
+      'GET_DATA_SUCCESS': (state, playload) => state.data = playload,
+      'UPDATE_SELECTED_USERS': (state, playload) => {
+        state.users = playload,
+            state.selectedUser = playload[0]
+      }
+    },
+    actions: {
+      'GET_USERS': ({commit, state}) => {
+        let param = {
+          jobName: state.selectedJob,
+        };
+        $.get("http://localhost:8080/jenkins/opal/users", param, function (data, status) {
+          if (status === 'success') {
+            commit("GET_USERS_SUCCESS", data);
+          }
+        })
+      },
+      'GET_DATA': ({commit, state}) => {
+        let param = {
+          jobName: state.selectedJob,
+          beginTime: new Date(state.dateRange[0].toLocaleDateString()).getTime(),
+          endTime: new Date(state.dateRange[1].toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1,
+          triggerBy: state.selectedUser
+        };
+        $.get("http://localhost:8080/jenkins/opal/data", param, function (data, status) {
+          if (status === 'success') {
+            commit("GET_DATA_SUCCESS", data);
+          }
+        })
+      },
+    }
+  });
+
+  var opalDashBoard = new Vue({
+    el: '#opal-dash-board',
+    store: store,
+    computed: {
+      ...Vuex.mapGetters([
+        'lineChartItems',
+        'gaugeChartItems',
+        // ...
+      ])
+    },
+    methods: {
+      ...Vuex.mapActions({
+        getData: 'GET_DATA'
+      })
+    },
+    mounted() {
+      this.$nextTick(function () {
+        this.getData()
+      })
+    }
+  })
+</script>
