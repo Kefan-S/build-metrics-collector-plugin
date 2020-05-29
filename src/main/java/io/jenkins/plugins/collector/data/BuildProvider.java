@@ -5,7 +5,9 @@ import hudson.model.Job;
 import hudson.model.Run;
 import io.jenkins.plugins.collector.config.CollectableBuildsJobProperty;
 import io.jenkins.plugins.collector.exception.NoSuchBuildException;
+import io.jenkins.plugins.collector.util.BuildUtil;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +51,10 @@ public class BuildProvider {
   }
 
   private Run getFirstCompletedBuild(Set<Run> runs) {
-    return runs.stream().filter(run -> !run.isBuilding()).findFirst().orElse(null);
+    return runs.stream()
+        .filter(run -> !run.isBuilding())
+        .min(Comparator.comparing(BuildUtil::getBuildEndTime))
+        .orElse(null);
   }
 
   private void updateUnhandledBuilds() {

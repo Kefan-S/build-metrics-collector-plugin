@@ -10,5 +10,6 @@ public class JenkinsFilterParameter {
   private String jobName;
   private String beginTime;
   private String endTime;
+  private String triggerBy;
 
 }
