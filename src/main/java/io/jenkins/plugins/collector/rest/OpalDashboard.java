@@ -1,31 +1,29 @@
 package io.jenkins.plugins.collector.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import hudson.Extension;
 import hudson.model.AbstractItem;
 import hudson.model.RootAction;
 import hudson.util.HttpResponses;
 import io.jenkins.plugins.collector.config.CollectableBuildsJobProperty;
-import io.jenkins.plugins.collector.consumer.jenkins.JenkinsMetrics;
 import io.jenkins.plugins.collector.data.JobProvider;
-import io.jenkins.plugins.collector.model.JenkinsFilterParameter;
+import io.jenkins.plugins.collector.service.JenkinsService;
+import io.jenkins.plugins.collector.util.HttpResponseUtil;
 import java.util.List;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
 import static java.util.stream.Collectors.toList;
 
 @Extension
 public class OpalDashboard implements RootAction {
 
-  private JenkinsMetrics jenkinsMetrics;
+  private JenkinsService jenkinsService;
   private JobProvider jobProvider;
 
   @Inject
-  public void setJenkinsMetrics(JenkinsMetrics jenkinsMetrics) {
-    this.jenkinsMetrics = jenkinsMetrics;
+  public void setJenkinsService(JenkinsService jenkinsService) {
+    this.jenkinsService = jenkinsService;
   }
 
   @Inject
@@ -50,12 +48,11 @@ public class OpalDashboard implements RootAction {
 
   public HttpResponse doDynamic(StaplerRequest request) {
     if (request.getRestOfPath().equalsIgnoreCase("/data")) {
-      JenkinsFilterParameter jenkinsFilterParameter = JenkinsFilterParameter.builder()
-          .jobName(request.getParameter("jobName"))
-          .beginTime(request.getParameter("beginTime"))
-          .endTime(request.getParameter("endTime"))
-          .build();
-      return jenkinsResponse(jenkinsFilterParameter);
+      return HttpResponseUtil.generateHttpResponse(jenkinsService.getMetricsData(request));
+    }
+    if (request.getRestOfPath().equalsIgnoreCase("/users")) {
+      return HttpResponseUtil.generateHttpResponse(jenkinsService.getBuildUsers(request.getParameter("jobName")));
+
     }
     return HttpResponses.notFound();
   }
@@ -66,15 +63,5 @@ public class OpalDashboard implements RootAction {
         .map(AbstractItem::getFullName)
         .map(jobName -> String.format("'%s'", jobName))
         .collect(toList());
-  }
-
-  private HttpResponse jenkinsResponse(JenkinsFilterParameter jenkinsFilterParameter) {
-    return (StaplerRequest request, StaplerResponse response, Object node) -> {
-      response.setStatus(StaplerResponse.SC_OK);
-      response.setContentType("application/json; charset=UTF-8");
-      response.addHeader("Cache-Control", "must-revalidate,no-cache,no-store");
-      response.addHeader("Access-Control-Allow-Origin", "*");
-      response.getWriter().write(new ObjectMapper().writeValueAsString(jenkinsMetrics.getMetrics(jenkinsFilterParameter)));
-    };
   }
 }
