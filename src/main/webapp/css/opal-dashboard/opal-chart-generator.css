@@ -1,17 +1,5 @@
-#lineChartPanel {
-  width: 60%;
-  float: left;
-  padding: 0 4%;
-}
-
-#gaugePanel {
-  width: 30%;
-  float: left;
-}
-
 .opal-line-chart, .opal-gauge-chart {
   height: 300px;
-  width: 100%;
 }
 
 .opal-no-data-line-chart div, .opal-no-data-gauge-chart div {
@@ -57,12 +45,14 @@
 .filter-container {
   align-items: center;
   padding-left: 20px;
+  display: flex;
 }
 
 .filter-container-end {
   align-items: center;
   padding-left: 20px;
   padding-right: 40px;
+  display: flex;
 }
 
 .label-title {
@@ -84,3 +74,7 @@
   height: 33px;
 }
 
+.chart-container {
+  display: flex;
+  padding: 0 40px
+}

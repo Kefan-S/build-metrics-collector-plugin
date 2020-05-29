@@ -35,47 +35,53 @@
               </i-col>
             </div>
             <div class="filter-container">
-              <span class="label-title">Monitored Job</span>
-              <i-select :model.sync="jobName" style="width:100px; height: 33px" placeholder="select Job">
+              <div class="label-title">Monitored Job</div>
+              <i-select :model.sync="jobName" style="width:150px; height: 33px" placeholder="select Job">
                 <i-option v-for="item in jobs" :value="item">{{item}}</i-option>
               </i-select>
             </div>
             <div class="filter-container-end">
-              <span class="label-title">Trigger By</span>
+              <div class="label-title">Trigger By</div>
               <i-select :model.sync="triggerBy" style="width:150px; height: 33px" placeholder="select user" clearable="true">
                 <i-option v-for="item in users" :value="item">{{item}}</i-option>
               </i-select>
             </div>
            </div>
         </div>
-        <div id="lineChartPanel">
-          <div id="recoveryTime" class="opal-line-chart"></div>
-          <div id="noDataRecoveryTime" class="opal-no-data-line-chart">
-            <div>Recovery Time<br/>No data to display</div>
+       <div class="chart-container">
+        <i-col span="16">
+          <div id="lineChartPanel">
+            <div id="recoveryTime" class="opal-line-chart"></div>
+            <div id="noDataRecoveryTime" class="opal-no-data-line-chart">
+              <div>Recovery Time<br/>No data to display</div>
+            </div>
+            <div id="leadTime" class="opal-line-chart"></div>
+            <div id="noDataLeadTime" class="opal-no-data-line-chart">
+              <div>Lead Time<br/>No data to display</div>
+            </div>
+            <div id="duration" class="opal-line-chart"></div>
+            <div id="noDataDuration" class="opal-no-data-line-chart">
+              <div>Duration<br/>No data to display</div>
+            </div>
+            <div id="deployDistribution" class="opal-line-chart"></div>
+            <div id="noDataDeployDistribution" class="opal-no-data-line-chart">
+              <div>Deploy Distribution<br/>No data to display</div>
+            </div>
           </div>
-          <div id="leadTime" class="opal-line-chart"></div>
-          <div id="noDataLeadTime" class="opal-no-data-line-chart">
-            <div>Lead Time<br/>No data to display</div>
+        </i-col>
+        <i-col span="8">
+          <div id="gaugePanel">
+            <div id="deployFrequency" class="opal-gauge-chart"></div>
+            <div id="noDataDeployFrequency" class="opal-no-data-gauge-chart">
+              <div>Deploy Frequency<br/>No data to display</div>
+            </div>
+            <div id="failureRate" class="opal-gauge-chart"></div>
+            <div id="noDataFailureRate" class="opal-no-data-gauge-chart">
+              <div>Failure Rate<br/>No data to display</div>
+            </div>
           </div>
-          <div id="duration" class="opal-line-chart"></div>
-          <div id="noDataDuration" class="opal-no-data-line-chart">
-            <div>Duration<br/>No data to display</div>
-          </div>
-          <div id="deployDistribution" class="opal-line-chart"></div>
-          <div id="noDataDeployDistribution" class="opal-no-data-line-chart">
-            <div>Deploy Distribution<br/>No data to display</div>
-          </div>
-        </div>
-        <div id="gaugePanel">
-          <div id="deployFrequency" class="opal-gauge-chart"></div>
-          <div id="noDataDeployFrequency" class="opal-no-data-gauge-chart">
-            <div>Deploy Frequency<br/>No data to display</div>
-          </div>
-          <div id="failureRate" class="opal-gauge-chart"></div>
-          <div id="noDataFailureRate" class="opal-no-data-gauge-chart">
-            <div>Failure Rate<br/>No data to display</div>
-          </div>
-        </div>
+        </i-col>
+       </div>
       </div>
     </div>
   </body>
@@ -164,6 +170,14 @@
 
       vue.getUsers();
       setInterval(vue.drawCharts, 2000);
+      window.onresize = function () {
+          recoveryTime.resize()
+          leadTime.resize()
+          duration.resize()
+          failureRate.resize()
+          deployFrequency.resize()
+          deployDistribution.resize()
+        }
   </script>
   </html>
 </j:jelly>
