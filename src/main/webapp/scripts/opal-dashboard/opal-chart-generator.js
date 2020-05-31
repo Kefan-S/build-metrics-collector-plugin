@@ -71,7 +71,8 @@ function lineChartOptionGenerator(chartName, data,
     yAxisName, xAxisName = "Start Time", yAxisField, toolTipFormat) {
   return {
     grid: {
-      left: 120
+      left: 120,
+      right:120,
     },
     title: {
       text: chartName,
@@ -144,7 +145,9 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
 function deployTimeDistributionChartOptionGenerator(data) {
   return {
     grid: {
-      left: 120
+      left: 120,
+      right: 120,
+
     },
     title: {
       text: 'Deploy Time Distribution',
