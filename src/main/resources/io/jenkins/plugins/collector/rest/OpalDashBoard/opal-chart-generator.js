@@ -49,6 +49,7 @@ let timeStampToDateTimeTranslator = function (value) {
 
 function lineChartOptionGenerator(chartName, data,
     yAxisName, xAxisName = "Start Time", yAxisField, toolTipFormat) {
+  if(isNil(data)) return null;
   return {
     grid: {
       left: 120

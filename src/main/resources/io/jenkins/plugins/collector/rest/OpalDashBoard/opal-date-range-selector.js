@@ -1,0 +1,26 @@
+Vue.component('opal-date-range-selector', {
+  template: `
+      <div class="opal-date-range-container">
+      <div class="opal-selector-title">Date Range</div>
+      <i-col span="12">
+        <Date-picker :value="dateRange" @on-change="dateRangeChange" type="daterange" placement="bottom-end" :clearable="false" placeholder="select date" class="opal-date-range">
+        </Date-picker>
+      </i-col>
+      </div>
+    `,
+  computed: Vuex.mapState([
+    'dateRange'
+  ]),
+  methods: {
+    ...Vuex.mapActions({
+      getData: 'GET_DATA'
+    }),
+    ...Vuex.mapMutations({
+      updateDateRange: 'UPDATE_DATE_RANGE'
+    }),
+    dateRangeChange(newVal){
+      this.updateDateRange(newVal.map(date => new Date(date)));
+      this.getData();
+    }
+  },
+});
