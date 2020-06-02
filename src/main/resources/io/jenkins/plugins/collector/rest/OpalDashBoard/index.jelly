@@ -49,7 +49,7 @@
   </body>
   </html>
   <script>
-    var opalDashBoard = new Vue({
+    new Vue({
       el: '#opal-dash-board',
       store: store,
       computed: {
@@ -60,13 +60,7 @@
         ...Vuex.mapState([
           'jobs',
         ])
-      },
-      methods: {
-        ...Vuex.mapActions({
-          getData: 'GET_DATA'
-        })
-      },
+      }
     })
-    console.log(opalDashBoard.jobs)
   </script>
 </j:jelly>
