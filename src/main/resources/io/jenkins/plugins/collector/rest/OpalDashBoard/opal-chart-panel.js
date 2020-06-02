@@ -5,7 +5,7 @@ Vue.component('opal-chart-panel', {
   },
   template: `
             <div>
-              <opal-chart v-for="item in items" :name="item.name" :key="item.id" :identity="item.id" :option="item.option" :clazz="clazz"/>
+              <opal-chart v-for="item in items" :name="item.name" :key="item.id" :clickEvent="item.clickEvent" :identity="item.id" :option="item.option" :clazz="clazz"/>
             </div>
     `,
 });

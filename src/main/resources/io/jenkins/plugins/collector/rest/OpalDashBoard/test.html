@@ -34,7 +34,7 @@
     <opal-chart-panel :items="lineChartItems" clazz="opal-line-chart" id="opal-line-chart-panel"></opal-chart-panel>
     <opal-chart-panel :items="gaugeChartItems" clazz="opal-gauge-chart" id="opal-gauge-chart-panel"></opal-chart-panel>
   </div>
-  <div v-else class="opal-no-job-message"> No job metrics are collected by Opal </div>
+  <div v-if="!jobs" class="opal-no-job-message"> No job metrics are collected by Opal </div>
 </div>
 </body>
 </html>

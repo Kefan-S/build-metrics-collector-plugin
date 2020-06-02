@@ -8,6 +8,12 @@ const store = new Vuex.Store({
     data: null,
   },
   getters: {
+    skipToJobDetailEvent: ({selectedJob}) => {
+      return (param) => {
+        let data = JSON.parse(param.name);
+        window.open(window.location.href.replace("opal", "job/") + selectedJob + "/" + data.id);
+      }
+    },
     lineChartItems: ({data}) => {
       data = data ? data : BUILD_DATA;
       let recoveryTimeData = data.buildInfos.filter(data => data.recoveryTime !== null);
@@ -24,7 +30,8 @@ const store = new Vuex.Store({
       },{
         id:"opal-duration-chart",
         name: "Duration",
-        option: lineChartOptionGenerator('Duration', durationData, "Duration", "End Time", "duration", durationToolTipFormat("End Time", "Duration"))
+        option: lineChartOptionGenerator('Duration', durationData, "Duration", "End Time", "duration", durationToolTipFormat("End Time", "Duration")),
+        clickEvent: 'skipToJobDetailEvent'
       },{
         id:"opal-build-distribution-chart",
         name: "Build Distribution",
