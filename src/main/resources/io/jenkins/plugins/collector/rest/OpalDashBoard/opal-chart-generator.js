@@ -92,6 +92,7 @@ function lineChartOptionGenerator(chartName, data,
 function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
     toolTipFormatter,
     color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']]) {
+  if(isNil(data)) return null;
   return {
     title: {
       text: chartName,
@@ -119,6 +120,8 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
 }
 
 function deployTimeDistributionChartOptionGenerator(data) {
+  let series = deployFrequencyDistributionCalculate(data);
+  if(!series.reduce((a,b) => a + b)) return null;
   return {
     grid: {
       left: 120
@@ -159,7 +162,7 @@ function deployTimeDistributionChartOptionGenerator(data) {
       {
         name: 'deploy frequency',
         type: 'bar',
-        data: deployFrequencyDistributionCalculate(data),
+        data: series,
         markPoint: {
           data: [
             {type: 'max', name: 'max'},
