@@ -1,20 +1,25 @@
-#lineChartPanel {
+#opal-line-chart-panel {
   width: 60%;
   float: left;
   padding: 0 4%;
 }
 
-#gaugePanel {
+#opal-gauge-chart-panel {
   width: 30%;
   float: left;
 }
 
-.opal-line-chart, .opal-gauge-chart {
+.opal-line-chart {
   height: 300px;
   width: 100%;
 }
 
-.opal-no-data-line-chart div, .opal-no-data-gauge-chart div {
+.opal-gauge-chart {
+  height: 300px;
+  width: 100%;
+}
+
+.opal-no-data-div {
   padding-top: 120px;
   padding-bottom: 120px;
   text-align: center;
@@ -22,7 +27,7 @@
   color: grey;
 }
 
-.no-job-message {
+.opal-no-job-message {
   height: 500px;
   font-size: 24px;
   display: flex;
@@ -30,7 +35,7 @@
   align-items: center;
 }
 
-.header-container {
+.opal-header-container {
   display: flex;
   align-items: center;
   background-color: #6983aa;
@@ -39,48 +44,53 @@
   margin-bottom: 20px;
 }
 
-.home-page-icon {
+.opal-date-range-container {
+  display: flex;
+  align-items: center;
+}
+
+.opal-selector-title {
+  font-size: 14px;
+  line-height: 45px;
+  padding-right: 8px;
+  padding-left: 8px;
+  color: white;
+}
+
+.jobDisplayContainer {
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 50px;
+}
+
+.labelValue {
+  font-size: 16px;
+  color: white;
+  font-weight: bold;
+}
+
+.opal-date-range {
+  width: 180px;
+  height: 33px;
+}
+
+.opal-home-page-icon {
   cursor: pointer;
   padding-left: 20px;
   color: white
 }
 
-.filter-block {
-  display: flex;
-}
-
-.date-range-container {
-  display: flex;
-  align-items: center;
-}
-
-.filter-container {
+.opal-filter-container {
   align-items: center;
   padding-left: 20px;
 }
 
-.filter-container-end {
+.opal-filter-container-end {
   align-items: center;
   padding-left: 20px;
   padding-right: 40px;
 }
 
-.label-title {
-  font-size: 14px;
-  line-height: 45px;
-  padding-right: 8px;
-  color: white;
+.opal-select-block {
+  display: flex;
 }
-
-.label-value {
-  font-size: 16px;
-  color: white;
-  font-weight: bold;
-  padding-right: 40px;
-}
-
-.opal-daterange {
-  width: 175px;
-  height: 33px;
-}
-
