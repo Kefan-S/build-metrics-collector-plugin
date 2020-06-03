@@ -72,3 +72,8 @@
   display: flex;
   padding: 0 40px
 }
+
+.opal-select {
+  width:150px;
+  height: 33px
+}

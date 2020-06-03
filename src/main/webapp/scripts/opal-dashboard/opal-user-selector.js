@@ -2,7 +2,7 @@ Vue.component('opal-user-selector', {
   template: `
           <div class="opal-filter-container">
             <span class="opal-selector-title">Trigger By</span>
-            <i-select :value='selectedUser' style="width:150px; height: 33px" placeholder="select user" @on-change="userChange">
+            <i-select :value='selectedUser' class="opal-selector" placeholder="select user" @on-change="userChange">
               <i-option v-for="user in users" :key="user" :value="user">{{user}}</i-option>
             </i-select>
           </div>

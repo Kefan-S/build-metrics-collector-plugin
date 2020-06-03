@@ -2,7 +2,7 @@ Vue.component('opal-job-selector', {
   template: `
           <div class="opal-filter-container">
             <span class="opal-selector-title">Monitored Job</span>
-            <i-select :value="selectedJob" style="width:150px; height: 33px" placeholder="select job" @on-change="jobChange">
+            <i-select :value="selectedJob" class="opal-selector" placeholder="select job" @on-change="jobChange">
               <i-option v-for="job in jobs" :key="job" :value="job">{{job}}</i-option>
             </i-select>
           </div>

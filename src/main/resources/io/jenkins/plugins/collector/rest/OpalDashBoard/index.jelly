@@ -9,18 +9,15 @@
   <html>
   <header>
     <title>Opal</title>
-    <link rel="stylesheet" href="${resURL}/plugin/build-metrics-collector-plugin/css/opal-dashboard/opal-chart-generator.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="${resURL}/plugin/build-metrics-collector-plugin/css/iview/iview.css" />
+    <link rel="stylesheet" href="${resURL}/plugin/build-metrics-collector-plugin/css/opal-dashboard/opal-chart-generator.css" type="text/css" />
     <link rel="shortcut icon" href="${resURL}/plugin/build-metrics-collector-plugin/images/opal.png" type="image/vnd.microsoft.icon" />
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/echarts.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/jquery-3.5.1.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart-generator.js"></script>
-
     <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/vue.min.js"></script>
     <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/vuex.js"></script>
     <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/iview.min.js"></script>
-
-
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/es6-promise.auto.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart-panel.js"></script>
@@ -32,7 +29,7 @@
   </header>
   <body>
   <div id="opal-dash-board">
-    <div v-if="jobs">
+    <div v-show="!isNil(jobs)">
       <div class="opal-header-container">
         <opal-home-icon></opal-home-icon>
         <div class="opal-select-block">
@@ -46,7 +43,7 @@
         <opal-chart-panel :items="gaugeChartItems" clazz="opal-gauge-chart" id="opal-gauge-chart-panel" span="8"></opal-chart-panel>
       </div>
     </div>
-    <div v-if="!jobs" class="opal-no-job-message"> No job metrics are collected by Opal </div>
+    <div v-if="isNil(jobs)" class="opal-no-job-message"> No job metrics are collected by Opal </div>
   </div>
   </body>
   </html>
@@ -62,7 +59,10 @@
         ...Vuex.mapState([
           'jobs',
         ])
-      }
+      },
+      methods: {
+       isNil
+      },
     })
   </script>
 </j:jelly>

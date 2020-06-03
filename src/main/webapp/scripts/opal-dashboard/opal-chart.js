@@ -8,6 +8,7 @@ Vue.component('opal-chart', {
               </div>`,
   mounted() {
     this.$nextTick(function() {
+      echarts.init(document.getElementById(this.identity));
       this.draw()
       window.addEventListener('resize', this.onResize);
     })
@@ -18,22 +19,24 @@ Vue.component('opal-chart', {
   computed: {
     ...Vuex.mapGetters([
       'skipToJobDetailEvent',
-    ])
+    ]),
+    chart() {
+      return echarts.getInstanceByDom(document.getElementById(this.identity))
+    }
   },
   methods:{
-    draw: function () {
-      if (this.option && document.getElementById(this.identity)){
-        let chart = echarts.init(document.getElementById(this.identity))
+    draw() {
+      if (this.option){
         if(this.clickEvent){
-          chart.off('click');
-          chart.on("click", this[this.clickEvent]);
+          this.chart.off('click');
+          this.chart.on("click", this[this.clickEvent]);
         }
-        chart.setOption(this.option);
-        chart.resize();
+        this.chart.setOption(this.option);
+        this.chart.resize();
       }
     },
     onResize: function () {
-      this.draw();
+      this.chart.resize();
     }
   },
   watch: {
