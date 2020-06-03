@@ -52,7 +52,8 @@ function lineChartOptionGenerator(chartName, data,
   if(isNil(data)) return null;
   return {
     grid: {
-      left: 120
+      left: 120,
+      right:120,
     },
     title: {
       text: chartName,
@@ -124,7 +125,9 @@ function deployTimeDistributionChartOptionGenerator(data) {
   if(!series.reduce((a,b) => a + b)) return null;
   return {
     grid: {
-      left: 120
+      left: 120,
+      right: 120,
+
     },
     title: {
       text: 'Deploy Time Distribution',

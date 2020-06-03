@@ -1,22 +1,5 @@
-#opal-line-chart-panel {
-  width: 60%;
-  float: left;
-  padding: 0 4%;
-}
-
-#opal-gauge-chart-panel {
-  width: 30%;
-  float: left;
-}
-
-.opal-line-chart {
+.opal-line-chart, .opal-gauge-chart {
   height: 300px;
-  width: 100%;
-}
-
-.opal-gauge-chart {
-  height: 300px;
-  width: 100%;
 }
 
 .opal-no-data-div {
@@ -57,16 +40,11 @@
   color: white;
 }
 
-.jobDisplayContainer {
-  align-items: center;
-  padding-left: 20px;
-  padding-right: 50px;
-}
-
-.labelValue {
+.label-value {
   font-size: 16px;
   color: white;
   font-weight: bold;
+  padding-right: 40px;
 }
 
 .opal-date-range {
@@ -93,4 +71,9 @@
 
 .opal-select-block {
   display: flex;
+}
+
+.chart-container {
+  display: flex;
+  padding: 0 40px
 }
