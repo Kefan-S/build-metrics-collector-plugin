@@ -8,6 +8,7 @@ Vue.component('opal-chart', {
               </div>`,
   mounted() {
     this.$nextTick(function() {
+      echarts.init(document.getElementById(this.identity));
       this.draw()
     })
   },
@@ -17,9 +18,9 @@ Vue.component('opal-chart', {
     ])
   },
   methods:{
-    draw: function () {
-      if (this.option && document.getElementById(this.identity)){
-        let chart = echarts.init(document.getElementById(this.identity))
+    draw() {
+      if (this.option){
+        let chart = echarts. getInstanceByDom(document.getElementById(this.identity))
         if(this.clickEvent){
           chart.off('click');
           chart.on("click", this[this.clickEvent]);
