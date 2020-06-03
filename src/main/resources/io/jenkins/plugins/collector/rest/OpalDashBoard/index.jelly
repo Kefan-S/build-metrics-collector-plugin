@@ -32,7 +32,7 @@
   </header>
   <body>
   <div id="opal-dash-board">
-    <div v-if="jobs">
+    <div v-if="!isNil(jobs)">
       <div class="opal-header-container">
         <opal-home-icon></opal-home-icon>
         <div class="opal-select-block">
@@ -44,7 +44,7 @@
       <opal-chart-panel :items="lineChartItems" clazz="opal-line-chart" id="opal-line-chart-panel"></opal-chart-panel>
       <opal-chart-panel :items="gaugeChartItems" clazz="opal-gauge-chart" id="opal-gauge-chart-panel"></opal-chart-panel>
     </div>
-    <div v-if="!jobs" class="opal-no-job-message"> No job metrics are collected by Opal </div>
+    <div v-if="isNil(jobs)" class="opal-no-job-message"> No job metrics are collected by Opal </div>
   </div>
   </body>
   </html>
@@ -60,7 +60,10 @@
         ...Vuex.mapState([
           'jobs',
         ])
-      }
+      },
+      methods: {
+       isNil
+      },
     })
   </script>
 </j:jelly>
