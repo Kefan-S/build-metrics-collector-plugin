@@ -11,7 +11,7 @@ const store = new Vuex.Store({
     skipToJobDetailEvent: ({selectedJob}) => {
         return (param) => {
           let data = JSON.parse(param.name);
-          window.open(window.location.href.replace("opal", "job/") + selectedJob + "/" + data.id);
+          window.open(window.location.href.replace(/\/job.*(?=\/opal)/g,'').replace("opal", "job/") + selectedJob + "/" + data.id);
         }
     },
     lineChartItems: ({data}) => {
@@ -82,14 +82,14 @@ const store = new Vuex.Store({
       let param = {
         jobName: state.selectedJob,
       };
-      $.get(`${window.location.href}/users`, param, function (data, status) {
+      $.get(`${window.location.href.replace(/\/job.*(?=\/opal)/g,'')}/users`, param, function (data, status) {
         if (status === 'success') {
           commit("GET_USERS_SUCCESS", data);
         }
       })
     },
     'GET_JOBS': ({commit}) => {
-      $.get(`${window.location.href}/jobs`, function (data, status) {
+      $.get(`${window.location.href.replace(/\/job.*(?=\/opal)/g,'')}/jobs`, function (data, status) {
         if (status === 'success') {
           commit("GET_JOBS_SUCCESS", data);
         }
@@ -102,7 +102,7 @@ const store = new Vuex.Store({
         endTime: new Date(state.dateRange[1].toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1,
         triggerBy: state.selectedUser
       };
-      $.get(`${window.location.href}/data`, param, function (data, status) {
+      $.get(`${window.location.href.replace(/\/job.*(?=\/opal)/g,'')}/data`, param, function (data, status) {
         if (status === 'success') {
           commit("GET_DATA_SUCCESS", data);
         }

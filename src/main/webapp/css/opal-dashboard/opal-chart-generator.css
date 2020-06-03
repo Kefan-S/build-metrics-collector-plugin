@@ -61,16 +61,12 @@
 .opal-filter-container {
   align-items: center;
   padding-left: 20px;
-}
-
-.opal-filter-container-end {
-  align-items: center;
-  padding-left: 20px;
-  padding-right: 40px;
+  display: flex;
 }
 
 .opal-select-block {
   display: flex;
+  padding-right: 40px;
 }
 
 .chart-container {

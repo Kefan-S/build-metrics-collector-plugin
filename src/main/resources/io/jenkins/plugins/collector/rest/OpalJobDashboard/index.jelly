@@ -10,152 +10,68 @@
   <header>
     <title>Opal</title>
     <link rel="stylesheet" href="${resURL}/plugin/build-metrics-collector-plugin/css/opal-dashboard/opal-chart-generator.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="${resURL}/plugin/build-metrics-collector-plugin/css/iview/iview.css" />
+    <link rel="shortcut icon" href="${resURL}/plugin/build-metrics-collector-plugin/images/opal.png" type="image/vnd.microsoft.icon" />
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/echarts.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/jquery-3.5.1.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart-generator.js"></script>
-    <link rel="shortcut icon" href="${resURL}/plugin/build-metrics-collector-plugin/images/opal.png" type="image/vnd.microsoft.icon" />
+
     <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/vue.min.js"></script>
+    <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/vuex.js"></script>
     <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/iview.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="${resURL}/plugin/build-metrics-collector-plugin/css/iview/iview.css" />
+
+
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/es6-promise.auto.min.js"></script>
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart.js"></script>
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart-panel.js"></script>
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-user-selector.js"></script>
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-job-selector.js"></script>
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-date-range-selector.js"></script>
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-home-icon.js"></script>
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-store.js"></script>
+    <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-job-display.js"></script>
   </header>
   <body>
-    <div id="opalDashBoard">
-       <div class="header-container">
-         <div class="home-page-icon" title="Home Page" onclick="vue.goHome()">
-           <Icon type="md-home" size="32"/>
-         </div>
-         <div class="filter-block">
-          <div class="date-range-container">
-            <div class="label-title">Date Range</div>
-            <i-col span="12">
-              <Date-picker :value.sync="dateRange" type="daterange" placement="bottom-end" clearable="false" placeholder="select Date" class="opal-daterange"
-              ></Date-picker>
-            </i-col>
-          </div>
-          <div class="filter-container">
-            <span class="label-title">Trigger By</span>
-            <i-select :model.sync="triggerBy" style="width:150px; height: 33px" placeholder="select user" clearable="true">
-              <i-option v-for="item in users" :value="item">{{item}}</i-option>
-            </i-select>
-          </div>
-          <div class="filter-container">
-            <span class="label-title">Monitored Job</span>
-            <span class="label-value">{{jobName}}</span>
-          </div>
-         </div>
-        </div>
-      <div id="lineChartPanel">
-        <div id="recoveryTime" class="opal-line-chart"></div>
-        <div id="noDataRecoveryTime" class="opal-no-data-line-chart">
-          <div>Recovery Time<br/>No data to display</div>
-        </div>
-        <div id="leadTime" class="opal-line-chart"></div>
-        <div id="noDataLeadTime" class="opal-no-data-line-chart">
-          <div>Lead Time<br/>No data to display</div>
-        </div>
-        <div id="duration" class="opal-line-chart"></div>
-        <div id="noDataDuration" class="opal-no-data-line-chart">
-          <div>Duration<br/>No data to display</div>
-        </div>
-        <div id="deployDistribution" class="opal-line-chart"></div>
-        <div id="noDataDeployDistribution" class="opal-no-data-line-chart">
-          <div>Deploy Distribution<br/>No data to display</div>
-        </div>
-      </div>
-      <div id="gaugePanel">
-        <div id="deployFrequency" class="opal-gauge-chart"></div>
-        <div id="noDataDeployFrequency" class="opal-no-data-gauge-chart">
-          <div>Deploy Frequency<br/>No data to display</div>
-        </div>
-        <div id="failureRate" class="opal-gauge-chart"></div>
-        <div id="noDataFailureRate" class="opal-no-data-gauge-chart">
-          <div>Failure Rate<br/>No data to display</div>
-        </div>
+  <div id="opal-dash-board">
+    <div class="opal-header-container">
+      <opal-home-icon></opal-home-icon>
+      <div class="opal-select-block">
+        <opal-date-range-selector></opal-date-range-selector>
+        <opal-user-selector></opal-user-selector>
+        <opal-job-display></opal-job-display>
       </div>
     </div>
+    <div class="chart-container">
+      <opal-chart-panel :items="lineChartItems" clazz="opal-line-chart" id="opal-line-chart-panel" span="16"></opal-chart-panel>
+      <opal-chart-panel :items="gaugeChartItems" clazz="opal-gauge-chart" id="opal-gauge-chart-panel" span="8"></opal-chart-panel>
+    </div>
+  </div>
   </body>
-  <script type="text/javascript">
-
-    var vue = new Vue({
-      el: '#opalDashBoard',
-      data: {
-        dateRange: [new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), new Date()],
-        jobName: ${it.currentJobName},
-        triggerBy: 'All users',
-        users: [],
-        drawCharts: () => {
-          let param = {
-            jobName: vue.jobName,
-            beginTime: new Date(vue.dateRange[0].toLocaleDateString()).getTime(),
-            endTime: new Date(vue.dateRange[1].toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1,
-            triggerBy: vue.triggerBy
-          };
-          $$.get(window.location.href.replace(/\/job.*/g,'') + "/opal/data", param, function (data, status) {
-            if (status === 'success') {
-              data = data ? data : BUILD_DATA;
-
-              recoveryTimeData = data.buildInfos.filter(data => data.recoveryTime !== null);
-              leadTimeData = data.buildInfos.filter(data => data.leadTime !== null);
-              durationData = data.buildInfos.filter(data => data.duration !== null);
-
-              showNoDataReminder(recoveryTimeData,"#recoveryTime", "#noDataRecoveryTime");
-              showNoDataReminder(leadTimeData,"#leadTime", "#noDataLeadTime");
-              showNoDataReminder(durationData,"#duration", "#noDataDuration");
-              showNoDataReminder(data.failureRate, "#failureRate", "#noDataFailureRate");
-              showNoDataReminder(data.deploymentFrequency, "#deployFrequency", "#noDataDeployFrequency");
-              showNoDataReminder(data.deploymentFrequency, "#deployDistribution", "#noDataDeployDistribution");
-
-
-              recoveryTime.setOption(lineChartOptionGenerator('Recovery Time', recoveryTimeData, "Recovery Time", "End Time", "recoveryTime", lineChartToolTipFormat("End Time", "Recovery Time")));
-              leadTime.setOption(lineChartOptionGenerator('Lead Time', leadTimeData, "Lead Time", "End Time", "leadTime", lineChartToolTipFormat("End Time", "Lead Time")));
-              duration.setOption(lineChartOptionGenerator('Duration', durationData, "Duration", "End Time", "duration", durationToolTipFormat("End Time", "Duration")));
-              failureRate.setOption(gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(2), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%',
-                  [[0.1, '#91c7ae'], [0.3, '#FFA500'], [0.5, '#c23531'], [1, '#990077']], 100, value => value));
-              deployFrequency.setOption(gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}',
-                  [[0.1, '#c23531'], [0.8, '#63869e'], [1, '#91c7ae']], 200, value => value === 200 ? value + "+" : value));
-              deployDistribution.setOption(deployTimeDistributionChartOptionGenerator(data));
-
-            }
-          })
-        },
-        getUsers: () => {
-          let param = {
-            jobName: vue.jobName,
-          };
-          $.get(window.location.href.replace(/\/job.*/g,'') + "/opal/users", param, function (data, status) {
-            if (status === 'success') {
-              vue.users = ["All users", ...data]
-              vue.drawCharts();
-            }
-          })
-        },
-        goHome: () => {
-          window.location.replace(window.location.href.replace(/\/job.*/g,''));
-        }
-      },
-      watch: {
-        dateRange: function () {
-          vue.drawCharts()
-        },
-        triggerBy: function () {
-          vue.drawCharts()
-        },
-      }
-    })
-    var recoveryTime = echarts.init(document.getElementById('recoveryTime'));
-    var leadTime = echarts.init(document.getElementById('leadTime'));
-    var duration = echarts.init(document.getElementById('duration'));
-    var failureRate = echarts.init(document.getElementById('failureRate'));
-    var deployFrequency = echarts.init(document.getElementById('deployFrequency'));
-    var deployDistribution = echarts.init(document.getElementById('deployDistribution'));
-
-    duration.on("click", function (param) {
-      let data = JSON.parse(param.name)
-      window.open(window.location.href.replace("opal", data.id))
-    })
-
-    vue.getUsers();
-    setInterval(vue.drawCharts, 2000);
-  </script>
   </html>
+  <script>
+    var opalDashBoard = new Vue({
+      el: '#opal-dash-board',
+      store: store,
+      mounted() {
+        this.updateSelectedJob(${it.currentJobName})
+      },
+      computed: {
+        ...Vuex.mapGetters([
+          'lineChartItems',
+          'gaugeChartItems',
+        ]),
+        ...Vuex.mapState([
+          'selectedJob',
+        ])
+      },
+      methods: {
+        ...Vuex.mapActions({
+          getData: 'GET_DATA'
+        }),
+        ...Vuex.mapMutations({
+          updateSelectedJob: 'UPDATE_SELECTED_JOB'
+        }),
+      },
+    })
+  </script>
 </j:jelly>

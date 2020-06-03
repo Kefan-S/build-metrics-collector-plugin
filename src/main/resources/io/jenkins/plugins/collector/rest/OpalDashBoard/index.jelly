@@ -41,8 +41,10 @@
           <opal-user-selector></opal-user-selector>
         </div>
       </div>
-      <opal-chart-panel :items="lineChartItems" clazz="opal-line-chart" id="opal-line-chart-panel"></opal-chart-panel>
-      <opal-chart-panel :items="gaugeChartItems" clazz="opal-gauge-chart" id="opal-gauge-chart-panel"></opal-chart-panel>
+       <div class="chart-container">
+        <opal-chart-panel :items="lineChartItems" clazz="opal-line-chart" id="opal-line-chart-panel" span="16"></opal-chart-panel>
+        <opal-chart-panel :items="gaugeChartItems" clazz="opal-gauge-chart" id="opal-gauge-chart-panel" span="8"></opal-chart-panel>
+      </div>
     </div>
     <div v-if="!jobs" class="opal-no-job-message"> No job metrics are collected by Opal </div>
   </div>
