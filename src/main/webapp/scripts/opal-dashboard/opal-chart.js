@@ -20,7 +20,7 @@ Vue.component('opal-chart', {
   methods:{
     draw() {
       if (this.option){
-        let chart = echarts. getInstanceByDom(document.getElementById(this.identity))
+        let chart = echarts.getInstanceByDom(document.getElementById(this.identity))
         if(this.clickEvent){
           chart.off('click');
           chart.on("click", this[this.clickEvent]);
