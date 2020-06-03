@@ -41,7 +41,7 @@
         <opal-job-display></opal-job-display>
       </div>
     </div>
-    <div class="chart-container">
+    <div class="opal-chart-container">
       <opal-chart-panel :items="lineChartItems" clazz="opal-line-chart" id="opal-line-chart-panel" span="16"></opal-chart-panel>
       <opal-chart-panel :items="gaugeChartItems" clazz="opal-gauge-chart" id="opal-gauge-chart-panel" span="8"></opal-chart-panel>
     </div>
@@ -49,7 +49,7 @@
   </body>
   </html>
   <script>
-    var opalDashBoard = new Vue({
+    new Vue({
       el: '#opal-dash-board',
       store: store,
       mounted() {

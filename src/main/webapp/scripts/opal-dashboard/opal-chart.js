@@ -9,7 +9,11 @@ Vue.component('opal-chart', {
   mounted() {
     this.$nextTick(function() {
       this.draw()
+      window.addEventListener('resize', this.onResize);
     })
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize);
   },
   computed: {
     ...Vuex.mapGetters([
@@ -27,6 +31,9 @@ Vue.component('opal-chart', {
         chart.setOption(this.option);
         chart.resize();
       }
+    },
+    onResize: function () {
+      this.draw();
     }
   },
   watch: {

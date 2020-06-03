@@ -34,17 +34,16 @@
 
 .opal-selector-title {
   font-size: 14px;
-  line-height: 45px;
-  padding-right: 8px;
-  padding-left: 8px;
+  padding:0 8px;
   color: white;
 }
 
-.label-value {
+.opal-display-value {
   font-size: 16px;
   color: white;
   font-weight: bold;
-  padding-right: 40px;
+  height: 28px;
+  vertical-align: middle;
 }
 
 .opal-date-range {
@@ -69,7 +68,7 @@
   padding-right: 40px;
 }
 
-.chart-container {
+.opal-chart-container {
   display: flex;
   padding: 0 40px
 }
