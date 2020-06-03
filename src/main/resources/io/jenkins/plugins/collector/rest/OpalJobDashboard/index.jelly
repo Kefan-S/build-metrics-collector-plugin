@@ -15,12 +15,9 @@
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/echarts.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/jquery-3.5.1.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart-generator.js"></script>
-
     <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/vue.min.js"></script>
     <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/vuex.js"></script>
     <script type="text/javascript" src="${resURL}/plugin/build-metrics-collector-plugin/scripts/iview.min.js"></script>
-
-
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/es6-promise.auto.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/opal-dashboard/opal-chart-panel.js"></script>
