@@ -5,6 +5,7 @@ import hudson.model.JobProperty;
 import io.jenkins.plugins.collector.config.CollectableBuildsJobProperty;
 import io.jenkins.plugins.collector.data.JobProvider;
 import io.jenkins.plugins.collector.service.JenkinsService;
+import io.jenkins.plugins.collector.util.HttpResponseUtil;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(HttpResponses.class)
+@PrepareForTest({HttpResponses.class, HttpResponseUtil.class})
 public class OpalDashboardTest {
 
   @Mock
@@ -51,12 +52,31 @@ public class OpalDashboardTest {
   }
 
   @Test
-  public void should_return_users_response_given_data_rest_path() {
+  public void should_return_users_response_given_users_rest_path() {
     Mockito.when(staplerRequest.getRestOfPath()).thenReturn("/users");
     Mockito.when(staplerRequest.getParameter("jobName")).thenReturn("mockJob");
 
     opalDashboard.doDynamic(staplerRequest);
     Mockito.verify(jenkinsService, Mockito.times(1)).getBuildUsers("mockJob");
+  }
+
+  @Test
+  public void should_return_job_response_given_jobs_rest_path() {
+    PowerMockito.mockStatic(HttpResponseUtil.class);
+    Mockito.when(staplerRequest.getRestOfPath()).thenReturn("/jobs");
+    Job monitoredJob = Mockito.mock(Job.class);
+    Mockito.when(monitoredJob.getProperty(CollectableBuildsJobProperty.class)).thenReturn(Mockito.mock(JobProperty.class));
+    Mockito.when(monitoredJob.getFullName()).thenReturn("monitoredJob");
+    Job unMonitoredJob = Mockito.mock(Job.class);
+    Mockito.when(unMonitoredJob.getProperty(CollectableBuildsJobProperty.class)).thenReturn(null);
+    Mockito.when(unMonitoredJob.getFullName()).thenReturn("unMonitoredJob");
+    JobProvider jobProvider = Mockito.mock(JobProvider.class);
+    Mockito.when(jobProvider.getAllJobs()).thenReturn(Arrays.asList(monitoredJob, unMonitoredJob));
+    opalDashboard.setJobProvider(jobProvider);
+    HttpResponse response = Mockito.mock(HttpResponse.class);
+    PowerMockito.when(HttpResponseUtil.generateHttpResponse(Arrays.asList("monitoredJob"))).thenReturn(response);
+    HttpResponse httpResponse = opalDashboard.doDynamic(staplerRequest);
+    Assert.assertEquals(httpResponse, response);
   }
 
   @Test
