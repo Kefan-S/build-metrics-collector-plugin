@@ -9,8 +9,8 @@
   <html>
   <header>
     <title>Opal</title>
-    <link rel="stylesheet" href="${resURL}/plugin/build-metrics-collector-plugin/css/opal-dashboard/opal-chart-generator.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="${resURL}/plugin/build-metrics-collector-plugin/css/iview/iview.css" />
+    <link rel="stylesheet" href="${resURL}/plugin/build-metrics-collector-plugin/css/opal-dashboard/opal-chart-generator.css" type="text/css" />
     <link rel="shortcut icon" href="${resURL}/plugin/build-metrics-collector-plugin/images/opal.png" type="image/vnd.microsoft.icon" />
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/echarts.min.js"></script>
     <script src="${resURL}/plugin/build-metrics-collector-plugin/scripts/jquery-3.5.1.min.js"></script>
