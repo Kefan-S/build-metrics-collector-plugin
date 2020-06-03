@@ -94,3 +94,8 @@
 .opal-select-block {
   display: flex;
 }
+
+.opal-select {
+  width:150px;
+  height: 33px
+}
