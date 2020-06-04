@@ -22,8 +22,12 @@ let durationcalculate = function (value) {
   return time;
 };
 
+let endTimeCalculate = function (data) {
+  return Number(JSON.parse(data).startTime) + Number(JSON.parse(data).duration)
+};
+
 let timeStampToDateTranslator = function (value, index) {
-  var date = new Date(Number(JSON.parse(value).startTime));
+  var date = new Date((endTimeCalculate(value)));
   var texts = [(date.getMonth() + 1), date.getDate()];
   if (index === 0) {
     texts.unshift(1900 + date.getYear());
@@ -32,7 +36,7 @@ let timeStampToDateTranslator = function (value, index) {
 };
 
 let timeStampToDateTimeTranslator = function (value) {
-  var date = new Date(Number(JSON.parse(value).startTime));
+  var date = new Date(endTimeCalculate(value));
   var y = date.getFullYear();
   var m = date.getMonth() + 1;
   m = m < 10 ? ('0' + m) : m;

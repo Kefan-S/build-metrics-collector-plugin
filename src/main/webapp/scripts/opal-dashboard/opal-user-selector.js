@@ -17,7 +17,13 @@ Vue.component('opal-user-selector', {
     }),
     userChange(newVal){
       this.updateSelectedUser(newVal);
+    },
+    fetchMonitoredData() {
+      this.selectedUser && this.getData()
     }
+  },
+  mounted(){
+      setInterval(this.fetchMonitoredData,2000);
   },
   computed: Vuex.mapState([
     'users',
@@ -29,7 +35,7 @@ Vue.component('opal-user-selector', {
       this.getUsers()
     },
     selectedUser() {
-      this.getData();
+      this.fetchMonitoredData();
     }
   }
 
