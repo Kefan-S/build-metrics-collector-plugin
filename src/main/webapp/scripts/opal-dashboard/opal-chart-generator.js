@@ -90,7 +90,7 @@ function lineChartOptionGenerator(chartName, data,
   }
 }
 
-function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
+function gaugeChartOptionGenerator(chartName, data, formatter, metricsName,
     toolTipFormatter,
     color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']]) {
   if(isNil(data)) return null;
