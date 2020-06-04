@@ -90,7 +90,7 @@ function lineChartOptionGenerator(chartName, data,
   }
 }
 
-function gaugeChartOptionGenerator(chartName, data, formatter, metricsName,
+function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
     toolTipFormatter,
     color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']]) {
   if(isNil(data)) return null;
@@ -109,7 +109,7 @@ function gaugeChartOptionGenerator(chartName, data, formatter, metricsName,
         name: metricsName,
         type: 'gauge',
         detail: {formatter: formatter},
-        data: [{value: (data*100).toFixed(2)}],
+        data: [{value: data}],
         axisLine: {            // 坐标轴线
           lineStyle: {       // 属性lineStyle控制线条样式
             color: color

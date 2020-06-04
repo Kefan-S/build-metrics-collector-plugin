@@ -43,12 +43,12 @@ const store = new Vuex.Store({
       return [{
         id:"failure-rate-chart",
         name: "Failure Rate",
-        option: gaugeChartOptionGenerator("Failure Rate", data.failureRate, "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%',
+        option:gagueChartOptionGenerator("Failure Rate", (data.failureRate * 100).toFixed(2), "{value}%", 'Failure Rate', '{a} <br/>{b} : {c}%',
             [[0.1, '#91c7ae'], [0.3, '#FFA500'], [0.5, '#c23531'], [1, '#990077']], 100, value => value)
       },{
         id:"deploy-frequency-chart",
         name: "Deploy Frequency",
-        option: gaugeChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}',
+        option: gagueChartOptionGenerator("Deploy Frequency", data.deploymentFrequency, "{value}", 'Deploy Frequency', '{a} <br/>{b} : {c}',
             [[0.1, '#c23531'], [0.8, '#63869e'], [1, '#91c7ae']], 200, value => value === 200 ? value + "+" : value)
       }]
     }
