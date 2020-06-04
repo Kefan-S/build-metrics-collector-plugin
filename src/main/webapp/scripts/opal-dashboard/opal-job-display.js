@@ -6,6 +6,6 @@ Vue.component('opal-job-display', {
       </div>
   `,
   computed: Vuex.mapState([
-      'selectedJob',
+    'selectedJob',
   ])
-})
+});

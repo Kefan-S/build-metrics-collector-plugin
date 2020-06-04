@@ -1,12 +1,12 @@
 const resultCodeMap = ["SUCCESS", "UNSTABLE", "FAILURE", "NOT_BUILT", "ABORT"]
 
 let durationcalculate = function (value) {
-  var mss= new Number(value);
+  var mss= Number(value);
   var days = parseInt(mss / (1000 * 60 * 60 * 24) + 0.001 );
   var hours = parseInt((mss % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60) + 0.001);
   var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60) + 0.001);
   var seconds = (mss % (1000 * 60)) / 1000;
-  var time = ""
+  var time = "";
   if (days) {
     time = time + days + " d ";
   }
@@ -23,16 +23,16 @@ let durationcalculate = function (value) {
 };
 
 let timeStampToDateTranslator = function (value, index) {
-  var date = new Date(new Number(JSON.parse(value).startTime));
+  var date = new Date(Number(JSON.parse(value).startTime));
   var texts = [(date.getMonth() + 1), date.getDate()];
   if (index === 0) {
     texts.unshift(1900 + date.getYear());
   }
   return texts.join('/');
-}
+};
 
 let timeStampToDateTimeTranslator = function (value) {
-  var date = new Date(new Number(JSON.parse(value).startTime));
+  var date = new Date(Number(JSON.parse(value).startTime));
   var y = date.getFullYear();
   var m = date.getMonth() + 1;
   m = m < 10 ? ('0' + m) : m;
@@ -45,10 +45,10 @@ let timeStampToDateTimeTranslator = function (value) {
   minute = minute < 10 ? ('0' + minute) : minute;
   second = second < 10 ? ('0' + second) : second;
   return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
-}
+};
 
 function lineChartOptionGenerator(chartName, data,
-    yAxisName, xAxisName = "Start Time", yAxisField, toolTipFormat) {
+    yAxisName, xAxisName, yAxisField, toolTipFormat) {
   if(isNil(data)) return null;
   return {
     grid: {
@@ -180,7 +180,7 @@ function deployFrequencyDistributionCalculate(data) {
   let distributions = new Array(24).fill(0);
   data.buildInfos.map(data => new Date(data.startTime).getHours()).forEach(
       hours => distributions[hours]++
-  )
+  );
   return distributions;
 }
 
@@ -197,24 +197,26 @@ function showNoDataReminder(data, chartSelector, noDataDivSelector) {
 
 const lineChartToolTipFormat = (xAxisName, yAxisName) => (params) => {
   let data = JSON.parse(params[0].axisValue);
-  return `${xAxisName}:${timeStampToDateTimeTranslator(params[0].axisValue)}<br/>`+
-      `${yAxisName}:${durationcalculate(params[0].value)}<br/>`+
+  return `${xAxisName}:${timeStampToDateTimeTranslator(
+      params[0].axisValue)}<br/>` +
+      `${yAxisName}:${durationcalculate(params[0].value)}<br/>` +
       `Triggered By:${data.triggeredBy}<br/>` +
       `Commit version:${data.lastCommitHash}<br/>`
-}
+};
 
 const durationToolTipFormat = (xAxisName, yAxisName) => (params) => {
   let data = JSON.parse(params[0].axisValue);
-  return `${xAxisName}:${timeStampToDateTimeTranslator(params[0].axisValue)}<br/>`+
-      `${yAxisName}:${durationcalculate(params[0].value)}<br/>`+
+  return `${xAxisName}:${timeStampToDateTimeTranslator(
+      params[0].axisValue)}<br/>` +
+      `${yAxisName}:${durationcalculate(params[0].value)}<br/>` +
       `Triggered By:${data.triggeredBy}<br/>` +
-      `Commit version:${data.lastCommitHash}<br/>`+
+      `Commit version:${data.lastCommitHash}<br/>` +
       `Result:${resultCodeMap[data.result]}<br/>` +
       `Num:${data.id}<br/>`;
-}
+};
 
 const BUILD_DATA = {
   failureRate: null,
   deploymentFrequency: null,
   buildInfos: []
-}
+};

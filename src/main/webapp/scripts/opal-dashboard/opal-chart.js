@@ -9,7 +9,7 @@ Vue.component('opal-chart', {
   mounted() {
     this.$nextTick(function() {
       echarts.init(document.getElementById(this.identity));
-      this.draw()
+      this.draw();
       window.addEventListener('resize', this.onResize);
     })
   },

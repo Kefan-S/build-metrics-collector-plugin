@@ -16,9 +16,9 @@ const store = new Vuex.Store({
     },
     lineChartItems: ({data}) => {
       data = data ? data : BUILD_DATA;
-      let recoveryTimeData = data.buildInfos.filter(data => data.recoveryTime !== null);
-      let leadTimeData = data.buildInfos.filter(data => data.leadTime !== null);
-      let durationData = data.buildInfos.filter(data => data.duration !== null);
+      let recoveryTimeData = data.buildInfos.filter(({recoveryTime}) => recoveryTime !== null);
+      let leadTimeData = data.buildInfos.filter(({leadTime})  => leadTime !== null);
+      let durationData = data.buildInfos.filter(({duration}) => duration !== null);
       return [{
         id:"opal-recovery-time-chart",
         name: "Recovery Time",
