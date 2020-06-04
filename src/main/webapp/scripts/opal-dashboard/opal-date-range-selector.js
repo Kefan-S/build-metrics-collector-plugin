@@ -19,7 +19,11 @@ Vue.component('opal-date-range-selector', {
       updateDateRange: 'UPDATE_DATE_RANGE'
     }),
     dateRangeChange(newVal){
-      this.updateDateRange(newVal.map(date => new Date(date)));
+      this.updateDateRange(
+          newVal.map(date => new Date(date).getTime())
+                .map(timestamp =>  timestamp + new Date().getTimezoneOffset() * 60 * 1000)
+                .map(timestamp => new Date(timestamp))
+      );
       this.getData();
     }
   },
