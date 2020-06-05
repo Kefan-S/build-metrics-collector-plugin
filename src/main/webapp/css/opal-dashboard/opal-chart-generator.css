@@ -4,22 +4,17 @@
   padding: 0 4%;
 }
 
-#gaguePanel {
+#gaugePanel {
   width: 30%;
   float: left;
 }
 
-.opalLineChart {
+.opal-line-chart, .opal-gauge-chart {
   height: 300px;
   width: 100%;
 }
 
-.opalGaugeChart {
-  height: 300px;
-  width: 100%;
-}
-
-.opalNoDataLineChart div, .opalNoDataGaugeChart div {
+.opal-no-data-line-chart div, .opal-no-data-gauge-chart div {
   padding-top: 120px;
   padding-bottom: 120px;
   text-align: center;
@@ -27,7 +22,7 @@
   color: grey;
 }
 
-.noJobMessage {
+.no-job-message {
   height: 500px;
   font-size: 24px;
   display: flex;
@@ -35,39 +30,57 @@
   align-items: center;
 }
 
-.headerContainer {
+.header-container {
   display: flex;
+  align-items: center;
   background-color: #6983aa;
   height: 45px;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
-.dateRangeContainer {
+.home-page-icon {
+  cursor: pointer;
+  padding-left: 20px;
+  color: white
+}
+
+.filter-block {
+  display: flex;
+}
+
+.date-range-container {
   display: flex;
   align-items: center;
 }
 
-.labelTitle {
+.filter-container {
+  align-items: center;
+  padding-left: 20px;
+}
+
+.filter-container-end {
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 40px;
+}
+
+.label-title {
   font-size: 14px;
   line-height: 45px;
   padding-right: 8px;
   color: white;
 }
 
-.jobDisplayContainer {
-  align-items: center;
-  padding-left: 20px;
-  padding-right: 50px;
-}
-
-.labelValue {
+.label-value {
   font-size: 16px;
   color: white;
   font-weight: bold;
+  padding-right: 40px;
 }
 
-.opalDateRange {
+.opal-daterange {
   width: 175px;
   height: 33px;
 }
+
