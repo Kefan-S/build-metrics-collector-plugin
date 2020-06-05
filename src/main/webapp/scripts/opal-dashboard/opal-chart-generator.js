@@ -89,7 +89,15 @@ function lineChartOptionGenerator(chartName, data,
     series: [{
       data: data.map(ydata => ydata[yAxisField]),
       type: 'line',
-      smooth: true
+      smooth: true,
+      markLine: {
+        data: [
+          {type: 'average', name: 'average'}
+        ],
+        label: {
+          formatter: ({value}) => durationcalculate(value)
+        }
+      }
     }]
   }
 }
