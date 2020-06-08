@@ -52,7 +52,9 @@ public class OpalDashboard implements RootAction {
     }
     if (request.getRestOfPath().equalsIgnoreCase("/users")) {
       return HttpResponseUtil.generateHttpResponse(jenkinsService.getBuildUsers(request.getParameter("jobName")));
-
+    }
+    if (request.getRestOfPath().equalsIgnoreCase("/jobs")) {
+      return HttpResponseUtil.generateHttpResponse(getMonitoredJobName1());
     }
     return HttpResponses.notFound();
   }
@@ -62,6 +64,14 @@ public class OpalDashboard implements RootAction {
         .filter(job -> job.getProperty(CollectableBuildsJobProperty.class) != null)
         .map(AbstractItem::getFullName)
         .map(jobName -> String.format("'%s'", jobName))
+        .collect(toList());
+  }
+
+  public List<String> getMonitoredJobName1() {
+    return jobProvider.getAllJobs().stream()
+        .filter(job -> job.getProperty(CollectableBuildsJobProperty.class) != null)
+        .map(AbstractItem::getFullName)
+        .map(jobName -> String.format("%s", jobName))
         .collect(toList());
   }
 }
