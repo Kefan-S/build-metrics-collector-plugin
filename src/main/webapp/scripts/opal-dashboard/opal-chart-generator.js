@@ -1,4 +1,5 @@
-const resultCodeMap = ["SUCCESS", "UNSTABLE", "FAILURE", "NOT_BUILT", "ABORT"]
+const resultCodeMap = ["SUCCESS", "UNSTABLE", "FAILURE", "NOT_BUILT", "ABORT"];
+const resultColorMap = ['#749f83', '#63869e', '#c23531', '#e6b600', '#e6b600'];
 
 let durationcalculate = function (value) {
   var mss= Number(value);
@@ -97,6 +98,13 @@ function lineChartOptionGenerator(chartName, data,
         label: {
           formatter: ({value}) => durationcalculate(value)
         }
+      },
+      itemStyle: {
+        color: function (param) {
+          let tooltipData = JSON.parse(param.name);
+          return resultColorMap[tooltipData.result];
+        },
+        borderWidth: 2,
       }
     }]
   }
