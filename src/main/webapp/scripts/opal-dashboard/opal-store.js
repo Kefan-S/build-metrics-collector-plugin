@@ -78,7 +78,8 @@ const store = new Vuex.Store({
       state.selectedJob = playload;
     },
     "UPDATE_DATE" : (state) => {
-      state.dateRange = [new Date(Date.now() - 1000 * 60 * 60 * 24 * 14), new Date()]
+      let offset = state.dateRange[1] - state.dateRange[0];
+      state.dateRange = [new Date(Date.now() - offset), new Date()]
     }
   },
   actions: {
