@@ -11,9 +11,13 @@ Vue.component('opal-date-range-selector', {
   computed: Vuex.mapState([
     'dateRange'
   ]),
+  mounted() {
+    this.updateDate();
+  },
   methods: {
     ...Vuex.mapActions({
-      getData: 'GET_DATA'
+      getData: 'GET_DATA',
+      updateDate: 'UPDATE_DATE',
     }),
     ...Vuex.mapMutations({
       updateDateRange: 'UPDATE_DATE_RANGE'

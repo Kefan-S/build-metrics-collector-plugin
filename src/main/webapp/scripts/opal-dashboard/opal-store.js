@@ -76,6 +76,10 @@ const store = new Vuex.Store({
     },
     'UPDATE_SELECTED_JOB': (state, playload) => {
       state.selectedJob = playload;
+    },
+    "UPDATE_DATE" : (state) => {
+      let offset = state.dateRange[1] - state.dateRange[0];
+      state.dateRange = [new Date(Date.now() - offset), new Date()]
     }
   },
   actions: {
@@ -109,5 +113,8 @@ const store = new Vuex.Store({
         }
       })
     },
+    'UPDATE_DATE': ({commit}) => {
+      setInterval(() => commit('UPDATE_DATE'), 60 * 60 * 1000);
+    }
   }
 });
