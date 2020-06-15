@@ -1,12 +1,12 @@
 const resultCodeMap = ["SUCCESS", "UNSTABLE", "FAILURE", "NOT_BUILT", "ABORT"]
 
 let durationcalculate = function (value) {
-  var mss= new Number(value);
+  var mss= Number(value);
   var days = parseInt(mss / (1000 * 60 * 60 * 24) + 0.001 );
   var hours = parseInt((mss % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60) + 0.001);
   var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60) + 0.001);
   var seconds = (mss % (1000 * 60)) / 1000;
-  var time = ""
+  var time = "";
   if (days) {
     time = time + days + " d ";
   }
@@ -22,28 +22,12 @@ let durationcalculate = function (value) {
   return time;
 };
 
-let startTimeDateFormatter = function (value, index) {
-  let data = JSON.parse(value);
-  return timeStampToDateTranslator(data.startTime, index);
-}
-
-let endTimeDateFormatter = function (value, index) {
-  let data = JSON.parse(value);
-  return timeStampToDateTranslator(data.startTime + data.duration, index);
-};
-
-let startTimeDateTimeFormatter = function (value, index) {
-  let data = JSON.parse(value);
-  return timeStampToDateTimeTranslator(data.startTime);
-};
-
-let endTimeDateTimeFormatter = function (value, index) {
-  let data = JSON.parse(value);
-  return timeStampToDateTimeTranslator(data.startTime + data.duration);
+let endTimeCalculate = function (data) {
+  return Number(JSON.parse(data).startTime) + Number(JSON.parse(data).duration)
 };
 
 let timeStampToDateTranslator = function (value, index) {
-  var date = new Date(value);
+  var date = new Date((endTimeCalculate(value)));
   var texts = [(date.getMonth() + 1), date.getDate()];
   if (index === 0) {
     texts.unshift(1900 + date.getYear());
@@ -52,7 +36,7 @@ let timeStampToDateTranslator = function (value, index) {
 };
 
 let timeStampToDateTimeTranslator = function (value) {
-  var date = new Date(value);
+  var date = new Date(endTimeCalculate(value));
   var y = date.getFullYear();
   var m = date.getMonth() + 1;
   m = m < 10 ? ('0' + m) : m;
@@ -65,13 +49,15 @@ let timeStampToDateTimeTranslator = function (value) {
   minute = minute < 10 ? ('0' + minute) : minute;
   second = second < 10 ? ('0' + second) : second;
   return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
-}
+};
 
 function lineChartOptionGenerator(chartName, data,
-    yAxisName, xAxisName = "Start Time", yAxisField, toolTipFormat) {
+    yAxisName, xAxisName, yAxisField, toolTipFormat) {
+  if(isNil(data)) return null;
   return {
     grid: {
-      left: 120
+      left: 120,
+      right:120,
     },
     title: {
       text: chartName,
@@ -90,7 +76,7 @@ function lineChartOptionGenerator(chartName, data,
       type: 'category',
       data: data.map(xdata => JSON.stringify(xdata)),
       axisLabel: {
-        formatter: endTimeDateFormatter
+        formatter: timeStampToDateTranslator
       }
     },
     yAxis: {
@@ -103,14 +89,23 @@ function lineChartOptionGenerator(chartName, data,
     series: [{
       data: data.map(ydata => ydata[yAxisField]),
       type: 'line',
-      smooth: true
+      smooth: true,
+      markLine: {
+        data: [
+          {type: 'average', name: 'average'}
+        ],
+        label: {
+          formatter: ({value}) => durationcalculate(value)
+        }
+      }
     }]
   }
 }
 
-function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
+function gaugeChartOptionGenerator(chartName, data, formatter, metricsName,
     toolTipFormatter,
-    color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']], maxScale, axisLabelFormatter) {
+    color = [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']]) {
+  if(isNil(data)) return null;
   return {
     title: {
       text: chartName,
@@ -122,7 +117,6 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
     },
     series: [
       {
-        max: maxScale,
         radius: "90%",
         name: metricsName,
         type: 'gauge',
@@ -132,9 +126,6 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
           lineStyle: {       // 属性lineStyle控制线条样式
             color: color
           }
-        },
-        axisLabel: {
-          formatter: axisLabelFormatter
         }
       }
     ]
@@ -142,9 +133,13 @@ function gagueChartOptionGenerator(chartName, data, formatter, metricsName,
 }
 
 function deployTimeDistributionChartOptionGenerator(data) {
+  let series = deployFrequencyDistributionCalculate(data);
+  if(!series.reduce((a,b) => a + b)) return null;
   return {
     grid: {
-      left: 120
+      left: 120,
+      right: 120,
+
     },
     title: {
       text: 'Deploy Time Distribution',
@@ -182,7 +177,7 @@ function deployTimeDistributionChartOptionGenerator(data) {
       {
         name: 'deploy frequency',
         type: 'bar',
-        data: deployFrequencyDistributionCalculate(data),
+        data: series,
         markPoint: {
           data: [
             {type: 'max', name: 'max'},
@@ -197,7 +192,7 @@ function deployFrequencyDistributionCalculate(data) {
   let distributions = new Array(24).fill(0);
   data.buildInfos.map(data => new Date(data.startTime).getHours()).forEach(
       hours => distributions[hours]++
-  )
+  );
   return distributions;
 }
 
@@ -214,26 +209,26 @@ function showNoDataReminder(data, chartSelector, noDataDivSelector) {
 
 const lineChartToolTipFormat = (xAxisName, yAxisName) => (params) => {
   let data = JSON.parse(params[0].axisValue);
-  return `Start Time:${startTimeDateTimeFormatter(params[0].axisValue)}<br/>`+
-      `${xAxisName}:${endTimeDateTimeFormatter(params[0].axisValue)}<br/>`+
-      `${yAxisName}:${durationcalculate(params[0].value)}<br/>`+
+  return `${xAxisName}:${timeStampToDateTimeTranslator(
+      params[0].axisValue)}<br/>` +
+      `${yAxisName}:${durationcalculate(params[0].value)}<br/>` +
       `Triggered By:${data.triggeredBy}<br/>` +
       `Commit version:${data.lastCommitHash}<br/>`
-}
+};
 
 const durationToolTipFormat = (xAxisName, yAxisName) => (params) => {
   let data = JSON.parse(params[0].axisValue);
-  return `Start Time:${startTimeDateTimeFormatter(params[0].axisValue)}<br/>`+
-      `${xAxisName}:${endTimeDateTimeFormatter(params[0].axisValue)}<br/>`+
-      `${yAxisName}:${durationcalculate(params[0].value)}<br/>`+
+  return `${xAxisName}:${timeStampToDateTimeTranslator(
+      params[0].axisValue)}<br/>` +
+      `${yAxisName}:${durationcalculate(params[0].value)}<br/>` +
       `Triggered By:${data.triggeredBy}<br/>` +
-      `Commit version:${data.lastCommitHash}<br/>`+
+      `Commit version:${data.lastCommitHash}<br/>` +
       `Result:${resultCodeMap[data.result]}<br/>` +
       `Num:${data.id}<br/>`;
-}
+};
 
 const BUILD_DATA = {
   failureRate: null,
   deploymentFrequency: null,
   buildInfos: []
-}
+};
