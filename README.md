@@ -4,6 +4,8 @@ The plugin currently has two major functionalities:
 * expose an endpoint (default `/prometheus`) with metrics where a Prometheus Server can scrape.
 * build some metrics chart on Jenkins dashboard
 
+you can get opal at [here](https://drive.google.com/file/d/1MyXIXdEswqKTDqDm6XOSdgtbQVqSd_G8/view?usp=sharing)
+
 
 ## Presume
 1. The plugin only supports data statistics for each single pipeline, and does not support consolidated data for multiple pipelines.
