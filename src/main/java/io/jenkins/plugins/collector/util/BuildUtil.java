@@ -137,8 +137,8 @@ public class BuildUtil {
     String triggeredBy = "UnKnown";
     final List<ScmChangeInfo> scmChangeInfos = getScmChangeInfo(build);
 
-    if (originalCause instanceof SCMTriggerCause ||
-        StringUtils.endsWith(originalCause.getClass().getName(),"jenkins.branch.BranchIndexingCause")) {
+    if (originalCause instanceof SCMTriggerCause
+        || StringUtils.endsWith(originalCause.getClass().getName(), "jenkins.branch.BranchIndexingCause")) {
       triggerType = TriggerEnum.SCM_TRIGGER;
       triggeredBy = getLastCommitUserId(scmChangeInfos);
     }
