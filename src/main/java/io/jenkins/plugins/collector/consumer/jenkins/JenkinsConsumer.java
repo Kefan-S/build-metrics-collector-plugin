@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.inject.Inject;
 import hudson.model.Item;
-import hudson.model.TopLevelItem;
 import hudson.remoting.VirtualChannel;
 import io.jenkins.plugins.collector.model.BuildInfo;
 import io.jenkins.plugins.collector.model.BuildInfoResponse;
@@ -57,7 +56,7 @@ public class JenkinsConsumer implements JenkinsMetrics {
 
     buildInfos.forEach(buildInfo -> {
       try {
-        TopLevelItem item = jenkins.getItem(buildInfo.getJenkinsJob());
+        Item item = jenkins.getItemByFullName(buildInfo.getJenkinsJob());
         if (Objects.nonNull(item)) {
           File rootFile = item.getRootDir();
           Boolean result = channel.call(new CreateFileTask(rootFile.getPath(), buildInfo.toString()));
@@ -72,7 +71,7 @@ public class JenkinsConsumer implements JenkinsMetrics {
 
   private List<BuildInfo> getBuildInfoFromFile(String jobName) {
 
-    String folderPath = Optional.ofNullable(jenkins.getItem(jobName))
+    String folderPath = Optional.ofNullable(jenkins.getItemByFullName(jobName))
         .map(Item::getRootDir).map(File::getPath).orElse("");
     File file = new File(folderPath + "/opal");
     try {
