@@ -23,6 +23,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 import static io.jenkins.plugins.collector.config.Constant.BUILD_NO_RESULT_STATUS_VALUE;
@@ -136,7 +137,8 @@ public class BuildUtil {
     String triggeredBy = "UnKnown";
     final List<ScmChangeInfo> scmChangeInfos = getScmChangeInfo(build);
 
-    if (originalCause instanceof SCMTriggerCause) {
+    if (originalCause instanceof SCMTriggerCause ||
+        StringUtils.endsWith(originalCause.getClass().getName(),"jenkins.branch.BranchIndexingCause")) {
       triggerType = TriggerEnum.SCM_TRIGGER;
       triggeredBy = getLastCommitUserId(scmChangeInfos);
     }

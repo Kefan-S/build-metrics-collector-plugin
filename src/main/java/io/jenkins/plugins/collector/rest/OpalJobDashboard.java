@@ -34,7 +34,7 @@ public class OpalJobDashboard implements Action, StaplerProxy {
   }
 
   public String getCurrentJobName() {
-    return String.format("'%s'", job.getName());
+    return String.format("'%s'", job.getFullName());
   }
 
 }
